@@ -1,34 +1,13 @@
-import FreeCAD, Part
+from latticeCommon import *
 
-if FreeCAD.GuiUp:
-    import FreeCADGui
-    from PySide import QtCore, QtGui
 
 __title__="FuseCompound module for FreeCAD"
 __author__ = "DeepSOIC"
 __url__ = ""
 
-#-------------------------- translation-related code ----------------------------------------
-#Thanks, yorik! (see forum thread "A new Part tool is being born... JoinFeatures!"
-#http://forum.freecadweb.org/viewtopic.php?f=22&t=11112&start=30#p90239 )
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
-try:
-    _encoding = QtGui.QApplication.UnicodeUTF8
-    def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig, _encoding)
-except AttributeError:
-    def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig)
-#--------------------------/translation-related code ----------------------------------------
 
 
 # -------------------------- common stuff --------------------------------------------------
-def getParamRefine():
-    return FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/Part/Boolean").GetBool("RefineModel")
 
 def makeFuseCompound(name):
     '''makeFuseCompound(name): makes a FuseCompound object.'''
@@ -99,8 +78,6 @@ def CreateFuseCompound(name):
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 
-def getIconPath(icon_dot_svg):
-    return ":/icons/" + icon_dot_svg
 
 # -------------------------- /common stuff --------------------------------------------------
 
