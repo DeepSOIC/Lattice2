@@ -171,9 +171,9 @@ class _CommandCompoundFilter:
     "Command to create CompoundFilter feature"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice_CompoundFilter.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_CompoundFilter","Fuse compound"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_CompoundFilter","Compound Filter"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_CompoundFilter","Fuse objects contained in a compound")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_CompoundFilter","Compound Filter: remove some childs from a compound")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 or len(FreeCADGui.Selection.getSelection()) == 2 :
