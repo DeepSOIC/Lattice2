@@ -1,5 +1,6 @@
 from latticeCommon import *
-
+import latticeMarkers as markers
+import math
 
 __title__="CompoundFilter module for FreeCAD"
 __author__ = "DeepSOIC"
@@ -104,6 +105,16 @@ class _CompoundFilter:
                     rst.append(shps[i])
         else:
             raise ValueError('Filter mode not implemented:'+obj.FilterType)
+        
+        if len(rst) == 0:
+            scale = 1.0
+            if not obj.Base.Shape.isNull():
+                scale = obj.Base.Shape.BoundBox.DiagonalLength/math.sqrt(3)/math.sqrt(len(shps))
+            if scale < DistConfusion * 100:
+                scale = 1.0
+            print scale
+            obj.Shape = markers.getNullShapeShape(scale)
+            raise ValueError('Nothing passes through the filter') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
         
         obj.Shape = Part.makeCompound(rst)
         return
