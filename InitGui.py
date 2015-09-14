@@ -1,8 +1,8 @@
 class LatticeWorkbench (Workbench): 
     MenuText = 'Lattice'
     def Initialize(self):
-        import FuseCompound
-        commandslist = FuseCompound.exportedCommands
+        import FuseCompound, CompoundFilter
+        commandslist = FuseCompound.exportedCommands + CompoundFilter.exportedCommands
         self.appendToolbar('Lattice', commandslist)
         self.treecmdList = ['importPart', 'updateImportedPartsCommand']
         #FreeCADGui.addIconPath( '' )
