@@ -30,22 +30,30 @@ def boundBox2RealBox(bb):
         return Part.makeLine(base, base + OZ*bb.ZLength)
     else:
         raise ValueError("Bounding box is zero")
+        
+def scaledBoundBox(bb, scale):
+    bb2 = FreeCAD.BoundBox(bb)
+    cnt = bb.Center
+    bb2.XMin = (bb.XMin - cnt.x)*scale + cnt.x
+    bb2.YMin = (bb.YMin - cnt.y)*scale + cnt.y
+    bb2.ZMin = (bb.ZMin - cnt.z)*scale + cnt.z
+    bb2.XMax = (bb.XMax - cnt.x)*scale + cnt.x
+    bb2.YMax = (bb.YMax - cnt.y)*scale + cnt.y
+    bb2.ZMax = (bb.ZMax - cnt.z)*scale + cnt.z
+    return bb2
     
 def getPrecisionBoundBox(shape):
-    # First, get imprecise bound box. Since the imprecise one 
-    # is typically smaller than the shape, we should enlarge 
-    # it to ensure it does not touch the shape.
-    bb = shape.BoundBox 
-    bb.enlarge(2) 
-    if bb.XLength < DistConfusion:
-        bb.XMin = bb.XMin - 1.0
-        bb.XMax = bb.XMax + 1.0
-    if bb.YLength < DistConfusion:
-        bb.YMin = bb.YMin - 1.0
-        bb.YMax = bb.YMax + 1.0
-    if bb.ZLength < DistConfusion:
-        bb.ZMin = bb.ZMin - 1.0
-        bb.ZMax = bb.ZMax + 1.0
+    # First, we need a box that for sure contains the object.
+    # We use imprecise bound box, scaled up twice. The scaling
+    # is required, because the imprecise bound box is often a
+    # bit smaller than the shape.
+    bb = scaledBoundBox(shape.BoundBox, 2.0)
+    # Make sure bound box is not collapsed in any direction, 
+    # to make sure boundBox2RealBox returns a box, not plane
+    # or line
+    if bb.XLength < DistConfusion or bb.YLength < DistConfusion or bb.ZLength < DistConfusion:
+        bb.enlarge(1.0)
+    
     # Make a boundingbox shape and compute distances from faces
     # of this enlarged bounding box to the actual shape. Shrink
     # the boundbox by the distances.
