@@ -38,7 +38,6 @@ class LatticeWorkbench (Workbench):
         
 
         self.appendToolbar('Lattice', commandslist)
-        self.treecmdList = ['importPart', 'updateImportedPartsCommand']
         #FreeCADGui.addIconPath( '' )
         #FreeCADGui.addPreferencePage( '','Lattice' )
         self.appendMenu('Lattice', commandslist)
