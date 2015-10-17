@@ -82,12 +82,23 @@ class _BoundBox:
         obj.addProperty("App::PropertyLink","Base","BoundBox","Object to make boundingbox")
         obj.addProperty("App::PropertyBool","Precision","BoundBox","Use precise alorithm (slower).")
         obj.Precision = True
+        obj.addProperty("App::PropertyBool","InLocalSpace","BoundBox","Construct bounding box in local coordinate space of the object, not in global.")
         obj.Proxy = self
         
 
     def execute(self,obj):
-        rst = None
-        obj.Shape = boundBox2RealBox(getPrecisionBoundBox(obj.Base.Shape))
+        shape = obj.Base.Shape
+        
+        if obj.InLocalSpace:
+            shape = shape.copy()
+            shape.transformShape(obj.Base.Placement.inverse().toMatrix())
+        
+        rst = boundBox2RealBox(getPrecisionBoundBox(shape))
+        
+        if obj.InLocalSpace:
+            rst.transformShape(obj.Base.Placement.toMatrix(), True) #True is for Copy argument
+        
+        obj.Shape = rst
         return
         
         
