@@ -180,9 +180,11 @@ def CreateCompoundFilter(name):
     FreeCAD.ActiveDocument.openTransaction("Create CompoundFilter")
     FreeCADGui.addModule("CompoundFilter")
     FreeCADGui.doCommand("f = CompoundFilter.makeCompoundFilter(name = '"+name+"')")
-    FreeCADGui.doCommand("f.Base = FreeCADGui.Selection.getSelection()[0]")
-    if len(FreeCADGui.Selection.getSelection()) == 2:
-        FreeCADGui.doCommand("f.Stencil = FreeCADGui.Selection.getSelection()[1]")
+    FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].Name)
+    FreeCADGui.doCommand("f.Base.ViewObject.hide()")
+    if len(sel) == 2:
+        FreeCADGui.doCommand("f.Stencil = App.ActiveDocument."+sel[1].Name)
+        FreeCADGui.doCommand("f.Stencil.ViewObject.hide()")
         FreeCADGui.doCommand("f.FilterType = 'collision-pass'")
     else:
         FreeCADGui.doCommand("f.FilterType = 'window-volume'")    
