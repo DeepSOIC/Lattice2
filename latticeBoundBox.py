@@ -83,20 +83,44 @@ class _BoundBox:
         obj.addProperty("App::PropertyBool","Precision","BoundBox","Use precise alorithm (slower).")
         obj.Precision = True
         obj.addProperty("App::PropertyBool","InLocalSpace","BoundBox","Construct bounding box in local coordinate space of the object, not in global.")
+        
+        # read-only properties:
+        prop = "Size"
+        obj.addProperty("App::PropertyVector",prop,"Info","Diagonal vector of bounding box")
+        obj.setEditorMode(prop, 1) # set read-only
+        
+        prop = "Center"
+        obj.addProperty("App::PropertyVector",prop,"Info","Center of bounding box")
+        obj.setEditorMode(prop, 1) # set read-only
+        
         obj.Proxy = self
         
 
     def execute(self,obj):
         shape = obj.Base.Shape
+        plm = obj.Base.Placement
         
         if obj.InLocalSpace:
             shape = shape.copy()
-            shape.transformShape(obj.Base.Placement.inverse().toMatrix())
+            shape.transformShape(plm.inverse().toMatrix())
         
-        rst = boundBox2RealBox(getPrecisionBoundBox(shape))
+        bb = None
+        if obj.Precision:
+            bb = getPrecisionBoundBox(shape)
+        else:
+            bb = shape.BoundBox
+        rst = boundBox2RealBox(bb)
         
         if obj.InLocalSpace:
-            rst.transformShape(obj.Base.Placement.toMatrix(), True) #True is for Copy argument
+            rst.transformShape(plm.toMatrix(), True) #True is for Copy argument
+            
+        #Fill in read-only properties
+        obj.Size = FreeCAD.Vector(bb.XLength,bb.YLength,bb.ZLength)
+        
+        cnt = bb.Center
+        if obj.InLocalSpace:
+            cnt = plm.multVec(cnt)
+        obj.Center = cnt
         
         obj.Shape = rst
         return
