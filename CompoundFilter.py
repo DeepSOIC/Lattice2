@@ -139,7 +139,11 @@ class _CompoundFilter:
             obj.Shape = markers.getNullShapeShape(scale)
             raise ValueError('Nothing passes through the filter') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
         
-        obj.Shape = Part.makeCompound(rst)
+        if len(rst) > 1:
+            obj.Shape = Part.makeCompound(rst)
+        else: # don't make compound of one shape, output it directly
+            obj.Shape = rst[0]
+            
         return
         
         
@@ -224,6 +228,50 @@ class _CommandCompoundFilter:
             
 FreeCADGui.addCommand('Lattice_CompoundFilter', _CommandCompoundFilter())
 
-exportedCommands = ['Lattice_CompoundFilter']
+class _CommandExplode:
+    "Command to explode compound with parametric links to its children"
+    def GetResources(self):
+        return {'Pixmap'  : getIconPath("Lattice_Explode.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_CompoundFilter","Explode compound"),
+                'Accel': "",
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_CompoundFilter","Explode compound: each member of compound as a separate object")}
+        
+    def Activated(self):
+        if len(FreeCADGui.Selection.getSelection()) == 1 :
+            FreeCAD.ActiveDocument.openTransaction("Explode")
+            
+            try:
+                obj = FreeCADGui.Selection.getSelection()[0]
+                sh = obj.Shape
+                obj.ViewObject.hide()
+                for i in range(0, len(sh.childShapes(False,False))):
+                    cf = makeCompoundFilter(name = 'child')
+                    cf.Label = u'Child' + unicode(i)
+                    cf.Base = obj
+                    cf.FilterType = 'specific items'
+                    cf.items = str(i)
+                FreeCAD.ActiveDocument.recompute()
+            except Exception:
+                FreeCAD.ActiveDocument.abortTransaction()
+                raise
+                
+            FreeCAD.ActiveDocument.commitTransaction()
+
+        else:
+            mb = QtGui.QMessageBox()
+            mb.setIcon(mb.Icon.Warning)
+            mb.setText(_translate("Lattice_CompoundFilter", "Select a shape that is a compound, first!", None))
+            mb.setWindowTitle(_translate("Lattice_CompoundFilter","Bad selection", None))
+            mb.exec_()
+            
+    def IsActive(self):
+        if FreeCAD.ActiveDocument:
+            return True
+        else:
+            return False
+            
+FreeCADGui.addCommand('Lattice_Explode', _CommandExplode())
+
+exportedCommands = ['Lattice_CompoundFilter', 'Lattice_Explode']
 
 # -------------------------- /Gui command --------------------------------------------------
