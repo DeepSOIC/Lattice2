@@ -10,7 +10,26 @@ __url__ = ""
 # -------------------------- common stuff --------------------------------------------------
 
 def boundBox2RealBox(bb):
-    return Part.makeBox(bb.XLength,bb.YLength,bb.ZLength,FreeCAD.Vector(bb.XMin, bb.YMin, bb.ZMin),FreeCAD.Vector(0,0,1))
+    base = FreeCAD.Vector(bb.XMin, bb.YMin, bb.ZMin)
+    OX = FreeCAD.Vector(1, 0, 0)
+    OY = FreeCAD.Vector(0, 1, 0)
+    OZ = FreeCAD.Vector(0, 0, 1)
+    if bb.XLength > DistConfusion and bb.YLength > DistConfusion and bb.ZLength > DistConfusion :
+        return Part.makeBox(bb.XLength,bb.YLength,bb.ZLength, base, OZ)
+    elif bb.XLength > DistConfusion and bb.YLength > DistConfusion:
+        return Part.makePlane(bb.XLength, bb.YLength, base, OZ, OX)
+    elif bb.XLength > DistConfusion and bb.ZLength > DistConfusion :
+        return Part.makePlane(bb.XLength, bb.ZLength, base, OY*-1, OX)
+    elif bb.YLength > DistConfusion and bb.ZLength > DistConfusion :
+        return Part.makePlane(bb.YLength, bb.ZLength, base, OX, OY)
+    elif bb.XLength > DistConfusion:
+        return Part.makeLine(base, base + OX*bb.XLength)
+    elif bb.YLength > DistConfusion:
+        return Part.makeLine(base, base + OY*bb.YLength)
+    elif bb.ZLength > DistConfusion:
+        return Part.makeLine(base, base + OZ*bb.ZLength)
+    else:
+        raise ValueError("Bounding box is zero")
     
 def getPrecisionBoundBox(shape):
     # First, get imprecise bound box. Since the imprecise one 
@@ -18,7 +37,15 @@ def getPrecisionBoundBox(shape):
     # it to ensure it does not touch the shape.
     bb = shape.BoundBox 
     bb.enlarge(2) 
-    
+    if bb.XLength < DistConfusion:
+        bb.XMin = bb.XMin - 1.0
+        bb.XMax = bb.XMax + 1.0
+    if bb.YLength < DistConfusion:
+        bb.YMin = bb.YMin - 1.0
+        bb.YMax = bb.YMax + 1.0
+    if bb.ZLength < DistConfusion:
+        bb.ZMin = bb.ZMin - 1.0
+        bb.ZMax = bb.ZMax + 1.0
     # Make a boundingbox shape and compute distances from faces
     # of this enlarged bounding box to the actual shape. Shrink
     # the boundbox by the distances.
