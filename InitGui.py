@@ -33,6 +33,9 @@ class LatticeWorkbench (Workbench):
         commandslist = commandslist + CompoundFilter.exportedCommands
         import latticeBoundBox
         commandslist = commandslist + latticeBoundBox.exportedCommands
+        import latticeDowngrade
+        commandslist = commandslist + latticeDowngrade.exportedCommands
+        
 
         self.appendToolbar('Lattice', commandslist)
         self.treecmdList = ['importPart', 'updateImportedPartsCommand']
