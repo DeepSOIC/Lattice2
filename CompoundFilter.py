@@ -169,7 +169,14 @@ class _ViewProviderCompoundFilter:
     def __setstate__(self,state):
         return None
 
+    def claimChildren(self):
+        children = [self.Object.Base]
+        if self.Object.Stencil:
+            children.append(self.Object.Stencil)
+        return children
+
 def CreateCompoundFilter(name):
+    sel = FreeCADGui.Selection.getSelection()
     FreeCAD.ActiveDocument.openTransaction("Create CompoundFilter")
     FreeCADGui.addModule("CompoundFilter")
     FreeCADGui.doCommand("f = CompoundFilter.makeCompoundFilter(name = '"+name+"')")
@@ -181,7 +188,6 @@ def CreateCompoundFilter(name):
         FreeCADGui.doCommand("f.FilterType = 'window-volume'")    
     FreeCADGui.doCommand("f.Proxy.execute(f)")
     FreeCADGui.doCommand("f.purgeTouched()")
-    FreeCADGui.doCommand("f.Base.ViewObject.hide()")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

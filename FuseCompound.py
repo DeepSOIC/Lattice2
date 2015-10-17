@@ -90,6 +90,9 @@ class _ViewProviderFuseCompound:
     def __setstate__(self,state):
         return None
 
+    def claimChildren(self):
+        return [self.Object.Base]
+
 def CreateFuseCompound(name):
     FreeCAD.ActiveDocument.openTransaction("Create FuseCompound")
     FreeCADGui.addModule("FuseCompound")
