@@ -139,10 +139,13 @@ class _CompoundFilter:
             obj.Shape = markers.getNullShapeShape(scale)
             raise ValueError('Nothing passes through the filter') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
         
-        if len(rst) > 1 or True:
+        if len(rst) > 1:
             obj.Shape = Part.makeCompound(rst)
         else: # don't make compound of one shape, output it directly
-            obj.Shape = rst[0]
+            sh = rst[0]
+            sh = sh.transformGeometry(sh.Placement.toMatrix())
+            sh.Placement = FreeCAD.Placement()
+            obj.Shape = sh
             
         return
         
