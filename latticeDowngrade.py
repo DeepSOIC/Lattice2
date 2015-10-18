@@ -40,14 +40,19 @@ def makeLatticeDowngrade(name):
     _ViewProviderLatticeDowngrade(obj.ViewObject)
     return obj
 
+
+
 class _latticeDowngrade:
     "The latticeDowngrade object"
+    
+    _DowngradeModeList = ['Compounds','CompSolids','Solids','Shells','Faces','Wires','Edges','Vertices']
+    
     def __init__(self,obj):
         self.Type = "latticeDowngrade"
         obj.addProperty("App::PropertyLink","Base","latticeDowngrade","Object to downgrade")
         
         obj.addProperty("App::PropertyEnumeration","Mode","latticeDowngrade","Type of elements to output.")
-        obj.Mode = ['bypass','Compounds','CompSolids','Solids','Shells','Faces','Wires','Edges','Vertices']
+        obj.Mode = ['bypass'] + self._DowngradeModeList
         obj.Mode = 'bypass'
         
         obj.Proxy = self
@@ -147,15 +152,21 @@ def CreateLatticeDowngrade(name, mode = "Wires"):
 
 class _CommandLatticeDowngrade:
     "Command to create latticeDowngrade feature"
+    
+    mode = ''
+    
+    def __init__(self, mode = 'wires'):
+        self.mode = mode
+    
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice_Downgrade.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_Downgrade","Parametric Downgrade"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_Downgrade","Downgrade to ") + self.mode, # FIXME: not translation-friendly!
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_Downgrade","Parametric Downgrade: downgrade and put results into a compound.")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
-            CreateLatticeDowngrade(name = "Downgrade")
+            CreateLatticeDowngrade(name= "Downgrade", mode= self.mode)
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
@@ -168,9 +179,33 @@ class _CommandLatticeDowngrade:
             return True
         else:
             return False
-            
-FreeCADGui.addCommand('Lattice_Downgrade', _CommandLatticeDowngrade())
 
-exportedCommands = ['Lattice_Downgrade']
+_listOfSubCommands = []
+for mode in _latticeDowngrade._DowngradeModeList: 
+    cmdName = 'Lattice_Downgrade' + mode
+    FreeCADGui.addCommand(cmdName, _CommandLatticeDowngrade(mode))
+    _listOfSubCommands.append(cmdName)
+    
+
+class GroupCommandLatticeDowngrade:
+    def GetCommands(self):
+        global _listOfSubCommands
+        return tuple(_listOfSubCommands) # a tuple of command names that you want to group
+
+    def GetDefaultCommand(self): # return the index of the tuple of the default command. This method is optional and when not implemented '0' is used  
+        return 5
+
+    def GetResources(self):
+        return { 'MenuText': 'Parametric Downgrade', 'ToolTip': 'Parametric Downgrade: downgrade and pack results into a compound.'}
+        
+    def IsActive(self): # optional
+        return True
+        
+FreeCADGui.addCommand('Lattice_Downgrade_GroupCommand',GroupCommandLatticeDowngrade())
+
+
+
+
+exportedCommands = ['Lattice_Downgrade_GroupCommand']
 
 # -------------------------- /Gui command --------------------------------------------------
