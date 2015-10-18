@@ -25,22 +25,24 @@
 class LatticeWorkbench (Workbench): 
     MenuText = 'Lattice'
     def Initialize(self):
-        commandslist=[]
+        commandslist1=[]
+        commandslist2=[]
 
-        import FuseCompound
-        commandslist = commandslist + FuseCompound.exportedCommands
-        import CompoundFilter
-        commandslist = commandslist + CompoundFilter.exportedCommands
-        import latticeBoundBox
-        commandslist = commandslist + latticeBoundBox.exportedCommands
         import latticeDowngrade
-        commandslist = commandslist + latticeDowngrade.exportedCommands
+        commandslist1 = commandslist1 + latticeDowngrade.exportedCommands
+        import CompoundFilter
+        commandslist1 = commandslist1 + CompoundFilter.exportedCommands
+        import FuseCompound
+        commandslist1 = commandslist1 + FuseCompound.exportedCommands
+        import latticeBoundBox
+        commandslist2 = commandslist2 + latticeBoundBox.exportedCommands
         
-
-        self.appendToolbar('Lattice', commandslist)
+        self.appendToolbar('LatticeCompoundTools', commandslist1)
+        self.appendToolbar('LatticeMiscTools', commandslist2)
         #FreeCADGui.addIconPath( '' )
         #FreeCADGui.addPreferencePage( '','Lattice' )
-        self.appendMenu('Lattice', commandslist)
+        self.appendMenu('Lattice', commandslist1)
+        self.appendMenu('Lattice', commandslist2)
 
     def Activated(self):
         pass
