@@ -155,7 +155,9 @@ class _ViewProviderCompoundFilter:
 
     def __init__(self,vobj):
         vobj.Proxy = self
-       
+        vobj.addProperty("App::PropertyBool","DontUnhideOnDelete","CompoundFilter","When this object is deleted, Base and Stencil are unhidden. This flag stops it from happening.")       
+        vobj.setEditorMode("DontUnhideOnDelete", 2) # set hidden
+        
     def getIcon(self):
         return getIconPath("Lattice_CompoundFilter.svg")
 
@@ -181,6 +183,16 @@ class _ViewProviderCompoundFilter:
         if self.Object.Stencil:
             children.append(self.Object.Stencil)
         return children
+
+    def onDelete(self, feature, subelements): # subelements is a tuple of strings
+        if not self.ViewObject.DontUnhideOnDelete:
+            try:
+                self.Object.Base.ViewObject.show()
+                if self.Object.Stencil:
+                    self.Object.Stencil.ViewObject.show()
+            except Exception as err:
+                FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
+        return True
 
 def CreateCompoundFilter(name):
     sel = FreeCADGui.Selection.getSelection()
@@ -253,6 +265,7 @@ class _CommandExplode:
                     cf.Base = obj
                     cf.FilterType = 'specific items'
                     cf.items = str(i)
+                    cf.ViewObject.DontUnhideOnDelete = True
                 FreeCAD.ActiveDocument.recompute()
             except Exception:
                 FreeCAD.ActiveDocument.abortTransaction()

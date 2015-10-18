@@ -92,6 +92,13 @@ class _ViewProviderFuseCompound:
 
     def claimChildren(self):
         return [self.Object.Base]
+        
+    def onDelete(self, feature, subelements): # subelements is a tuple of strings
+        try:
+            self.Object.Base.ViewObject.show()
+        except Exception as err:
+            FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
+        return True
 
 def CreateFuseCompound(name):
     FreeCAD.ActiveDocument.openTransaction("Create FuseCompound")
