@@ -3,6 +3,7 @@
         <file>icons/Lattice_BoundBox.svg</file>
         <file>icons/Lattice_CompoundFilter.svg</file>
         <file>icons/Lattice_Downgrade.svg</file>
+        <file>icons/Lattice_Explode.svg</file>
         <file>icons/Lattice_FuseCompound.svg</file>
     </qresource>
 </RCC> 
