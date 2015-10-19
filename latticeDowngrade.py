@@ -45,7 +45,7 @@ def makeLatticeDowngrade(name):
 class _latticeDowngrade:
     "The latticeDowngrade object"
     
-    _DowngradeModeList = ['Compounds','CompSolids','Solids','Shells','Faces','Wires','Edges','Vertices']
+    _DowngradeModeList = ['Compounds','CompSolids','Solids','Shells','OpenWires','Faces','Wires','Edges','Vertices']
     
     def __init__(self,obj):
         self.Type = "latticeDowngrade"
@@ -71,6 +71,21 @@ class _latticeDowngrade:
             rst = shp.Solids
         elif obj.Mode == 'Shells':
             rst = shp.Shells
+        elif obj.Mode == 'OpenWires':
+            openWires = []
+            shells = shp.Shells
+            for shell in shells:
+                openEdges = shell.getFreeEdges().childShapes()
+                if len(openEdges) > 1: # edges need to be fused into wires
+                    wires = openEdges[0].multiFuse(openEdges[1:])
+                    if wires.ShapeType == 'Compound':
+                        wires = wires.childShapes()
+                    else:
+                        wires = [wires]
+                else: 
+                    wires = openEdges
+                openWires.extend(wires)
+            rst = openWires
         elif obj.Mode == 'Faces':
             rst = shp.Faces
         elif obj.Mode == 'Wires':
@@ -139,7 +154,10 @@ def CreateLatticeDowngrade(name, mode = "Wires"):
     FreeCADGui.doCommand("f.Base = FreeCADGui.Selection.getSelection()[0]")
     FreeCADGui.doCommand("f.Mode = '"+mode+"'")    
     FreeCADGui.doCommand("f.Label = f.Mode + ' of ' + f.Base.Label")    
-    FreeCADGui.doCommand("f.Base.ViewObject.hide()")
+    if mode != 'OpenWires':
+        FreeCADGui.doCommand("f.Base.ViewObject.hide()")
+    else:
+        FreeCADGui.doCommand("f.ViewObject.LineWidth = 6.0")
     FreeCADGui.doCommand("f.Proxy.execute(f)")
     FreeCADGui.doCommand("f.purgeTouched()")
     FreeCADGui.doCommand("f = None")
