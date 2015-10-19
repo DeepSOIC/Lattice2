@@ -130,8 +130,8 @@ class _CommandFuseCompound:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(_translate("Lattice_FuseCompound", "Select a shape that is a compound whose children intersect, first!", None))
-            mb.setWindowTitle(_translate("Lattice_FuseCompound","Bad selection", None))
+            mb.setText(translate("Lattice_FuseCompound", "Select a shape that is a compound whose children intersect, first!", None))
+            mb.setWindowTitle(translate("Lattice_FuseCompound","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):

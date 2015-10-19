@@ -206,8 +206,8 @@ class _CommandBoundBox:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(_translate("Lattice_BoundBox", "Select a shape to make a bounding box for, first!", None))
-            mb.setWindowTitle(_translate("Lattice_BoundBox","Bad selection", None))
+            mb.setText(translate("Lattice_BoundBox", "Select a shape to make a bounding box for, first!", None))
+            mb.setWindowTitle(translate("Lattice_BoundBox","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):

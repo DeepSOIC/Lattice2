@@ -170,8 +170,8 @@ class _CommandLatticeDowngrade:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(_translate("Lattice_Downgrade", "Select a shape to downgrade, first!", None))
-            mb.setWindowTitle(_translate("Lattice_Downgrade","Bad selection", None))
+            mb.setText(translate("Lattice_Downgrade", "Select a shape to downgrade, first!", None))
+            mb.setWindowTitle(translate("Lattice_Downgrade","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):

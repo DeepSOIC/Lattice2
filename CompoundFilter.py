@@ -231,8 +231,8 @@ class _CommandCompoundFilter:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(_translate("Lattice_CompoundFilter", "Select a shape that is a compound, first! Second selected item (optional) will be treated as a stencil.", None))
-            mb.setWindowTitle(_translate("Lattice_CompoundFilter","Bad selection", None))
+            mb.setText(translate("Lattice_CompoundFilter", "Select a shape that is a compound, first! Second selected item (optional) will be treated as a stencil.", None))
+            mb.setWindowTitle(translate("Lattice_CompoundFilter","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -276,8 +276,8 @@ class _CommandExplode:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(_translate("Lattice_CompoundFilter", "Select a shape that is a compound, first!", None))
-            mb.setWindowTitle(_translate("Lattice_CompoundFilter","Bad selection", None))
+            mb.setText(translate("Lattice_CompoundFilter", "Select a shape that is a compound, first!", None))
+            mb.setWindowTitle(translate("Lattice_CompoundFilter","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
