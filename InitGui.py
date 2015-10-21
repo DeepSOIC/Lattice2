@@ -22,6 +22,17 @@
 #***************************************************************************
 
 
+__Comment__ = 'Advanced array tools and parametric compounding tools'
+__Web__ = 'http://forum.freecadweb.org/viewtopic.php?f=22&t=12464'
+__Wiki__ = ''
+__Icon__  = ''
+__Help__ = 'Install as a workbench - copy everything to path/to/FreeCAD/Mod/Lattice'
+__Author__ = 'DeepSOIC'
+__Version__ = '0'
+__Status__ = 'alpha'
+__Requires__ = 'freecad 0.16.5155'
+__Communication__ = 'vv.titov@gmail.com; DeepSOIC on FreeCAD forum'
+
 class LatticeWorkbench (Workbench): 
     MenuText = 'Lattice'
     def Initialize(self):
