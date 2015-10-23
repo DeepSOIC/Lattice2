@@ -53,5 +53,6 @@ def getIconPath(icon_dot_svg):
 
 # OCC's Precision::Confusion; should have taken this from FreeCAD but haven't found; unlikely to ever change.
 DistConfusion = 1e-7
+ParaConfusion = 1e-8
 
 import lattice_rc

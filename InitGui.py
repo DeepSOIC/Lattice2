@@ -36,9 +36,12 @@ __Communication__ = 'vv.titov@gmail.com; DeepSOIC on FreeCAD forum'
 class LatticeWorkbench (Workbench): 
     MenuText = 'Lattice'
     def Initialize(self):
-        commandslist1=[]
-        commandslist2=[]
-
+        commandslist0 = []
+        commandslist1 = []
+        commandslist2 = []
+        
+        import latticePolarArray
+        commandslist0 = commandslist0 + latticePolarArray.exportedCommands        
         import latticeDowngrade
         commandslist1 = commandslist1 + latticeDowngrade.exportedCommands
         import CompoundFilter
@@ -48,10 +51,12 @@ class LatticeWorkbench (Workbench):
         import latticeBoundBox
         commandslist2 = commandslist2 + latticeBoundBox.exportedCommands
         
+        self.appendToolbar('LatticeArrayTools', commandslist0)
         self.appendToolbar('LatticeCompoundTools', commandslist1)
         self.appendToolbar('LatticeMiscTools', commandslist2)
         #FreeCADGui.addIconPath( '' )
         #FreeCADGui.addPreferencePage( '','Lattice' )
+        self.appendMenu('Lattice', commandslist0)
         self.appendMenu('Lattice', commandslist1)
         self.appendMenu('Lattice', commandslist2)
 
