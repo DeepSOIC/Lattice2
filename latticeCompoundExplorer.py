@@ -130,3 +130,15 @@ class CompoundExplorer:
         assert(msg != 0)
         self.lastMsg = msg
         return (sh, msg, self)
+
+
+def CalculateNumberOfLeaves(compound):
+    '''CalculateNumberOfLeaves(compound): calculates the number of non-compound shapes (leaves) in the compound tree. Slow; good candidate for transferring into C++.'''
+    if compound.ShapeType != 'Compound':
+        return 1
+    else:
+        children = compound.childShapes(False,False)
+        cnt = 0
+        for ch in children:
+            cnt += CalculateNumberOfLeaves(ch)
+        return cnt
