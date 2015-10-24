@@ -36,29 +36,31 @@ __Communication__ = 'vv.titov@gmail.com; DeepSOIC on FreeCAD forum'
 class LatticeWorkbench (Workbench): 
     MenuText = 'Lattice'
     def Initialize(self):
-        commandslist0 = []
-        commandslist1 = []
-        commandslist2 = []
+        cmdsArrayTools = []
+        cmdsCompoundTools = []
+        cmdsMiscTools = []
         
         import latticePolarArray
-        commandslist0 = commandslist0 + latticePolarArray.exportedCommands        
+        cmdsArrayTools = cmdsArrayTools + latticePolarArray.exportedCommands        
+        import latticeCompose
+        cmdsArrayTools = cmdsArrayTools + latticeCompose.exportedCommands
         import latticeDowngrade
-        commandslist1 = commandslist1 + latticeDowngrade.exportedCommands
+        cmdsCompoundTools = cmdsCompoundTools + latticeDowngrade.exportedCommands
         import CompoundFilter
-        commandslist1 = commandslist1 + CompoundFilter.exportedCommands
+        cmdsCompoundTools = cmdsCompoundTools + CompoundFilter.exportedCommands
         import FuseCompound
-        commandslist1 = commandslist1 + FuseCompound.exportedCommands
+        cmdsCompoundTools = cmdsCompoundTools + FuseCompound.exportedCommands
         import latticeBoundBox
-        commandslist2 = commandslist2 + latticeBoundBox.exportedCommands
+        cmdsMiscTools = cmdsMiscTools + latticeBoundBox.exportedCommands
         
-        self.appendToolbar('LatticeArrayTools', commandslist0)
-        self.appendToolbar('LatticeCompoundTools', commandslist1)
-        self.appendToolbar('LatticeMiscTools', commandslist2)
+        self.appendToolbar('LatticeArrayTools', cmdsArrayTools)
+        self.appendToolbar('LatticeCompoundTools', cmdsCompoundTools)
+        self.appendToolbar('LatticeMiscTools', cmdsMiscTools)
         #FreeCADGui.addIconPath( '' )
         #FreeCADGui.addPreferencePage( '','Lattice' )
-        self.appendMenu('Lattice', commandslist0)
-        self.appendMenu('Lattice', commandslist1)
-        self.appendMenu('Lattice', commandslist2)
+        self.appendMenu('Lattice', cmdsArrayTools)
+        self.appendMenu('Lattice', cmdsCompoundTools)
+        self.appendMenu('Lattice', cmdsMiscTools)
 
     def Activated(self):
         pass

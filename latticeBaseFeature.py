@@ -103,6 +103,19 @@ class ViewProviderLatticeFeature:
 
     def __setstate__(self,state):
         return None
+        
+    def claimChildren(self):
+        return []
 
+    def onDelete(self, feature, subelements): # subelements is a tuple of strings
+        try:
+            children = self.claimChildren()
+            if children and len(children) > 0:
+                for child in children:
+                    child.ViewObject.show()
+        except Exception as err:
+            # catch all exceptions, because we don't want to prevent deletion if something goes wrong
+            FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
+        return True
 
     
