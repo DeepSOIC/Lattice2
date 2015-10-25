@@ -32,15 +32,30 @@ from latticeCommon import *
 import latticeCompoundExplorer as LCE
 import latticeMarkers
 
+def getDefLatticeFaceColor():
+    return (1.0, 0.7019608020782471, 0.0, 0.0) #orange
+def getDefShapeColor():
+    clr = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/View").GetUnsigned("DefaultShapeColor")
+    #convert color in int to color in tuple of 4 floats.
+    #This is probably implemented already somewhere, but I couldn't find, so I rolled my own --DeepSOIC
+    # clr in hex looks like this: 0xRRGGBBOO (r,g,b,o = red, green, blue, opacity)
+    o = clr & 0x000000FFL
+    b = (clr >> 8) & 0x000000FFL
+    g = (clr >> 16) & 0x000000FFL
+    r = (clr >> 24) & 0x000000FFL
+    return (r/255.0, g/255.0, b/255.0, (255-o)/255.0)
+    
+
 def makeLatticeFeature(name, AppClass, icon, ViewClass = None):
     '''makeLatticeFeature(name, AppClass, ViewClass = None): makes a document object for a LatticeFeature-derived object.'''
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
     AppClass(obj)
     if ViewClass:
-        ViewClass(obj.ViewObject)
+        vp = ViewClass(obj.ViewObject)
     else:
         vp = ViewProviderLatticeFeature(obj.ViewObject)
         vp.icon = icon
+        
     return obj
     
     
@@ -48,7 +63,7 @@ def isObjectLattice(documentObject):
     '''isObjectLattice(documentObject): When operating on the object, it is to be treated as a lattice object. If False, treat as a regular shape.'''
     ret = False
     if hasattr(documentObject,"isLattice"):
-        if documentObject.isLattice == 'True':
+        if 'On' in documentObject.isLattice:
             ret = True
     return ret
     
@@ -76,13 +91,14 @@ class LatticeFeature():
         self.Type = "latticeFeature"
 
         prop = "NumElements"
-        obj.addProperty("App::PropertyInteger",prop,"Info","Number of placements in the array")
+        obj.addProperty("App::PropertyInteger",prop,"Lattice","Number of placements in the array")
         obj.setEditorMode(prop, 1) # set read-only
         
         obj.addProperty("App::PropertyLength","MarkerSize","Lattice","Size of placement markers (set to zero for automatic).")
 
         obj.addProperty("App::PropertyEnumeration","isLattice","Lattice","Sets whether this object should be treated as a lattice by further operations")
-        obj.isLattice = ['Auto','False','True']
+        obj.isLattice = ['Auto-Off','Auto-On','Force-Off','Force-On']
+        # Auto-On an Auto-Off can be modified when recomputing. Force values are going to stay.
         
         self.derivedInit(obj)
         
@@ -117,15 +133,15 @@ class LatticeFeature():
             
             obj.Shape = Part.makeCompound(shapes)
 
-            if obj.isLattice == 'Auto':
-                obj.isLattice = 'True'
+            if obj.isLattice == 'Auto-Off':
+                obj.isLattice = 'Auto-On'
             
         else:
             # DerivedExecute didn't return anything. Thus we assume it 
             # has assigned the shape, and thus we don't do anything.
             # Moreover, we assume that it is no longer a lattice object, so:
-            if obj.isLattice == 'Auto':
-                obj.isLattice = 'False'
+            if obj.isLattice == 'Auto-On':
+                obj.isLattice = 'Auto-Off'
             obj.NumElements = len(obj.Shape.childShapes(False,False))
         
         return
@@ -142,13 +158,22 @@ class LatticeFeature():
         if self.execute.__func__ is not LatticeFeature.execute.__func__:
             FreeCAD.Console.PrintError("execute() of lattice object is overridden. Please don't! Fix it!\n")
     
+    def onChanged(self, obj, prop): #prop is a string - name of the property
+        if prop == 'isLattice':
+            if obj.ViewObject is not None:
+                if isObjectLattice(obj):
+                    obj.ViewObject.DisplayMode = 'Shaded'
+                    obj.ViewObject.ShapeColor = getDefLatticeFaceColor()
+                else:
+                    obj.ViewObject.DisplayMode = 'Flat Lines'
+                    obj.ViewObject.ShapeColor = getDefShapeColor()
+                    
     
 class ViewProviderLatticeFeature:
     "A View Provider for base lattice object"
 
     def __init__(self,vobj):
         vobj.Proxy = self
-#        vobj.DisplayMode = "Markers"
        
     def getIcon(self):
         self.Object.Proxy.verifyIntegrity(self.Object)
