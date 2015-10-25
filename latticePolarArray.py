@@ -21,7 +21,7 @@
 #*                                                                         *
 #***************************************************************************
 
-__title__="Base feature module for lattice object of lattice workbench for FreeCAD"
+__title__="Polar array feature module for lattice workbench for FreeCAD"
 __author__ = "DeepSOIC"
 __url__ = ""
 
