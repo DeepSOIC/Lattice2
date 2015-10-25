@@ -21,7 +21,6 @@
 #*                                                                         *
 #***************************************************************************
 
-
 __Comment__ = 'Advanced array tools and parametric compounding tools'
 __Web__ = 'http://forum.freecadweb.org/viewtopic.php?f=22&t=12464'
 __Wiki__ = ''
@@ -33,8 +32,16 @@ __Status__ = 'alpha'
 __Requires__ = 'freecad 0.16.5155'
 __Communication__ = 'vv.titov@gmail.com; DeepSOIC on FreeCAD forum'
 
+
+
 class LatticeWorkbench (Workbench): 
     MenuText = 'Lattice'
+    def __init__(self):
+        # Hack: obtain path to Lattice by loading a dummy Py module
+        import os
+        import latticeDummy
+        self.__class__.Icon = os.path.dirname(latticeDummy.__file__) + u"/PyResources/icons/Lattice.svg".replace("/", os.path.sep)
+    
     def Initialize(self):
         cmdsArrayTools = []
         cmdsCompoundTools = []
