@@ -73,7 +73,9 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyBool","AxisLinkIgnoreDir","Geometric","If True, AxisDir is not updated based on the link.")
         obj.addProperty("App::PropertyBool","AxisLinkIgnorePoint","Geometric","If True, AxisPoint is not updated based on the link.")
         
-        
+        obj.addProperty("App::PropertyLink","SpreadSheet","SpreadSheet mode","Link to spreadsheet")
+        obj.addProperty("App::PropertyString","CellStart","SpreadSheet mode","Starting cell of list of angles")
+        obj.CellStart = 'A1'
         
     def updateReadOnlyness(self, obj):
         m = obj.Mode
@@ -84,6 +86,8 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         obj.setEditorMode("AxisPoint", 1 if (obj.AxisLink and not obj.AxisLinkIgnorePoint) else 0)
         obj.setEditorMode("AxisLinkIgnoreDir", 0 if obj.AxisLink else 1)
         obj.setEditorMode("AxisLinkIgnorePoint", 0 if obj.AxisLink else 1)
+        obj.setEditorMode("SpreadSheet", 0 if m == "Spreadsheet" else 1)
+        obj.setEditorMode("CellStart", 0 if m == "Spreadsheet" else 1)
         
 
     def derivedExecute(self,obj):
@@ -136,22 +140,22 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
             if not obj.AxisLinkIgnorePoint:
                 obj.AxisPoint = point
         
-        if obj.Mode != 'Spreadsheet':
-            # Generate the actual array. We can use Step and N directly to 
-            # completely avoid mode logic, since we had updated them
-            
-            # cache properties into variables
-            step = float(obj.AngleStep)
-            startAng = float(obj.AngleSpanStart) + step*float(obj.Offset)
-            n = int(obj.NumberPolar)
-            radius = float(obj.Radius)
-            
-            # compute initial vector. It is to be perpendicular to Axis
-            rot_ini = App.Rotation(App.Vector(0,0,1), obj.AxisDir)
-            overallPlacement = App.Placement(obj.AxisPoint, rot_ini)
-            
-            # Make the array
-            output = [] # list of placements
+        # Generate the actual array. We can use Step and N directly to 
+        # completely avoid mode logic, since we had updated them
+        
+        # cache properties into variables
+        step = float(obj.AngleStep)
+        startAng = float(obj.AngleSpanStart) + step*float(obj.Offset)
+        n = int(obj.NumberPolar)
+        radius = float(obj.Radius)
+        
+        # compute initial vector. It is to be perpendicular to Axis
+        rot_ini = App.Rotation(App.Vector(0,0,1), obj.AxisDir)
+        overallPlacement = App.Placement(obj.AxisPoint, rot_ini)
+        
+        # Make the array
+        output = [] # list of placements
+        if obj.Mode != "Spreadsheet":
             for i in range(0, n):
                 ang = startAng + step*i
                 p = Part.Vertex()
@@ -159,10 +163,33 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
                 localtransl = localrot.multVec(App.Vector(radius,0,0))
                 localplm = App.Placement(localtransl, localrot)
                 output.append( overallPlacement.multiply(localplm) )
-            
-            return output
         else:
-            raise ValueError("Spreadsheet mode not implemeted yet")
+            #parse address
+            addr = obj.CellStart
+            #assuming only two letter column
+            if addr[1].isalpha():
+                col = addr[0:2]
+                row = addr[2:]
+            else:
+                col = addr[0:1]
+                row = addr[1:]
+            row = int(row)
+            
+            #loop until the value an't be read out
+            while True:
+                try:
+                    ang = obj.SpreadSheet.get(col+str(row))
+                except ValueError:
+                    break
+                ang = float(ang)
+                p = Part.Vertex()
+                localrot = App.Rotation(App.Vector(0,0,1), ang)
+                localtransl = localrot.multVec(App.Vector(radius,0,0))
+                localplm = App.Placement(localtransl, localrot)
+                output.append( overallPlacement.multiply(localplm) )
+                row += 1
+            
+        return output
 
 # -------------------------- /common stuff --------------------------------------------------
 
