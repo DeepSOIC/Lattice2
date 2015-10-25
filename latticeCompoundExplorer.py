@@ -144,7 +144,7 @@ def CalculateNumberOfLeaves(compound):
         return cnt
         
 def AllLeaves(compound):
-    'AllLeaves(compound): Traverses the compound and collects all the leaves into a single list'
+    'AllLeaves(compound): Traverses the compound and collects all the leaves into a single list. Returns list of shapes.'
     output = []
     for (child, msg, it) in CompoundExplorer(compound):
         if msg == it.MSG_LEAF:

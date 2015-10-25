@@ -68,8 +68,8 @@ class Compose(latticeBaseFeature.LatticeFeature):
         obj.ToolFlattenHierarchy = True
 
 
-    def execute(self,obj):
-        # Fill in (update read-only) properties that are driven by the mode.
+    def derivedExecute(self,obj):
+        # cache stuff
         base = obj.Base.Shape
         if base.ShapeType != 'Compound':
             base = Part.makeCompound([base])
@@ -87,45 +87,82 @@ class Compose(latticeBaseFeature.LatticeFeature):
             toolChildren = tool.childShapes()
         
         iBase = 0
-        isMult = obj.Operation == 'MultiplyPlacements' # cache comparisons to speed them up
+        isMult = obj.Operation == 'MultiplyPlacements' # cache mode comparisons to speed them up
         isAvg = obj.Operation == 'AveragePlacements'
         isIgnore = obj.Operation == 'IgnoreBasePlacements'
-        isOvrride = obj.Operation == 'OverrideBasePlacements'
-        rst = []
+        isOverride = obj.Operation == 'OverrideBasePlacements'
+
+        #mode validity logic
+        if not latticeBaseFeature.isObjectLattice(obj.Tool):
+            FreeCAD.Console.PrintWarning(obj.Name+': Tool is not a lattice object. Results may be unexpected.\n')
+        outputIsLattice = latticeBaseFeature.isObjectLattice(obj.Base)
+        if isOverride and outputIsLattice:
+            FreeCAD.Console.PrintWarning(obj.Name+': Base is a lattice object. OverrideBasePlacements operation requires a generic compound as Base. So, the lattice is being treated as a generic compound.\n')
+            outputIsLattice = False
+        
+        # initialize output containers and loop variables
+        outputShapes = [] #output list of shapes
+        outputPlms = [] #list of placements
         bFirst = True
         plmMatcher = App.Placement() #extra placement, that aligns first tool member and first base member
+        
+        
+        # the essence
         for toolChild in toolChildren:
-            sh = baseChildren[iBase].copy()
-            if bFirst:
-                bFirst = False
-                if obj.BaseKeepPosOfFirst:
-                    plmMatcher = toolChild.Placement.inverse()
-            toolPlm = plmMatcher.multiply(toolChild.Placement)
-            if isMult:
-                sh.Placement = toolPlm.multiply(sh.Placement)
-            elif isAvg:
-                plm1 = toolPlm
-                plm2 = sh.Placement
-                transl = plm1.Base*0.5 + plm2.Base*0.5
-                a1,b1,c1,d1 = plm1.Rotation.Q
-                a2,b2,c2,d2 = plm2.Rotation.Q
-                rot = App.Rotation((a1+a2,b1+b2,c1+c2,d1+d2)) #no divide-by-two, because FreeCAD will normalize the quaternion automatically
-                sh.Placement = App.Placement(transl,rot)
-            elif isIgnore:
-                sh.Placement = toolPlm
-            elif isOverride:
-                sh.transformShape(toolPlm.inverse.multiply(sh.Placement))
-                sh.Placement = toolPlm
-            rst.append(sh)
             
-            iBase += 1
+            # early test for termination
             if iBase > len(baseChildren)-1:
                 if obj.BaseLoopSequence:
                     iBase = 0
                 else:
+                    FreeCAD.Console.PrintWarning(obj.Name+': There are '+str(len(toolChildren)-len(baseChildren))+
+                                                 ' more placements in Tool than children in Base. Those placements'+
+                                                 ' were dropped.\n')
                     break
-        
-        obj.Shape = Part.makeCompound(rst)
+
+            #cache some stuff
+            basePlm = baseChildren[iBase].Placement
+            toolPlm = toolChild.Placement
+
+            if not outputIsLattice:
+                outputShape = baseChildren[iBase].copy()
+            
+            #prepare alignment placement
+            if bFirst:
+                bFirst = False
+                if obj.BaseKeepPosOfFirst:
+                    plmMatcher = toolPlm.inverse()
+
+            #mode logic
+            if isMult:
+                outPlm = toolPlm.multiply(plmMatcher.multiply(basePlm))
+            elif isAvg:
+                plm1 = toolPlm
+                plm2 = pltMatcher.multiply(basePlm)
+                transl = plm1.Base*0.5 + plm2.Base*0.5
+                a1,b1,c1,d1 = plm1.Rotation.Q
+                a2,b2,c2,d2 = plm2.Rotation.Q
+                rot = App.Rotation((a1+a2,b1+b2,c1+c2,d1+d2)) #no divide-by-two, because FreeCAD will normalize the quaternion automatically
+                outPlm = App.Placement(transl,rot)
+            elif isIgnore:
+                outPlm = toolPlm
+            elif isOverride:
+                assert(not outputIsLattice)
+                outputShape.transformShape(toolPlm.inverse.multiply(plmMatcher.multiply(basePlm)))
+                outPlm = toolPlm
+            
+            if outputIsLattice:
+               outputPlms.append(outPlm)
+            else:
+                outputShape.Placement = outPlm
+                outputShapes.append(outputShape)
+            
+            iBase += 1
+            
+        if outputIsLattice:
+            return outputPlms
+        else:
+            obj.Shape = Part.makeCompound(outputShapes)
 
 class ViewProviderCompose(latticeBaseFeature.ViewProviderLatticeFeature):
 

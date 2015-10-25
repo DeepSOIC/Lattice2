@@ -29,6 +29,7 @@ __url__ = ""
 __doc__ = "Module for loading marker shapes for Lattice workbench"
 
 _nullShapeShape = 0
+_ShapeDict = {}
 
 def getShapePath(shapeName):
     """
@@ -56,3 +57,31 @@ def getNullShapeShape(scale = 1.0):
         ret.scale(scale)
         
     return ret
+
+def loadShape(shapeID):
+    global _ShapeDict
+    sh = _ShapeDict.get(shapeID)
+    if sh is None:
+        try:
+            sh = Part.Shape()
+            f = open(getShapePath(shapeID + '.brep'))
+            sh.importBrep(f)
+            f.close()
+        except Exception as err:
+            FreeCAD.Console.PrintError('Failed to load standard shape "'+shapeID+'". \n' + err.message + '\n')
+            sh = Part.Point() #Create at least something!
+        _ShapeDict[shapeID] = sh
+    return sh
+        
+
+def getPlacementMarker(scale = 1.0, markerID = None):
+    '''getPlacementMarker(scale = 1.0, markerID = None): returns a placement marker shape. 
+    The shape is scaled according to "scale" argument. 
+    markerID sets the marker file name. If omitted, default placement marker is returned.'''
+    if markerID is None:
+        markerID = 'tetra-orimarker'
+    sh = loadShape(markerID)
+    if scale != 1.0:
+        sh = sh.copy()
+        sh.scale(scale)
+    return sh

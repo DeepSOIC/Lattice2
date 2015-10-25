@@ -86,7 +86,7 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         obj.setEditorMode("AxisLinkIgnorePoint", 0 if obj.AxisLink else 1)
         
 
-    def execute(self,obj):
+    def derivedExecute(self,obj):
         # Fill in (update read-only) properties that are driven by the mode.
         self.updateReadOnlyness(obj)
         if obj.Mode == 'SpanN':
@@ -151,27 +151,16 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
             overallPlacement = App.Placement(obj.AxisPoint, rot_ini)
             
             # Make the array
-            rst = [] # Shapes for holding placements (each shape is a vertex with placement)
+            output = [] # list of placements
             for i in range(0, n):
                 ang = startAng + step*i
                 p = Part.Vertex()
                 localrot = App.Rotation(App.Vector(0,0,1), ang)
                 localtransl = localrot.multVec(App.Vector(radius,0,0))
                 localplm = App.Placement(localtransl, localrot)
-                p.Placement = overallPlacement.multiply(localplm)
-                rst.append(p)
+                output.append( overallPlacement.multiply(localplm) )
             
-            # Make final compound (or empty-set marker)
-            if len(rst) == 0:
-                scale = 1.0
-                if not obj.Base.Shape.isNull():
-                    scale = abs(obj.Radius)
-                if scale < DistConfusion * 100:
-                    scale = 1.0
-                obj.Shape = markers.getNullShapeShape(scale)
-                raise ValueError('Array output is null') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
-
-            obj.Shape = Part.makeCompound(rst)
+            return output
         else:
             raise ValueError("Spreadsheet mode not implemeted yet")
 

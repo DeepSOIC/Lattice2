@@ -25,11 +25,12 @@ __title__="Base feature module for lattice object of lattice workbench for FreeC
 __author__ = "DeepSOIC"
 __url__ = ""
 
+import FreeCAD as App
 import Part
-from pivy import coin
 
 from latticeCommon import *
 import latticeCompoundExplorer as LCE
+import latticeMarkers
 
 def makeLatticeFeature(name, AppClass, icon, ViewClass = None):
     '''makeLatticeFeature(name, AppClass, ViewClass = None): makes a document object for a LatticeFeature-derived object.'''
@@ -42,16 +43,47 @@ def makeLatticeFeature(name, AppClass, icon, ViewClass = None):
         vp.icon = icon
     return obj
     
+    
+def isObjectLattice(documentObject):
+    '''isObjectLattice(documentObject): When operating on the object, it is to be treated as a lattice object. If False, treat as a regular shape.'''
+    ret = False
+    if hasattr(documentObject,"isLattice"):
+        if documentObject.isLattice == 'True':
+            ret = True
+    return ret
+    
+def getMarkerSizeEstimate(ListOfPlacements):
+    '''getMarkerSizeEstimate(ListOfPlacements): computes the default marker size for the array of placements'''
+    if len(ListOfPlacements) == 0:
+        return 1.0
+    pathLength = 0
+    for i in range(1, len(ListOfPlacements)):
+        pathLength += (ListOfPlacements[i].Base - ListOfPlacements[i-1].Base).Length
+    sz = pathLength/len(ListOfPlacements)/2.0
+    #FIXME: make hierarchy-aware
+    if sz < DistConfusion*10:
+        sz = 1.0
+    return sz
+
+    
+
 
 class LatticeFeature():
     "Base object for lattice objects (arrays of placements)"
     
     def __init__(self,obj):
+        # please, don't override. Override derivedInit instead.
         self.Type = "latticeFeature"
 
         prop = "NumElements"
         obj.addProperty("App::PropertyInteger",prop,"Info","Number of placements in the array")
         obj.setEditorMode(prop, 1) # set read-only
+        
+        obj.addProperty("App::PropertyLength","MarkerSize","Lattice","Size of placement markers (set to zero for automatic).")
+
+        obj.addProperty("App::PropertyEnumeration","isLattice","Lattice","Sets whether this object should be treated as a lattice by further operations")
+        obj.isLattice = ['Auto','False','True']
+        
         self.derivedInit(obj)
         
         obj.Proxy = self
@@ -62,14 +94,53 @@ class LatticeFeature():
         pass
         
     def execute(self,obj):
-        derivedExecute(self, obj)
-        obj.NumElements = LCE.CalculateNumberOfLeaves(obj.Shape)
+        # please, don't override. Override derivedExecute instead.
+
+        plms = self.derivedExecute(obj)
+
+        if plms is not None:
+            obj.NumElements = len(plms)
+            shapes = []
+            markerSize = obj.MarkerSize
+            if markerSize < DistConfusion:
+                markerSize = getMarkerSizeEstimate(plms)
+            marker = latticeMarkers.getPlacementMarker(scale=markerSize)
+            #FIXME: make hierarchy-aware
+            for plm in plms:
+                sh = marker.copy()
+                sh.Placement = plm
+                shapes.append(sh)
+                
+            if len(shapes) == 0:
+                obj.Shape = markers.getNullShapeShape(markerSize)
+                raise ValueError('Lattice object is null') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
+            
+            obj.Shape = Part.makeCompound(shapes)
+
+            if obj.isLattice == 'Auto':
+                obj.isLattice = 'True'
+            
+        else:
+            # DerivedExecute didn't return anything. Thus we assume it 
+            # has assigned the shape, and thus we don't do anything.
+            # Moreover, we assume that it is no longer a lattice object, so:
+            if obj.isLattice == 'Auto':
+                obj.isLattice = 'False'
+            obj.NumElements = len(obj.Shape.childShapes(False,False))
         
         return
     
-    def derivedExecute():
-        '''For overriding by derived class'''
-        pass
+    def derivedExecute(self,obj):
+        '''For overriding by derived class. If this returns a list of placements,
+ it's going to be used to build the shape. If returns None, it is assumed that 
+ derivedExecute has already assigned the shape, and no further actions are needed.'''
+        return []
+                
+    def verifyIntegrity(self,obj):
+        if self.__init__.__func__ is not LatticeFeature.__init__.__func__:
+            FreeCAD.Console.PrintError("__init__() of lattice object is overridden. Please don't! Fix it!\n")
+        if self.execute.__func__ is not LatticeFeature.execute.__func__:
+            FreeCAD.Console.PrintError("execute() of lattice object is overridden. Please don't! Fix it!\n")
     
     
 class ViewProviderLatticeFeature:
@@ -78,10 +149,9 @@ class ViewProviderLatticeFeature:
     def __init__(self,vobj):
         vobj.Proxy = self
 #        vobj.DisplayMode = "Markers"
-        vobj.PointSize = 4
-        vobj.PointColor = (1.0, 0.7019608020782471, 0.0, 0.0) #orange
        
     def getIcon(self):
+        self.Object.Proxy.verifyIntegrity(self.Object)
         if hasattr(self, "icon"):
             if self.icon:
                 return getIconPath(self.icon)
@@ -111,6 +181,7 @@ class ViewProviderLatticeFeature:
         try:
             children = self.claimChildren()
             if children and len(children) > 0:
+                marker = latticeMarkers
                 for child in children:
                     child.ViewObject.show()
         except Exception as err:
