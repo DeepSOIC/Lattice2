@@ -180,6 +180,8 @@ def CreateCompose(name):
     FreeCADGui.doCommand("f = latticeCompose.makeCompose(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     FreeCADGui.doCommand("f.Tool = App.ActiveDocument."+sel[1].ObjectName)
+    FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
+                         "    child.ViewObject.hide()")
     FreeCADGui.doCommand("f.Proxy.execute(f)")
     FreeCADGui.doCommand("f.purgeTouched()")
     FreeCADGui.doCommand("f = None")
