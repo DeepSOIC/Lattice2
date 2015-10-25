@@ -40,6 +40,8 @@ class LatticeWorkbench (Workbench):
         cmdsCompoundTools = []
         cmdsMiscTools = []
         
+        import latticePlacement
+        cmdsArrayTools = cmdsArrayTools + latticePlacement.exportedCommands        
         import latticePolarArray
         cmdsArrayTools = cmdsArrayTools + latticePolarArray.exportedCommands        
         import latticeCompose
