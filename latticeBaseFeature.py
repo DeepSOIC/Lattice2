@@ -163,12 +163,22 @@ class LatticeFeature():
     def onChanged(self, obj, prop): #prop is a string - name of the property
         if prop == 'isLattice':
             if obj.ViewObject is not None:
-                if isObjectLattice(obj):
-                    obj.ViewObject.DisplayMode = 'Shaded'
-                    obj.ViewObject.ShapeColor = getDefLatticeFaceColor()
-                else:
-                    obj.ViewObject.DisplayMode = 'Flat Lines'
-                    obj.ViewObject.ShapeColor = getDefShapeColor()
+                try:
+                    if isObjectLattice(obj):
+                        obj.ViewObject.DisplayMode = 'Shaded'
+                        obj.ViewObject.ShapeColor = getDefLatticeFaceColor()
+                    else:
+                        obj.ViewObject.DisplayMode = 'Flat Lines'
+                        obj.ViewObject.ShapeColor = getDefShapeColor()
+                except App.Base.FreeCADError as err:
+                    #these errors pop up while loading project file, apparently because
+                    # viewprovider is up already, but the shape vis mesh wasn't yet
+                    # created. It is safe to ignore them, as DisplayMode is eventually
+                    # restored to the correct values. 
+                    #Proper way of dealing with it would have been by testing for 
+                    # isRestoring(??), but I failed to find the way to do it.
+                    #--DeepSOIC
+                    pass 
                     
     
 class ViewProviderLatticeFeature:
