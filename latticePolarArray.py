@@ -45,16 +45,16 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         obj.Mode = ['SpanN','StepN','SpanStep','Spreadsheet']
         obj.Mode = 'SpanN'
         
-        obj.addProperty("App::PropertyAngle","AngleSpanStart","Array","starting angle for angular span")  
+        obj.addProperty("App::PropertyFloat","AngleSpanStart","Array","starting angle for angular span")  
         obj.AngleSpanStart = 0
-        obj.addProperty("App::PropertyAngle","AngleSpanEnd","Array","ending angle for angular span")  
+        obj.addProperty("App::PropertyFloat","AngleSpanEnd","Array","ending angle for angular span")  
         obj.AngleSpanEnd = 360
         obj.addProperty("App::PropertyBool","EndInclusive","Array","Determines if the last occurence is placed exactly at the ending angle of the span, or the ending angle is super-last.")  
         obj.EndInclusive = False
         
-        obj.addProperty("App::PropertyAngle","AngleStep","Array","")  
+        obj.addProperty("App::PropertyFloat","AngleStep","Array","")  
         
-        obj.addProperty("App::PropertyFloat","NumberPolar","Array","Number of occurences.")  
+        obj.addProperty("App::PropertyInteger","NumberPolar","Array","Number of occurences.")  
         obj.NumberPolar = 5
         
         obj.addProperty("App::PropertyFloat","Offset","Array","Offset of the first item, expressed as a fraction of angular step.")  
@@ -99,13 +99,13 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         elif obj.Mode == 'StepN':
             n = obj.NumberPolar
             if obj.EndInclusive:
-                n += 1
+                n -= 1
             obj.AngleSpanEnd = obj.AngleSpanStart + obj.AngleStep*n
         elif obj.Mode == 'SpanStep':
             nfloat = (obj.AngleSpanEnd - obj.AngleSpanStart) / obj.AngleStep
-            n = math.trunc(nfloat + ParaConfusion) + 1
-            if obj.EndInclusive:
-                n = n - 1
+            n = math.trunc(nfloat - ParaConfusion) + 1
+            if obj.EndInclusive and abs(nfloat-round(nfloat)) <= ParaConfusion:
+                n = n + 1
             obj.NumberPolar = n
             
         # Apply links
