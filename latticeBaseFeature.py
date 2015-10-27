@@ -92,7 +92,7 @@ class LatticeFeature():
         self.Type = "latticeFeature"
 
         prop = "NumElements"
-        obj.addProperty("App::PropertyInteger",prop,"Lattice","Number of placements in the array")
+        obj.addProperty("App::PropertyInteger",prop,"Lattice","Info: number of placements in the array")
         obj.setEditorMode(prop, 1) # set read-only
         
         obj.addProperty("App::PropertyLength","MarkerSize","Lattice","Size of placement markers (set to zero for automatic).")
@@ -151,8 +151,8 @@ class LatticeFeature():
     
     def derivedExecute(self,obj):
         '''For overriding by derived class. If this returns a list of placements,
- it's going to be used to build the shape. If returns None, it is assumed that 
- derivedExecute has already assigned the shape, and no further actions are needed.'''
+            it's going to be used to build the shape. If returns None, it is assumed that 
+            derivedExecute has already assigned the shape, and no further actions are needed.'''
         return []
                 
     def verifyIntegrity(self,obj):

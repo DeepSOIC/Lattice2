@@ -41,37 +41,37 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
     "The Lattice PolarArray object"
     def derivedInit(self,obj):
         self.Type = "LatticePolarArray"
-        obj.addProperty("App::PropertyEnumeration","Mode","Array","")
+        obj.addProperty("App::PropertyEnumeration","Mode","Lattice Array","")
         obj.Mode = ['SpanN','StepN','SpanStep','Spreadsheet']
         obj.Mode = 'SpanN'
         
-        obj.addProperty("App::PropertyFloat","AngleSpanStart","Array","starting angle for angular span")  
+        obj.addProperty("App::PropertyFloat","AngleSpanStart","Lattice Array","starting angle for angular span")  
         obj.AngleSpanStart = 0
-        obj.addProperty("App::PropertyFloat","AngleSpanEnd","Array","ending angle for angular span")  
+        obj.addProperty("App::PropertyFloat","AngleSpanEnd","Lattice Array","ending angle for angular span")  
         obj.AngleSpanEnd = 360
-        obj.addProperty("App::PropertyBool","EndInclusive","Array","Determines if the last occurence is placed exactly at the ending angle of the span, or the ending angle is super-last.")  
+        obj.addProperty("App::PropertyBool","EndInclusive","Lattice Array","Determines if the last occurence is placed exactly at the ending angle of the span, or the ending angle is super-last.")  
         obj.EndInclusive = False
         
-        obj.addProperty("App::PropertyFloat","AngleStep","Array","")  
+        obj.addProperty("App::PropertyFloat","AngleStep","Lattice Array","")  
         
-        obj.addProperty("App::PropertyInteger","NumberPolar","Array","Number of occurences.")  
+        obj.addProperty("App::PropertyInteger","NumberPolar","Lattice Array","Number of occurences.")  
         obj.NumberPolar = 5
         
-        obj.addProperty("App::PropertyFloat","Offset","Array","Offset of the first item, expressed as a fraction of angular step.")  
+        obj.addProperty("App::PropertyFloat","Offset","Lattice Array","Offset of the first item, expressed as a fraction of angular step.")  
         
         
-        obj.addProperty("App::PropertyLength","Radius","Geometric","Radius of the array (set to zero for just rotation).")  
+        obj.addProperty("App::PropertyLength","Radius","Lattice Array","Radius of the array (set to zero for just rotation).")  
         obj.Radius = 3 #temporary, to see the array (because marker display mode is not implemented yet)
         
-        obj.addProperty("App::PropertyVector","AxisDir","Geometric","Vector that defines axis direction")  
+        obj.addProperty("App::PropertyVector","AxisDir","Lattice Array","Vector that defines axis direction")  
         obj.AxisDir = App.Vector(0,0,1)
         
-        obj.addProperty("App::PropertyVector","AxisPoint","Geometric","Center of rotation")  
+        obj.addProperty("App::PropertyVector","AxisPoint","Lattice Array","Center of rotation")  
         
-        obj.addProperty("App::PropertyLink","AxisLink","Geometric","Link to the axis (Edge1 is used for the axis).")  
+        obj.addProperty("App::PropertyLink","AxisLink","Lattice Array","Link to the axis (Edge1 is used for the axis).")  
         
-        obj.addProperty("App::PropertyBool","AxisLinkIgnoreDir","Geometric","If True, AxisDir is not updated based on the link.")
-        obj.addProperty("App::PropertyBool","AxisLinkIgnorePoint","Geometric","If True, AxisPoint is not updated based on the link.")
+        obj.addProperty("App::PropertyBool","AxisLinkIgnoreDir","Lattice Array","If True, AxisDir is not updated based on the link.")
+        obj.addProperty("App::PropertyBool","AxisLinkIgnorePoint","Lattice Array","If True, AxisPoint is not updated based on the link.")
         
         obj.addProperty("App::PropertyLink","SpreadSheet","SpreadSheet mode","Link to spreadsheet")
         obj.addProperty("App::PropertyString","CellStart","SpreadSheet mode","Starting cell of list of angles")

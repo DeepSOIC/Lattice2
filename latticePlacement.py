@@ -45,14 +45,14 @@ class LatticePlacement(latticeBaseFeature.LatticeFeature):
     def derivedInit(self,obj):
         self.Type = "LatticePlacement"
         
-        obj.addProperty("App::PropertyEnumeration","PlacementChoice","Placement","Choose one of standard placements here.")
+        obj.addProperty("App::PropertyEnumeration","PlacementChoice","Lattice Placement","Choose one of standard placements here.")
         obj.PlacementChoice = self._PlacementChoiceList
         
-        obj.addProperty("App::PropertyLength","Offset","Placement","Offset from oigin for XY/XZ/YZ plane modes")
+        obj.addProperty("App::PropertyLength","Offset","Lattice Placement","Offset from oigin for XY/XZ/YZ plane modes")
         
-        obj.addProperty("App::PropertyBool","FlipZ","Placement","Set to true to flip Z axis (also flips Y)")
+        obj.addProperty("App::PropertyBool","FlipZ","Lattice Placement","Set to true to flip Z axis (also flips Y)")
         
-        obj.addProperty("App::PropertyBool","Invert","Placement","Invert the placement")
+        obj.addProperty("App::PropertyBool","Invert","Lattice Placement","Invert the placement")
         
     def updateReadOnlyness(self, obj):
         m = obj.PlacementChoice

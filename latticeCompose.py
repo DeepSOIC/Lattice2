@@ -48,24 +48,24 @@ class Compose(latticeBaseFeature.LatticeFeature):
     def derivedInit(self,obj):
         self.Type = "LatticeCompose"
         
-        obj.addProperty("App::PropertyEnumeration","Operation","Compose","Operation to perform between pairs of shapes")
+        obj.addProperty("App::PropertyEnumeration","Operation","Lattice Compose","Operation to perform between pairs of shapes")
         
         obj.Operation = Compose.operList
         
         
-        obj.addProperty("App::PropertyLink","Base","Base Compound","Base object. Usually a compound of generic shapes.")
+        obj.addProperty("App::PropertyLink","Base","LatticeCompose Base","Base object. Usually a compound of generic shapes, but can be a lattice too.")
         
-        obj.addProperty("App::PropertyBool","BaseLoopSequence","Base Compound","If index goes out of range, apply modulo math.")
+        obj.addProperty("App::PropertyBool","LoopSequence","LatticeCompose Base","If index goes out of range, apply modulo math.")
         
-        obj.addProperty("App::PropertyBool","BaseFlattenHierarchy","Base Compound","Unpack subcompounds, to use all shapes, not just direct children.")
+        obj.addProperty("App::PropertyBool","FlattenBaseHierarchy","LatticeCompose Base","Unpack subcompounds, to use all shapes, not just direct children.")
         
-        obj.addProperty("App::PropertyBool","BaseKeepPosOfFirst","Base Compound","Makes the result pass through the first element of Base.")
-        obj.BaseKeepPosOfFirst = True
+        obj.addProperty("App::PropertyBool","KeepBaseFirstItemPos","LatticeCompose Base","Apply extra transform, so that first item doesn't move.")
+        obj.KeepBaseFirstItemPos = True
         
-        obj.addProperty("App::PropertyLink","Tool","Tool Compound","Tool object. Usually a lattice object.")
+        obj.addProperty("App::PropertyLink","Tool","LatticeCompose Tool","Tool object. Must be a lattice object. Contains placements to be applied.")
 
-        obj.addProperty("App::PropertyBool","ToolFlattenHierarchy","Tool Compound","Unpack subcompounds, to use all shapes, not just direct children.")
-        obj.ToolFlattenHierarchy = True
+        obj.addProperty("App::PropertyBool","FlattenToolHierarchy","LatticeCompose Tool","Unpack subcompounds, to use all shapes, not just direct children.")
+        obj.FlattenToolHierarchy = True
 
 
     def derivedExecute(self,obj):
@@ -73,7 +73,7 @@ class Compose(latticeBaseFeature.LatticeFeature):
         base = obj.Base.Shape
         if base.ShapeType != 'Compound':
             base = Part.makeCompound([base])
-        if obj.BaseFlattenHierarchy:
+        if obj.FlattenBaseHierarchy:
             baseChildren = LCE.AllLeaves(base)
         else:
             baseChildren = base.childShapes()
@@ -81,7 +81,7 @@ class Compose(latticeBaseFeature.LatticeFeature):
         tool = obj.Tool.Shape
         if tool.ShapeType != 'Compound':
             tool = Part.makeCompound([tool])
-        if obj.BaseFlattenHierarchy:
+        if obj.FlattenBaseHierarchy:
             toolChildren = LCE.AllLeaves(tool)
         else:
             toolChildren = tool.childShapes()
@@ -112,7 +112,7 @@ class Compose(latticeBaseFeature.LatticeFeature):
             
             # early test for termination
             if iBase > len(baseChildren)-1:
-                if obj.BaseLoopSequence:
+                if obj.LoopSequence:
                     iBase = 0
                 else:
                     FreeCAD.Console.PrintWarning(obj.Name+': There are '+str(len(toolChildren)-len(baseChildren))+
@@ -130,7 +130,7 @@ class Compose(latticeBaseFeature.LatticeFeature):
             #prepare alignment placement
             if bFirst:
                 bFirst = False
-                if obj.BaseKeepPosOfFirst:
+                if obj.KeepBaseFirstItemPos:
                     plmMatcher = toolPlm.inverse()
 
             #mode logic
