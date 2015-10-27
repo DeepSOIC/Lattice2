@@ -46,14 +46,14 @@ class LatticeApply(latticeBaseFeature.LatticeFeature):
     def derivedInit(self,obj):
         self.Type = "LatticeApply"
                 
-        obj.addProperty("App::PropertyLink","Base","LatticeApply Base","Base object. Can be any generic shape, as well as another lattice object.")
+        obj.addProperty("App::PropertyLink","Base","Lattice Apply","Base object. Can be any generic shape, as well as another lattice object.")
                 
-        obj.addProperty("App::PropertyBool","KeepBaseFirstItemPos","LatticeApply Base","Apply extra transform, so that first item doesn't move.")
+        obj.addProperty("App::PropertyBool","KeepBaseFirstItemPos","Lattice Apply","Apply extra transform, so that first item doesn't move.")
         obj.KeepBaseFirstItemPos = True
         
-        obj.addProperty("App::PropertyLink","Tool","LatticeApply Tool","Tool object. Must be a lattice object. Contains placements to be applied.")
+        obj.addProperty("App::PropertyLink","Tool","Lattice Apply","Tool object. Must be a lattice object. Contains placements to be applied.")
 
-        obj.addProperty("App::PropertyBool","FlattenToolHierarchy","LatticeApply Tool","Unpack subcompounds, to use all shapes, not just direct children.")
+        obj.addProperty("App::PropertyBool","FlattenToolHierarchy","Lattice Apply","Unpack subcompounds, to use all shapes, not just direct children.")
         obj.FlattenToolHierarchy = True
 
 
