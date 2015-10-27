@@ -81,7 +81,7 @@ class Compose(latticeBaseFeature.LatticeFeature):
         tool = obj.Tool.Shape
         if tool.ShapeType != 'Compound':
             tool = Part.makeCompound([tool])
-        if obj.FlattenBaseHierarchy:
+        if obj.FlattenToolHierarchy:
             toolChildren = LCE.AllLeaves(tool)
         else:
             toolChildren = tool.childShapes()
