@@ -54,7 +54,8 @@ def makeLatticeFeature(name, AppClass, icon, ViewClass = None):
         vp = ViewClass(obj.ViewObject)
     else:
         vp = ViewProviderLatticeFeature(obj.ViewObject)
-        vp.icon = icon
+        
+    vp.icon = icon
         
     return obj
     
