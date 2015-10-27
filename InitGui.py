@@ -51,6 +51,8 @@ class LatticeWorkbench (Workbench):
         cmdsArrayTools = cmdsArrayTools + latticePlacement.exportedCommands        
         import latticePolarArray
         cmdsArrayTools = cmdsArrayTools + latticePolarArray.exportedCommands        
+        import latticeApply
+        cmdsArrayTools = cmdsArrayTools + latticeApply.exportedCommands
         import latticeCompose
         cmdsArrayTools = cmdsArrayTools + latticeCompose.exportedCommands
         import latticeDowngrade
