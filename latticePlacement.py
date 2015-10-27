@@ -82,7 +82,7 @@ class LatticePlacement(latticeBaseFeature.LatticeFeature):
             if obj.PlacementChoice == 'Custom':
                 obj.FlipZ = False
         if obj.Invert:
-            obj.Placement = obj.Placement.inverse(obj.Placement)
+            obj.Placement = obj.Placement.inverse()
             if obj.PlacementChoice == 'Custom':
                 obj.Invert = False
         
