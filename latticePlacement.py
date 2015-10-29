@@ -35,7 +35,7 @@ import latticeBaseFeature
 
 def makeLatticePlacement(name):
     '''makePlacement(name): makes a Placement object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, LatticePlacement,'Lattice_Placement.svg')
+    return latticeBaseFeature.makeLatticeFeature(name, LatticePlacement, ViewProviderLatticePlacement)
 
 class LatticePlacement(latticeBaseFeature.LatticeFeature):
     "The Lattice Placement object"
@@ -88,7 +88,12 @@ class LatticePlacement(latticeBaseFeature.LatticeFeature):
         
         return [App.Placement()] #always return default placement, because Placement property is automatically applied on top of it.
 
-# -------------------------- /common stuff --------------------------------------------------
+class ViewProviderLatticePlacement(latticeBaseFeature.ViewProviderLatticeFeature):
+        
+    def getIcon(self):
+        return getIconPath('Lattice_Placement.svg')
+
+# -------------------------- /document object --------------------------------------------------
 
 # -------------------------- Gui command --------------------------------------------------
 

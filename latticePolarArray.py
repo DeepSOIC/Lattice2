@@ -35,7 +35,7 @@ import latticeBaseFeature
 
 def makePolarArray(name):
     '''makePolarArray(name): makes a PolarArray object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, PolarArray,'Lattice_PolarArray.svg')
+    return latticeBaseFeature.makeLatticeFeature(name, PolarArray, ViewProviderPolarArray)
 
 class PolarArray(latticeBaseFeature.LatticeFeature):
     "The Lattice PolarArray object"
@@ -191,7 +191,12 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
             
         return output
 
-# -------------------------- /common stuff --------------------------------------------------
+class ViewProviderPolarArray(latticeBaseFeature.ViewProviderLatticeFeature):
+        
+    def getIcon(self):
+        return getIconPath('Lattice_PolarArray.svg')
+        
+# -------------------------- /document object --------------------------------------------------
 
 # -------------------------- Gui command --------------------------------------------------
 

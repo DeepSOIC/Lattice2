@@ -38,7 +38,7 @@ import latticeCompoundExplorer as LCE
 
 def makeCompose(name):
     '''makeCompose(name): makes a Compose object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, Compose,'Lattice_Compose.svg', ViewProviderCompose)
+    return latticeBaseFeature.makeLatticeFeature(name, Compose, ViewProviderCompose)
 
 class Compose(latticeBaseFeature.LatticeFeature):
     "The Lattice Compose object"
@@ -165,6 +165,9 @@ class Compose(latticeBaseFeature.LatticeFeature):
             obj.Shape = Part.makeCompound(outputShapes)
 
 class ViewProviderCompose(latticeBaseFeature.ViewProviderLatticeFeature):
+        
+    def getIcon(self):
+        return getIconPath('Lattice_Compose.svg')
 
     def claimChildren(self):
         return [self.Object.Base, self.Object.Tool]

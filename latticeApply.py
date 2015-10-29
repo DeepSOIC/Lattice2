@@ -38,7 +38,7 @@ import latticeCompoundExplorer as LCE
 
 def makeLatticeApply(name):
     '''makeLatticeApply(name): makes a LatticeApply object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, LatticeApply,'Lattice_Apply.svg', ViewProviderLatticeApply)
+    return latticeBaseFeature.makeLatticeFeature(name, LatticeApply, ViewProviderLatticeApply)
 
 class LatticeApply(latticeBaseFeature.LatticeFeature):
     "The Lattice Apply object"
@@ -111,6 +111,9 @@ class LatticeApply(latticeBaseFeature.LatticeFeature):
 
 class ViewProviderLatticeApply(latticeBaseFeature.ViewProviderLatticeFeature):
 
+    def getIcon(self):
+        return getIconPath("Lattice_Apply.svg")
+        
     def claimChildren(self):
         return [self.Object.Base, self.Object.Tool]
 

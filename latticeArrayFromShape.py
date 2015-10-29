@@ -39,7 +39,7 @@ import latticeGeomUtils as Utils
 
 def makeLatticeArrayFromShape(name):
     '''makeLatticeArrayFromShape(name): makes a LatticeArrayFromShape object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, LatticeArrayFromShape,'Lattice_ArrayFromShape.svg')
+    return latticeBaseFeature.makeLatticeFeature(name, LatticeArrayFromShape, ViewProviderArrayFromShape)
 
 class LatticeArrayFromShape(latticeBaseFeature.LatticeFeature):
     "The Lattice ArrayFromShape object"
@@ -166,6 +166,12 @@ class LatticeArrayFromShape(latticeBaseFeature.LatticeFeature):
             if (posIsNone or posIsBase) and (oriIsNone or oriIsBase):
                 break #output just one placement if modes are set so that placement does not depend on current child
         return outputPlms
+
+
+class ViewProviderArrayFromShape(latticeBaseFeature.ViewProviderLatticeFeature):
+        
+    def getIcon(self):
+        return getIconPath('Lattice_ArrayFromShape.svg')
 
 # -------------------------- /document object --------------------------------------------------
 

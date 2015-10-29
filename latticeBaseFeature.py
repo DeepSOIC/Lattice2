@@ -46,7 +46,7 @@ def getDefShapeColor():
     return (r/255.0, g/255.0, b/255.0, (255-o)/255.0)
     
 
-def makeLatticeFeature(name, AppClass, icon, ViewClass = None):
+def makeLatticeFeature(name, AppClass, ViewClass):
     '''makeLatticeFeature(name, AppClass, ViewClass = None): makes a document object for a LatticeFeature-derived object.'''
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
     AppClass(obj)
@@ -54,8 +54,6 @@ def makeLatticeFeature(name, AppClass, icon, ViewClass = None):
         vp = ViewClass(obj.ViewObject)
     else:
         vp = ViewProviderLatticeFeature(obj.ViewObject)
-        
-    vp.icon = icon
         
     return obj
     
@@ -189,10 +187,6 @@ class ViewProviderLatticeFeature:
         vobj.Proxy = self
        
     def getIcon(self):
-        self.Object.Proxy.verifyIntegrity(self.Object)
-        if hasattr(self, "icon"):
-            if self.icon:
-                return getIconPath(self.icon)
         return getIconPath("Lattice.svg")
 
     def attach(self, vobj):
@@ -213,6 +207,7 @@ class ViewProviderLatticeFeature:
         return None
         
     def claimChildren(self):
+        self.Object.Proxy.verifyIntegrity(self.Object)
         return []
 
     def onDelete(self, feature, subelements): # subelements is a tuple of strings
