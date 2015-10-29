@@ -60,7 +60,7 @@ class Compose(latticeBaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyBool","FlattenBaseHierarchy","LatticeCompose Base","Unpack subcompounds, to use all shapes, not just direct children.")
         
         obj.addProperty("App::PropertyBool","KeepBaseFirstItemPos","LatticeCompose Base","Apply extra transform, so that first item doesn't move.")
-        obj.KeepBaseFirstItemPos = True
+        obj.KeepBaseFirstItemPos = False
         
         obj.addProperty("App::PropertyLink","Tool","LatticeCompose Tool","Tool object. Must be a lattice object. Contains placements to be applied.")
 

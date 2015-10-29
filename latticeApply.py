@@ -49,7 +49,7 @@ class LatticeApply(latticeBaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyLink","Base","Lattice Apply","Base object. Can be any generic shape, as well as another lattice object.")
                 
         obj.addProperty("App::PropertyBool","KeepBaseFirstItemPos","Lattice Apply","Apply extra transform, so that first item doesn't move.")
-        obj.KeepBaseFirstItemPos = True
+        obj.KeepBaseFirstItemPos = False
         
         obj.addProperty("App::PropertyLink","Tool","Lattice Apply","Tool object. Must be a lattice object. Contains placements to be applied.")
 
