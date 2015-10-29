@@ -111,18 +111,18 @@ class LatticeArrayFromShape(latticeBaseFeature.LatticeFeature):
                              "Face":"Area",
                              "Shell":"Area",
                              "Solid":"Volume",
-                             "CompSolid":""}
+                             "CompSolid":""}[leaves[0].ShapeType]
                 #Center of mass of a compound is a weghted average of centers
                 # of mass of individual objects.
                 for leaf in leaves:
                     w = 1.0 if not weightAttrib else (getattr(leaf, weightAttrib))
-                    if child.ShapeType == 'Vertex':
-                        childCM = child.Point
+                    if leaf.ShapeType == 'Vertex':
+                        leafCM = leaf.Point
                     #elif child.ShapeType == 'CompSolid':
                         #todo
                     else: 
-                        childCM = child.CenterOfMass
-                    pos += childCM * w
+                        leafCM = leaf.CenterOfMass
+                    pos += leafCM * w
                     totalW += w
                 pos = pos * (1.0/totalW)
             elif posIsCenterBB:
@@ -131,6 +131,7 @@ class LatticeArrayFromShape(latticeBaseFeature.LatticeFeature):
                 pos = bb.Center
             elif posIsVertex:
                 v = child.Vertexes[obj.TranslateElementIndex - 1]
+                pos = v.Point
             else:
                 raise ValueError("latticePolarArrayFromShape: translation mode not implemented: "+obj.TranslateMode)
             
