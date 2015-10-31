@@ -135,7 +135,8 @@ for mode in LatticePlacement._PlacementChoiceList:
     cmdName = 'Lattice_Placement' + mode
     FreeCADGui.addCommand(cmdName, _CommandPlacement(mode))
     _listOfSubCommands.append(cmdName)
-    
+import latticeArrayFromShape
+_listOfSubCommands.append('Lattice_PlacementFromShape')    
 
 class GroupCommandPlacement:
     def GetCommands(self):

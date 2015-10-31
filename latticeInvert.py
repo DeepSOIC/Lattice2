@@ -105,6 +105,10 @@ class ViewProviderInvert(latticeBaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
         return getIconPath('Lattice_Invert.svg')
+    
+    def claimChildren(self):
+        return [self.Object.Base]
+
 
 # -------------------------- /document object --------------------------------------------------
 
