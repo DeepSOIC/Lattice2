@@ -27,7 +27,7 @@ class CompoundExplorer:
     """
     CompoundExplorer: Iterator class to traverse compound hierarchy.
     Usage:
-    for (child, msg, it) in latticeBaseFeature.CompoundExplorer(App.ActiveDocument.Compound.Shape):
+    for (child, msg, it) in latticeCompoundExplorer.CompoundExplorer(App.ActiveDocument.Compound.Shape):
         #child is a shape. 
         #msg is int equal to one of three constants:
         #    CompoundExplorer.MSG_LEAF  - child is a leaf (non-compound)

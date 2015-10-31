@@ -63,6 +63,8 @@ class LatticeWorkbench (Workbench):
         cmdsCompoundTools = cmdsCompoundTools + CompoundFilter.exportedCommands
         import FuseCompound
         cmdsCompoundTools = cmdsCompoundTools + FuseCompound.exportedCommands
+        import latticeInspect
+        cmdsCompoundTools = cmdsCompoundTools + latticeInspect.exportedCommands
         import latticeBoundBox
         cmdsMiscTools = cmdsMiscTools + latticeBoundBox.exportedCommands
         
