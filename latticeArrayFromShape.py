@@ -239,7 +239,7 @@ class _CommandLatticePlacementFromShape:
     "Command to create LatticeArrayFromShape feature linking to placement of one shape"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice_PlacementFromShape.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_ArrayFromShape","Make lattice from compound"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_ArrayFromShape","Single Placement: linked to shape"),
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_ArrayFromShape","Lattice PlacementFromShape: make Placement linked to placement of selected object.")}
         
