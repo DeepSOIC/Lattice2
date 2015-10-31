@@ -53,6 +53,8 @@ class LatticeWorkbench (Workbench):
         cmdsArrayTools = cmdsArrayTools + latticePolarArray.exportedCommands        
         import latticeArrayFromShape
         cmdsArrayTools = cmdsArrayTools + latticeArrayFromShape.exportedCommands        
+        import latticeInvert
+        cmdsArrayTools = cmdsArrayTools + latticeInvert.exportedCommands        
         import latticeApply
         cmdsArrayTools = cmdsArrayTools + latticeApply.exportedCommands
         import latticeCompose
