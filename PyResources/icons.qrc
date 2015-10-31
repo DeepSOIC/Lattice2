@@ -1,6 +1,7 @@
 <RCC>
     <qresource>
         <file>icons/Lattice_Apply.svg</file>
+        <file>icons/Lattice_ArrayFromShape.svg</file>
         <file>icons/Lattice_BoundBox.svg</file>
         <file>icons/Lattice_Compose.svg</file>
         <file>icons/Lattice_CompoundFilter.svg</file>
@@ -10,6 +11,7 @@
         <file>icons/Lattice_Inspect.svg</file>
         <file>icons/Lattice_LinearArray.svg</file>
         <file>icons/Lattice_Placement.svg</file>
+        <file>icons/Lattice_PlacementFromShape.svg</file>
         <file>icons/Lattice_PolarArray.svg</file>
     </qresource>
 </RCC> 
