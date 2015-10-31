@@ -66,6 +66,8 @@ def loadShape(shapeID):
             sh = Part.Shape()
             f = open(getShapePath(shapeID + '.brep'))
             sh.importBrep(f)
+            if sh.ShapeType == "Compound":
+                sh = sh.childShapes()[0]
             f.close()
         except Exception as err:
             FreeCAD.Console.PrintError('Failed to load standard shape "'+shapeID+'". \n' + err.message + '\n')
