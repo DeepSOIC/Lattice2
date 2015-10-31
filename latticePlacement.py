@@ -54,6 +54,8 @@ class LatticePlacement(latticeBaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyBool","Invert","Lattice Placement","Invert the placement")
         
+        obj.SingleByDesign = True
+        
     def updateReadOnlyness(self, obj):
         m = obj.PlacementChoice
         obj.setEditorMode("Placement", 0 if m == "Custom" else 1)        
@@ -86,7 +88,7 @@ class LatticePlacement(latticeBaseFeature.LatticeFeature):
             if obj.PlacementChoice == 'Custom':
                 obj.Invert = False
         
-        return [App.Placement()] #always return default placement, because Placement property is automatically applied on top of it.
+        return [obj.Placement]
 
 class ViewProviderLatticePlacement(latticeBaseFeature.ViewProviderLatticeFeature):
         

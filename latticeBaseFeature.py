@@ -31,6 +31,7 @@ import Part
 from latticeCommon import *
 import latticeCompoundExplorer as LCE
 import latticeMarkers
+import latticeExecuter
 
 def getDefLatticeFaceColor():
     return (1.0, 0.7019608020782471, 0.0, 0.0) #orange
@@ -93,6 +94,10 @@ class LatticeFeature():
         obj.addProperty("App::PropertyInteger",prop,"Lattice","Info: number of placements in the array")
         obj.setEditorMode(prop, 1) # set read-only
         
+        prop = "SingleByDesign"
+        obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the element be populated into object's Placement property")
+        obj.setEditorMode(prop, 2) # set hidden
+
         obj.addProperty("App::PropertyLength","MarkerSize","Lattice","Size of placement markers (set to zero for automatic).")
 
         obj.addProperty("App::PropertyEnumeration","isLattice","Lattice","Sets whether this object should be treated as a lattice by further operations")
@@ -121,18 +126,23 @@ class LatticeFeature():
                 markerSize = getMarkerSizeEstimate(plms)
             marker = latticeMarkers.getPlacementMarker(scale=markerSize)
             #FIXME: make hierarchy-aware
-            for plm in plms:
-                sh = marker.copy()
-                sh.Placement = plm
-                shapes.append(sh)
+            if obj.SingleByDesign:
+                if len(plms) != 1:
+                    latticeExecuter.warning(obj,"Multiple placements are being fed, but object is single by design. Only fisrt placement will be used...")
+                obj.Shape = marker.copy()
+                obj.Placement = plms[0]
+            else:
+                for plm in plms:
+                    sh = marker.copy()
+                    sh.Placement = plm
+                    shapes.append(sh)
+                    
+                if len(shapes) == 0:
+                    obj.Shape = markers.getNullShapeShape(markerSize)
+                    raise ValueError('Lattice object is null') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
                 
-            if len(shapes) == 0:
-                obj.Shape = markers.getNullShapeShape(markerSize)
-                raise ValueError('Lattice object is null') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
-            
-            sh = Part.makeCompound(shapes)
-            sh.Placement = obj.Placement #Fix single placement behaving badly
-            obj.Shape = sh
+                sh = Part.makeCompound(shapes)
+                obj.Shape = sh
 
             if obj.isLattice == 'Auto-Off':
                 obj.isLattice = 'Auto-On'
