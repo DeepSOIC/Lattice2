@@ -34,6 +34,7 @@ from latticeCommon import *
 import latticeBaseFeature
 import latticeCompoundExplorer as LCE
 import latticeGeomUtils as Utils
+import latticeExecuter
 
 # -------------------------- document object --------------------------------------------------
 
@@ -61,7 +62,7 @@ class LatticeInvert(latticeBaseFeature.LatticeFeature):
         # cache stuff
         base = obj.Base.Shape
         if not latticeBaseFeature.isObjectLattice(obj.Base):
-            App.Console.PrintWarning(obj.Name+": Base is not a lattice, but lattice is expected. Results may be unexpected.\n")
+            latticeExecuter.warning(obj, "Base is not a lattice, but lattice is expected. Results may be unexpected.\n")
         baseChildren = LCE.AllLeaves(base)
                         
         #cache mode comparisons, for speed
@@ -113,12 +114,12 @@ def CreateLatticeInvert(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LatticeInvert")
     FreeCADGui.addModule("latticeInvert")
+    FreeCADGui.addModule("latticeExecuter")
     FreeCADGui.doCommand("f = latticeInvert.makeLatticeInvert(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("f.Proxy.execute(f)")
-    FreeCADGui.doCommand("f.purgeTouched()")
+    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

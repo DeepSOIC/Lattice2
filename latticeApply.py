@@ -33,6 +33,7 @@ import Part
 from latticeCommon import *
 import latticeBaseFeature
 import latticeCompoundExplorer as LCE
+import latticeExecuter
 
 # -------------------------- document object --------------------------------------------------
 
@@ -71,7 +72,7 @@ class LatticeApply(latticeBaseFeature.LatticeFeature):
         
         # validity logic
         if not latticeBaseFeature.isObjectLattice(obj.Tool):
-            FreeCAD.Console.PrintWarning(obj.Name+': Tool is not a lattice object. Results may be unexpected.\n')
+            latticeExecuter.warning(obj, 'Tool is not a lattice object. Results may be unexpected.\n')
         outputIsLattice = latticeBaseFeature.isObjectLattice(obj.Base)
         
         plmMatcher = App.Placement() #extra placement, that makes first item to preserve its original placement
@@ -125,13 +126,13 @@ def CreateLatticeApply(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LatticeApply")
     FreeCADGui.addModule("latticeApply")
+    FreeCADGui.addModule("latticeExecuter")
     FreeCADGui.doCommand("f = latticeApply.makeLatticeApply(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     FreeCADGui.doCommand("f.Tool = App.ActiveDocument."+sel[1].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("f.Proxy.execute(f)")
-    FreeCADGui.doCommand("f.purgeTouched()")
+    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

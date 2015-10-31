@@ -101,10 +101,10 @@ def CreateLatticePlacement(name,mode = 'Custom'):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create Lattice Placement")
     FreeCADGui.addModule("latticePlacement")
+    FreeCADGui.addModule("latticeExecuter")
     FreeCADGui.doCommand("f = latticePlacement.makeLatticePlacement(name='"+name+"')")    
     FreeCADGui.doCommand("f.PlacementChoice = '"+mode+"'")
-    FreeCADGui.doCommand("f.Proxy.execute(f)")
-    FreeCADGui.doCommand("f.purgeTouched()")
+    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

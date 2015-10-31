@@ -33,6 +33,7 @@ import Part
 from latticeCommon import *
 import latticeBaseFeature
 import latticeCompoundExplorer as LCE
+import latticeExecuter
 
 # -------------------------- document object --------------------------------------------------
 
@@ -94,10 +95,10 @@ class Compose(latticeBaseFeature.LatticeFeature):
 
         #mode validity logic
         if not latticeBaseFeature.isObjectLattice(obj.Tool):
-            FreeCAD.Console.PrintWarning(obj.Name+': Tool is not a lattice object. Results may be unexpected.\n')
+            latticeExecuter.warning(obj, 'Tool is not a lattice object. Results may be unexpected.\n')
         outputIsLattice = latticeBaseFeature.isObjectLattice(obj.Base)
         if isOverride and outputIsLattice:
-            FreeCAD.Console.PrintWarning(obj.Name+': Base is a lattice object. OverrideBasePlacements operation requires a generic compound as Base. So, the lattice is being treated as a generic compound.\n')
+            latticeExecuter.warning(obj, 'Base is a lattice object. OverrideBasePlacements operation requires a generic compound as Base. So, the lattice is being treated as a generic compound.\n')
             outputIsLattice = False
         
         # initialize output containers and loop variables
@@ -180,13 +181,13 @@ def CreateCompose(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create Compose")
     FreeCADGui.addModule("latticeCompose")
+    FreeCADGui.addModule("latticeExecuter")
     FreeCADGui.doCommand("f = latticeCompose.makeCompose(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     FreeCADGui.doCommand("f.Tool = App.ActiveDocument."+sel[1].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("f.Proxy.execute(f)")
-    FreeCADGui.doCommand("f.purgeTouched()")
+    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

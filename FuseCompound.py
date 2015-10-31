@@ -103,10 +103,10 @@ class _ViewProviderFuseCompound:
 def CreateFuseCompound(name):
     FreeCAD.ActiveDocument.openTransaction("Create FuseCompound")
     FreeCADGui.addModule("FuseCompound")
+    FreeCADGui.addModule("latticeExecuter")
     FreeCADGui.doCommand("f = FuseCompound.makeFuseCompound(name = '"+name+"')")
     FreeCADGui.doCommand("f.Base = FreeCADGui.Selection.getSelection()[0]")
-    FreeCADGui.doCommand("f.Proxy.execute(f)")
-    FreeCADGui.doCommand("f.purgeTouched()")
+    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
     FreeCADGui.doCommand("f.Base.ViewObject.hide()")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()

@@ -32,6 +32,7 @@ import Part
 
 from latticeCommon import *
 import latticeBaseFeature
+import latticeExecuter
 
 def makePolarArray(name):
     '''makePolarArray(name): makes a PolarArray object.'''
@@ -119,7 +120,7 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
             if len(edges) < 1:
                 raise ValueError('There are no edges in axis link shape!')
             elif len(edges) > 1:
-                App.Console.PrintWarning('There is more than one edge in shape linked as an axis. The first edge will be used, but the shape link was probably added mistakenly.')
+                latticeExecuter.warning(obj,'There is more than one edge in shape linked as an axis. The first edge will be used, but the shape link was probably added mistakenly.')
             edge = edges[0]
             
             #prepare
@@ -204,11 +205,11 @@ def CreatePolarArray(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create PolarArray")
     FreeCADGui.addModule("latticePolarArray")
+    FreeCADGui.addModule("latticeExecuter")
     FreeCADGui.doCommand("f = latticePolarArray.makePolarArray(name='"+name+"')")
     if len(sel) == 1:
         FreeCADGui.doCommand("f.AxisLink = App.ActiveDocument."+sel[0].ObjectName)
-    FreeCADGui.doCommand("f.Proxy.execute(f)")
-    FreeCADGui.doCommand("f.purgeTouched()")
+    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

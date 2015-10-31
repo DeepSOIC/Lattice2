@@ -198,6 +198,7 @@ def CreateCompoundFilter(name):
     sel = FreeCADGui.Selection.getSelection()
     FreeCAD.ActiveDocument.openTransaction("Create CompoundFilter")
     FreeCADGui.addModule("CompoundFilter")
+    FreeCADGui.addModule("latticeExecuter")
     FreeCADGui.doCommand("f = CompoundFilter.makeCompoundFilter(name = '"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].Name)
     FreeCADGui.doCommand("f.Base.ViewObject.hide()")
@@ -207,8 +208,7 @@ def CreateCompoundFilter(name):
         FreeCADGui.doCommand("f.FilterType = 'collision-pass'")
     else:
         FreeCADGui.doCommand("f.FilterType = 'window-volume'")    
-    FreeCADGui.doCommand("f.Proxy.execute(f)")
-    FreeCADGui.doCommand("f.purgeTouched()")
+    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

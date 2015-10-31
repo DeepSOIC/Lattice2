@@ -181,12 +181,12 @@ def CreateLatticeArrayFromShape(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LatticeArrayFromShape")
     FreeCADGui.addModule("latticeArrayFromShape")
+    FreeCADGui.addModule("latticeExecuter")
     FreeCADGui.doCommand("f = latticeArrayFromShape.makeLatticeArrayFromShape(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("f.Proxy.execute(f)")
-    FreeCADGui.doCommand("f.purgeTouched()")
+    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 
