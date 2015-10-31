@@ -36,6 +36,9 @@ def executeFeature(obj):
     try:
         obj.Proxy.execute(obj)
         obj.purgeTouched()
+    except CancelError:
+        FreeCAD.ActiveDocument.abortTransaction()
+        raise
     except Exception as err:
         mb = QtGui.QMessageBox()
         mb.setIcon(mb.Icon.Warning)
@@ -58,9 +61,19 @@ def warning(obj,message):
         mb.setIcon(mb.Icon.Warning)
         mb.setText(u"Warning: \n" + message)
         mb.setWindowTitle("Warning")
+        btnAbort = mb.addButton(QtGui.QMessageBox.StandardButton.Abort)
+        btnOK = mb.addButton("Continue",QtGui.QMessageBox.ButtonRole.ActionRole)
+        mb.setDefaultButton(btnOK)
         mb.exec_()
+        if mb.clickedButton() is btnAbort:
+            raise CancelError()
+            
     else:
         if obj is not None:
             FreeCAD.Console.PrintWarning(obj.Name + ": " + message)
         else:
             FreeCAD.Console.PrintWarning(message)
+
+class CancelError(Exception):
+    def __init__(self):
+        self.message = "Canceled by user"
