@@ -117,6 +117,8 @@ class LatticeShapeString:
 
         obj.addProperty("App::PropertyEnumeration","YAlign","Lattice ShapeString","Vertical alignment of individual strings")
         obj.YAlign = ['None','Top','Bottom','Middle']
+
+        obj.addProperty("App::PropertyBool","AlignPrecisionBoundBox","Lattice ShapeString","Use precision bounding box for alignment. Warning: slow!")
         
         obj.addProperty("App::PropertyFile","FullPathToFont","Lattice ShapeString","Full path of font file that is actually being used.")
         obj.setEditorMode("FullPathToFont", 1) # set read-only
@@ -163,7 +165,10 @@ class LatticeShapeString:
                 if obj.XAlign == 'None' and obj.YAlign == 'None':
                     pass #need not calculate boundbox
                 else:
-                    bb = getPrecisionBoundBox(shape)
+                    if obj.AlignPrecisionBoundBox:
+                        bb = getPrecisionBoundBox(shape)
+                    else:
+                        bb = shape.BoundBox
 
                 alignPnt = App.Vector()
                 
