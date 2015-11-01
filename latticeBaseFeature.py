@@ -174,10 +174,11 @@ class LatticeFeature():
             if obj.ViewObject is not None:
                 try:
                     if isObjectLattice(obj):
-                        obj.ViewObject.DisplayMode = 'Shaded'
+                        #obj.ViewObject.DisplayMode = 'Shaded'
                         obj.ViewObject.ShapeColor = getDefLatticeFaceColor()
+                        obj.ViewObject.Lighting = 'One side'
                     else:
-                        obj.ViewObject.DisplayMode = 'Flat Lines'
+                        #obj.ViewObject.DisplayMode = 'Flat Lines'
                         obj.ViewObject.ShapeColor = getDefShapeColor()
                 except App.Base.FreeCADError as err:
                     #these errors pop up while loading project file, apparently because

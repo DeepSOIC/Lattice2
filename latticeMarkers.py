@@ -81,7 +81,7 @@ def getPlacementMarker(scale = 1.0, markerID = None):
     The shape is scaled according to "scale" argument. 
     markerID sets the marker file name. If omitted, default placement marker is returned.'''
     if markerID is None:
-        markerID = 'tetra-orimarker'
+        markerID = 'paperplane-orimarker'
     sh = loadShape(markerID)
     if scale != 1.0:
         sh = sh.copy()
