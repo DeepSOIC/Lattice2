@@ -99,6 +99,10 @@ class LatticeFeature():
         obj.setEditorMode(prop, 2) # set hidden
 
         obj.addProperty("App::PropertyLength","MarkerSize","Lattice","Size of placement markers (set to zero for automatic).")
+        
+        obj.addProperty("App::PropertyEnumeration","MarkerShape","Lattice","Choose the preferred shape of placement markers.")
+        obj.MarkerShape = ["tetra-orimarker","paperplane-orimarker"]
+        obj.MarkerShape = "paperplane-orimarker" #TODO: setting for choosing the default
 
         obj.addProperty("App::PropertyEnumeration","isLattice","Lattice","Sets whether this object should be treated as a lattice by further operations")
         obj.isLattice = ['Auto-Off','Auto-On','Force-Off','Force-On']
@@ -124,7 +128,7 @@ class LatticeFeature():
             markerSize = obj.MarkerSize
             if markerSize < DistConfusion:
                 markerSize = getMarkerSizeEstimate(plms)
-            marker = latticeMarkers.getPlacementMarker(scale=markerSize)
+            marker = latticeMarkers.getPlacementMarker(scale= markerSize, markerID= obj.MarkerShape)
             #FIXME: make hierarchy-aware
             if obj.SingleByDesign:
                 if len(plms) != 1:
