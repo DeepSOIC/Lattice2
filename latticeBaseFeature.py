@@ -142,7 +142,7 @@ class LatticeFeature():
                     shapes.append(sh)
                     
                 if len(shapes) == 0:
-                    obj.Shape = markers.getNullShapeShape(markerSize)
+                    obj.Shape = latticeMarkers.getNullShapeShape(markerSize)
                     raise ValueError('Lattice object is null') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
                 
                 sh = Part.makeCompound(shapes)
