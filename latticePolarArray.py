@@ -72,8 +72,10 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyLink","AxisLink","Lattice Array","Link to the axis (Edge1 is used for the axis).")  
         
-        obj.addProperty("App::PropertyBool","AxisLinkIgnoreDir","Lattice Array","If True, AxisDir is not updated based on the link.")
-        obj.addProperty("App::PropertyBool","AxisLinkIgnorePoint","Lattice Array","If True, AxisPoint is not updated based on the link.")
+        obj.addProperty("App::PropertyBool","AxisDirIsDriven","Lattice Array","If True, AxisDir is not updated based on the link.")
+        obj.addProperty("App::PropertyBool","AxisPointIsDriven","Lattice Array","If True, AxisPoint is not updated based on the link.")
+        obj.AxisDirIsDriven = True
+        obj.AxisPointIsDriven = True
         
         obj.addProperty("App::PropertyLink","SpreadSheet","SpreadSheet mode","Link to spreadsheet")
         obj.addProperty("App::PropertyString","CellStart","SpreadSheet mode","Starting cell of list of angles")
@@ -89,10 +91,10 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         obj.setEditorMode("AngleStep", 1 if m == "SpanN" or m == "Spreadsheet" else 0)
         obj.setEditorMode("AngleSpanEnd", 1 if m == "StepN" or m == "Spreadsheet" else 0)
         obj.setEditorMode("NumberPolar", 1 if m == "SpanStep" or m == "Spreadsheet" else 0)
-        obj.setEditorMode("AxisDir", 1 if (obj.AxisLink and not obj.AxisLinkIgnoreDir) else 0)
-        obj.setEditorMode("AxisPoint", 1 if (obj.AxisLink and not obj.AxisLinkIgnorePoint) else 0)
-        obj.setEditorMode("AxisLinkIgnoreDir", 0 if obj.AxisLink else 1)
-        obj.setEditorMode("AxisLinkIgnorePoint", 0 if obj.AxisLink else 1)
+        obj.setEditorMode("AxisDir", 1 if (obj.AxisLink and obj.AxisDirIsDriven) else 0)
+        obj.setEditorMode("AxisPoint", 1 if (obj.AxisLink and obj.AxisPointIsDriven) else 0)
+        obj.setEditorMode("AxisDirIsDriven", 0 if obj.AxisLink else 1)
+        obj.setEditorMode("AxisPointIsDriven", 0 if obj.AxisLink else 1)
         obj.setEditorMode("SpreadSheet", 0 if m == "Spreadsheet" else 1)
         obj.setEditorMode("CellStart", 0 if m == "Spreadsheet" else 1)
         
@@ -142,9 +144,9 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
                 raise ValueError("Edge " + repr(edge) + " can't be used to derive an axis. It must be either a line or a circle/arc.")
             
             #apply
-            if not obj.AxisLinkIgnoreDir:
+            if obj.AxisDirIsDriven:
                 obj.AxisDir = dir
-            if not obj.AxisLinkIgnorePoint:
+            if obj.AxisPointIsDriven:
                 obj.AxisPoint = point
         
         # Generate the actual array. We can use Step and N directly to 
