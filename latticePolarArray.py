@@ -71,6 +71,7 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyVector","AxisPoint","Lattice Array","Center of rotation")  
         
         obj.addProperty("App::PropertyLink","AxisLink","Lattice Array","Link to the axis (Edge1 is used for the axis).")  
+        obj.addProperty("App::PropertyString","AxisLinkSubelement","Lattice Array","subelement to take from axis link shape")        
         
         obj.addProperty("App::PropertyBool","AxisDirIsDriven","Lattice Array","If True, AxisDir is not updated based on the link.")
         obj.addProperty("App::PropertyBool","AxisPointIsDriven","Lattice Array","If True, AxisPoint is not updated based on the link.")
@@ -123,25 +124,27 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
             
         # Apply links
         if obj.AxisLink:
-            axShape = obj.AxisLink
-            edges = axShape.Shape.Edges
-            if len(edges) < 1:
-                raise ValueError('There are no edges in axis link shape!')
-            elif len(edges) > 1:
-                latticeExecuter.warning(obj,'There is more than one edge in shape linked as an axis. The first edge will be used, but the shape link was probably added mistakenly.')
-            edge = edges[0]
+            #resolve the link        
+            if len(obj.AxisLinkSubelement) > 0:
+                linkedShape = obj.AxisLink.Shape.getElement(obj.AxisLinkSubelement)
+            else:
+                linkedShape = obj.AxisLink.Shape
+
+            #Type check
+            if linkedShape.ShapeType != 'Edge':
+                raise ValueError('Axis link must be an edge; it is '+linkedShape.ShapeType+' instead.')
             
             #prepare
             dir = App.Vector()
             point = App.Vector()
-            if isinstance(edge.Curve, Part.Line):
-                dir = edge.Curve.EndPoint - edge.Curve.StartPoint
-                point = edge.Curve.StartPoint
-            elif isinstance(edge.Curve, Part.Circle):
-                obj.AxisDir = edge.Curve.Axis
-                obj.AxisPoint = edge.Curve.Center
+            if isinstance(linkedShape.Curve, Part.Line):
+                dir = linkedShape.Curve.EndPoint - linkedShape.Curve.StartPoint
+                point = linkedShape.Curve.StartPoint
+            elif isinstance(linkedShape.Curve, Part.Circle):
+                dir = linkedShape.Curve.Axis
+                point = linkedShape.Curve.Center
             else:
-                raise ValueError("Edge " + repr(edge) + " can't be used to derive an axis. It must be either a line or a circle/arc.")
+                raise ValueError("Edge " + repr(linkedShape) + " can't be used to derive an axis. It must be either a line or a circle/arc.")
             
             #apply
             if obj.AxisDirIsDriven:
@@ -220,6 +223,8 @@ def CreatePolarArray(name):
     FreeCADGui.doCommand("f = latticePolarArray.makePolarArray(name='"+name+"')")
     if len(sel) == 1:
         FreeCADGui.doCommand("f.AxisLink = App.ActiveDocument."+sel[0].ObjectName)
+        if sel[0].HasSubObjects:
+            FreeCADGui.doCommand("f.AxisLinkSubelement = '"+sel[0].SubElementNames[0]+"'")
     FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
