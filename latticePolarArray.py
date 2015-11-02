@@ -33,6 +33,7 @@ import Part
 from latticeCommon import *
 import latticeBaseFeature
 import latticeExecuter
+import latticeGeomUtils
 
 def makePolarArray(name):
     '''makePolarArray(name): makes a PolarArray object.'''
@@ -151,7 +152,7 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         radius = float(obj.Radius)
         
         # compute initial vector. It is to be perpendicular to Axis
-        rot_ini = App.Rotation(App.Vector(0,0,1), obj.AxisDir)
+        rot_ini = latticeGeomUtils.makeOrientationFromLocalAxes(ZAx= obj.AxisDir)
         overallPlacement = App.Placement(obj.AxisPoint, rot_ini)
         
         # Make the array
