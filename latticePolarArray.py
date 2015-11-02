@@ -84,7 +84,7 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyEnumeration","OrientMode","Lattice Array","Orientation of elements")
         obj.OrientMode = ['None','Against axis']
-        obj.OrientMode = ['Against axis']
+        obj.OrientMode = 'Against axis'
 
         
     def updateReadOnlyness(self, obj):

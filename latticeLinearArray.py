@@ -87,7 +87,7 @@ class LinearArray(latticeBaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyEnumeration","OrientMode","Lattice Array","Orientation of elements")
         obj.OrientMode = ['None','Along axis']
-        obj.OrientMode = ['Along axis']
+        obj.OrientMode = 'Along axis'
         
     def updateReadOnlyness(self, obj):
         m = obj.Mode
