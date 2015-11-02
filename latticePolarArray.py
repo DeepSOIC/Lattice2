@@ -79,6 +79,11 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyString","CellStart","SpreadSheet mode","Starting cell of list of angles")
         obj.CellStart = 'A1'
         
+        obj.addProperty("App::PropertyEnumeration","OrientMode","Lattice Array","Orientation of elements")
+        obj.OrientMode = ['None','Against axis']
+        obj.OrientMode = ['Against axis']
+
+        
     def updateReadOnlyness(self, obj):
         m = obj.Mode
         obj.setEditorMode("AngleStep", 1 if m == "SpanN" or m == "Spreadsheet" else 0)
@@ -108,7 +113,7 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
                 n -= 1
             obj.AngleSpanEnd = obj.AngleSpanStart + obj.AngleStep*n
         elif obj.Mode == 'SpanStep':
-            nfloat = (obj.AngleSpanEnd - obj.AngleSpanStart) / obj.AngleStep
+            nfloat = float((obj.AngleSpanEnd - obj.AngleSpanStart) / obj.AngleStep)
             n = math.trunc(nfloat - ParaConfusion) + 1
             if obj.EndInclusive and abs(nfloat-round(nfloat)) <= ParaConfusion:
                 n = n + 1
@@ -164,7 +169,10 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
                 localrot = App.Rotation(App.Vector(0,0,1), ang)
                 localtransl = localrot.multVec(App.Vector(radius,0,0))
                 localplm = App.Placement(localtransl, localrot)
-                output.append( overallPlacement.multiply(localplm) )
+                resultplm = overallPlacement.multiply(localplm)
+                if obj.OrientMode == 'None':
+                    resultplm.Rotation = App.Rotation()
+                output.append(resultplm)
         else:
             #parse address
             addr = obj.CellStart
