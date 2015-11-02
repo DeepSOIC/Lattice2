@@ -47,30 +47,32 @@ class LatticeWorkbench (Workbench):
         cmdsCompoundTools = []
         cmdsMiscTools = []
         
-        import latticePlacement
-        cmdsArrayTools = cmdsArrayTools + latticePlacement.exportedCommands        
-        import latticePolarArray
-        cmdsArrayTools = cmdsArrayTools + latticePolarArray.exportedCommands        
-        import latticeArrayFromShape
-        cmdsArrayTools = cmdsArrayTools + latticeArrayFromShape.exportedCommands        
-        import latticeInvert
-        cmdsArrayTools = cmdsArrayTools + latticeInvert.exportedCommands        
-        import latticeApply
-        cmdsArrayTools = cmdsArrayTools + latticeApply.exportedCommands
-        import latticeCompose
-        cmdsArrayTools = cmdsArrayTools + latticeCompose.exportedCommands
-        import latticeDowngrade
-        cmdsCompoundTools = cmdsCompoundTools + latticeDowngrade.exportedCommands
-        import CompoundFilter
-        cmdsCompoundTools = cmdsCompoundTools + CompoundFilter.exportedCommands
-        import FuseCompound
-        cmdsCompoundTools = cmdsCompoundTools + FuseCompound.exportedCommands
-        import latticeInspect
-        cmdsCompoundTools = cmdsCompoundTools + latticeInspect.exportedCommands
-        import latticeBoundBox
-        cmdsMiscTools = cmdsMiscTools + latticeBoundBox.exportedCommands
-        import latticeShapeString
-        cmdsMiscTools = cmdsMiscTools + latticeShapeString.exportedCommands
+        import latticePlacement as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        import latticeLinearArray as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        import latticePolarArray as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        import latticeArrayFromShape as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        import latticeInvert as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        import latticeApply as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
+        import latticeCompose as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
+        import latticeDowngrade as mod
+        cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
+        import CompoundFilter as mod
+        cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
+        import FuseCompound as mod
+        cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
+        import latticeInspect as mod
+        cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
+        import latticeBoundBox as mod
+        cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
+        import latticeShapeString as mod
+        cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
         
         self.appendToolbar('LatticeArrayTools', cmdsArrayTools)
         self.appendToolbar('LatticeCompoundTools', cmdsCompoundTools)
