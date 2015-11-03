@@ -40,11 +40,11 @@ def executeFeature(obj):
         FreeCAD.ActiveDocument.abortTransaction()
         raise
     except Exception as err:
-        mb = QtGui.QMessageBox()
-        mb.setIcon(mb.Icon.Warning)
-        mb.setText("While excuting feature '"+obj.Name+"', an error occured:\n" + err.message)
-        mb.setWindowTitle("Error")
-        mb.exec_()
+        try:
+            error(obj,err.message)
+        except CancelError:
+            FreeCAD.ActiveDocument.abortTransaction()
+            raise            
     finally:
         globalIsCreatingLatticeFeature = False
         
@@ -53,14 +53,26 @@ def warning(obj,message):
     '''
     warning(obj,message): smart warning message function. If feature is being 
     created, a warning message pops up. If otherwise, the warning is printed 
-    into console.
+    to the console/report view.
     '''
+    _showMsg(obj, message, _type= u'Warning')
+
+def error(obj,message):
+    '''
+    error(obj, message): smart error message function. If feature is being 
+    created, an error message pops up. If otherwise, the error is printed 
+    to the console/report view.
+    '''
+    _showMsg(obj, message, _type= u'Error')
+    
+def _showMsg(obj, message, _type):
+    '''showMsg(obj, message, _type): convenience function, contains the shared code of error() and warning()'''
     global globalIsCreatingLatticeFeature
     if globalIsCreatingLatticeFeature:
         mb = QtGui.QMessageBox()
         mb.setIcon(mb.Icon.Warning)
-        mb.setText(u"Warning: \n" + message)
-        mb.setWindowTitle("Warning")
+        mb.setText(_type + u": \n" + message)
+        mb.setWindowTitle(_type)
         btnAbort = mb.addButton(QtGui.QMessageBox.StandardButton.Abort)
         btnOK = mb.addButton("Continue",QtGui.QMessageBox.ButtonRole.ActionRole)
         mb.setDefaultButton(btnOK)
@@ -69,10 +81,16 @@ def warning(obj,message):
             raise CancelError()
             
     else:
-        if obj is not None:
-            FreeCAD.Console.PrintWarning(obj.Name + ": " + message)
+        if _type == 'Warning':
+            printfunc = FreeCAD.Console.PrintWarning
         else:
-            FreeCAD.Console.PrintWarning(message)
+            printfunc = FreeCAD.Console.PrintError
+            
+        if obj is not None:
+            printfunc(obj.Name + ": " + message)
+        else:
+            printfunc(message)
+    
 
 class CancelError(Exception):
     def __init__(self):
