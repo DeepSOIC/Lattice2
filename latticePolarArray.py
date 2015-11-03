@@ -124,6 +124,9 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
             
         # Apply links
         if obj.AxisLink:
+            if latticeBaseFeature.isObjectLattice(obj.AxisLink):
+                latticeExecuter.warning(obj,"For polar array, axis link is expected to be a regular shape. Lattice objct was supplied instead, it's going to be treated as a generic shape.")
+                
             #resolve the link        
             if len(obj.AxisLinkSubelement) > 0:
                 linkedShape = obj.AxisLink.Shape.getElement(obj.AxisLinkSubelement)

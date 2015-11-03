@@ -108,6 +108,9 @@ class LinearArray(latticeBaseFeature.LatticeFeature):
 
         # Apply links
         if obj.Link:
+            if latticeBaseFeature.isObjectLattice(obj.AxisLink):
+                latticeExecuter.warning(obj,"For polar array, axis link is expected to be a regular shape. Lattice objct was supplied instead, it's going to be treated as a generic shape.")
+            
             #resolve the link
             if len(obj.LinkSubelement) > 0:
                 linkedShape = obj.Link.Shape.getElement(obj.LinkSubelement)
