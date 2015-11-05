@@ -30,6 +30,12 @@ __author__ = "DeepSOIC"
 __url__ = ""
 
 
+try:
+    from latticeBaseFeature import isObjectLattice
+except Exception:
+    # I want to keep the module easy to strip off Lattice wb, so:
+    def isObjectLattice(obj):
+        return False
 
 # -------------------------- common stuff --------------------------------------------------
 
@@ -70,6 +76,11 @@ class _CompoundFilter:
         
 
     def execute(self,obj):
+        #validity check
+        if isObjectLattice(obj.Base):
+            import latticeExecuter
+            latticeExecuter.warning(obj,"A generic shape is expected, but a lattice object was supplied. It will be treated as a generic shape.")
+
         rst = [] #variable to receive the final list of shapes
         shps = obj.Base.Shape.childShapes()
         if obj.FilterType == 'bypass':
