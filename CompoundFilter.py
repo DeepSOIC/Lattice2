@@ -53,7 +53,7 @@ class _CompoundFilter:
         obj.addProperty("App::PropertyLink","Base","CompoundFilter","Compound to be filtered")
         
         obj.addProperty("App::PropertyEnumeration","FilterType","CompoundFilter","")
-        obj.FilterType = ['bypass','specific items','collision-pass','window-volume','window-area']
+        obj.FilterType = ['bypass','specific items','collision-pass','window-volume','window-area','window-length','window-distance']
         obj.FilterType = 'bypass'
         
         # properties controlling "specific items" mode
@@ -115,13 +115,17 @@ class _CompoundFilter:
                 d = s.distToShape(stencil)
                 if bool(d[0] < DistConfusion) ^ bool(obj.Invert):
                     rst.append(s)
-        elif obj.FilterType == 'window-volume' or obj.FilterType == 'window-area':
+        elif obj.FilterType == 'window-volume' or obj.FilterType == 'window-area' or obj.FilterType == 'window-length' or obj.FilterType == 'window-distance':
             vals = [0.0] * len(shps)
             for i in xrange(0,len(shps)):
                 if obj.FilterType == 'window-volume':
                     vals[i] = shps[i].Volume
                 elif obj.FilterType == 'window-area':
                     vals[i] = shps[i].Area
+                elif obj.FilterType == 'window-length':
+                    vals[i] = shps[i].Length
+                elif obj.FilterType == 'window-distance':
+                    vals[i] = shps[i].distToShape(obj.Stencil.Shape)[0]
             
             maxval = max(vals)
             if obj.Stencil:
@@ -129,6 +133,8 @@ class _CompoundFilter:
                     vals[i] = obj.Stencil.Shape.Volume
                 elif obj.FilterType == 'window-area':
                     vals[i] = obj.Stencil.Shape.Area
+                elif obj.FilterType == 'window-length':
+                    vals[i] = obj.Stencil.Shape.Length
             if obj.OverrideMaxVal:
                 maxval = obj.OverrideMaxVal
             
