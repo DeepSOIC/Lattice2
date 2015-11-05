@@ -28,9 +28,7 @@ __title__="FuseCompound module for FreeCAD"
 __author__ = "DeepSOIC"
 __url__ = ""
 
-
-
-# -------------------------- common stuff --------------------------------------------------
+# -------------------------- document object --------------------------------------------------
 
 def makeFuseCompound(name):
     '''makeFuseCompound(name): makes a FuseCompound object.'''
@@ -100,6 +98,10 @@ class _ViewProviderFuseCompound:
             FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
         return True
 
+# -------------------------- /document object --------------------------------------------------
+
+# -------------------------- Gui command --------------------------------------------------
+
 def CreateFuseCompound(name):
     FreeCAD.ActiveDocument.openTransaction("Create FuseCompound")
     FreeCADGui.addModule("FuseCompound")
@@ -110,11 +112,6 @@ def CreateFuseCompound(name):
     FreeCADGui.doCommand("f.Base.ViewObject.hide()")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
-
-
-# -------------------------- /common stuff --------------------------------------------------
-
-# -------------------------- Gui command --------------------------------------------------
 
 class _CommandFuseCompound:
     "Command to create FuseCompound feature"
