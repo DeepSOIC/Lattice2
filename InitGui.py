@@ -55,13 +55,18 @@ class LatticeWorkbench (Workbench):
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
         import latticeArrayFromShape as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        
         import latticeInvert as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        import latticeJoinArrays as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        
         import latticeApply as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import latticeCompose as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import latticeDowngrade as mod
+        
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
         import CompoundFilter as mod
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
