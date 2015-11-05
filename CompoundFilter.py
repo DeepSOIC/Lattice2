@@ -57,7 +57,7 @@ class _CompoundFilter:
         obj.FilterType = 'bypass'
         
         # properties controlling "specific items" mode
-        obj.addProperty("App::PropertyString","items","CompoundFilter","list of indexes of childs to be returned (like this: 1,4,8-10)")
+        obj.addProperty("App::PropertyString","items","CompoundFilter","list of indexes of childs to be returned (like this: 1,4,8:10).")
 
         obj.addProperty("App::PropertyLink","Stencil","CompoundFilter","Object that defines filtering")
         
@@ -90,16 +90,17 @@ class _CompoundFilter:
             flags = [False] * len(shps)
             ranges = obj.items.split(';')
             for r in ranges:
-                r_v = r.split('-')
+                r_v = r.split(':')
                 if len(r_v) == 1:
                     i = int(r_v[0])
                     rst.append(shps[i])
                     flags[i] = True
-                elif len(r_v) == 2:
-                    ifrom = int(r_v[0])
-                    ito = int(r_v[1])+1 #python treats range's 'to' value as not-inclusive. I want the string to list in inclusive manner.
-                    rst=rst+shps[ifrom:ito]
-                    for b in flags[ifrom:ito]:
+                elif len(r_v) == 2 or len(r_v) == 3:
+                    ifrom = None   if len(r_v[0].strip()) == 0 else   int(r_v[0])                    
+                    ito = None     if len(r_v[1].strip()) == 0 else   int(r_v[1])
+                    istep = None   if len(r_v[2].strip()) == 0 else   int(r_v[2])
+                    rst=rst+shps[ifrom:ito:istep]
+                    for b in flags[ifrom:ito:istep]:
                         b = True
                 else:
                     raise ValueError('index range cannot be parsed:'+r)
