@@ -25,8 +25,6 @@ __title__="Lattice JoinArrays object: combine elements of two lattices"
 __author__ = "DeepSOIC"
 __url__ = ""
 
-import math
-
 import FreeCAD as App
 import Part
 
