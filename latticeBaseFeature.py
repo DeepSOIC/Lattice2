@@ -165,10 +165,12 @@ class LatticeFeature():
     def derivedExecute(self,obj):
         '''For overriding by derived class. If this returns a list of placements,
             it's going to be used to build the shape. If returns None, it is assumed that 
-            derivedExecute has already assigned the shape, and no further actions are needed.'''
+            derivedExecute has already assigned the shape, and no further actions are needed. 
+            Moreover, None is a signal that the object is not a lattice array, and it will 
+            morph into a non-lattice if isLattice is set to auto'''
         return []
                 
-    def verifyIntegrity(self,obj):
+    def verifyIntegrity(self):
         if self.__init__.__func__ is not LatticeFeature.__init__.__func__:
             FreeCAD.Console.PrintError("__init__() of lattice object is overridden. Please don't! Fix it!\n")
         if self.execute.__func__ is not LatticeFeature.execute.__func__:
@@ -212,6 +214,10 @@ class ViewProviderLatticeFeature:
     def derivedInit(self,vobj):
         pass
        
+    def verifyIntegrity(self):
+        if self.__init__.__func__ is not ViewProviderLatticeFeature.__init__.__func__:
+            FreeCAD.Console.PrintError("__init__() of lattice object view provider is overridden. Please don't! Fix it!\n")
+
     def getIcon(self):
         return getIconPath("Lattice.svg")
 
@@ -233,7 +239,8 @@ class ViewProviderLatticeFeature:
         return None
         
     def claimChildren(self):
-        self.Object.Proxy.verifyIntegrity(self.Object)
+        self.Object.Proxy.verifyIntegrity()
+        self.verifyIntegrity()
         return []
 
     def onDelete(self, feature, subelements): # subelements is a tuple of strings
