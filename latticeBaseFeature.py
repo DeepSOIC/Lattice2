@@ -94,10 +94,6 @@ class LatticeFeature():
         obj.addProperty("App::PropertyInteger",prop,"Lattice","Info: number of placements in the array")
         obj.setEditorMode(prop, 1) # set read-only
         
-        prop = "SingleByDesign"
-        obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the element be populated into object's Placement property")
-        obj.setEditorMode(prop, 2) # set hidden
-
         obj.addProperty("App::PropertyLength","MarkerSize","Lattice","Size of placement markers (set to zero for automatic).")
         
         obj.addProperty("App::PropertyEnumeration","MarkerShape","Lattice","Choose the preferred shape of placement markers.")
@@ -108,6 +104,11 @@ class LatticeFeature():
         obj.isLattice = ['Auto-Off','Auto-On','Force-Off','Force-On']
         # Auto-On an Auto-Off can be modified when recomputing. Force values are going to stay.
         
+        #Hidden properties affecting some standard behaviours
+        prop = "SingleByDesign"
+        obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the element be populated into object's Placement property")
+        obj.setEditorMode(prop, 2) # set hidden
+
         self.derivedInit(obj)
         
         obj.Proxy = self
@@ -199,7 +200,17 @@ class ViewProviderLatticeFeature:
     "A View Provider for base lattice object"
 
     def __init__(self,vobj):
+        '''Don't override. Override derivedInit, please!'''
         vobj.Proxy = self
+        
+        prop = "DontUnhideOnDelete"
+        vobj.addProperty("App::PropertyBool",prop,"Lattice","Makes the element be populated into object's Placement property")
+        vobj.setEditorMode(prop, 2) # set hidden
+        
+        self.derivedInit(vobj)
+
+    def derivedInit(self,vobj):
+        pass
        
     def getIcon(self):
         return getIconPath("Lattice.svg")
