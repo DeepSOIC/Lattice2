@@ -1,15 +1,18 @@
 <RCC>
     <qresource>
         <file>icons/Lattice_Apply.svg</file>
+        <file>icons/Lattice_ArrayFilter.svg</file>
         <file>icons/Lattice_ArrayFromShape.svg</file>
         <file>icons/Lattice_BoundBox.svg</file>
         <file>icons/Lattice_Compose.svg</file>
         <file>icons/Lattice_CompoundFilter.svg</file>
         <file>icons/Lattice_Downgrade.svg</file>
         <file>icons/Lattice_Explode.svg</file>
+        <file>icons/Lattice_ExplodeArray.svg</file>
         <file>icons/Lattice_FuseCompound.svg</file>
         <file>icons/Lattice_Inspect.svg</file>
         <file>icons/Lattice_Invert.svg</file>
+        <file>icons/Lattice_JoinArrays.svg</file>
         <file>icons/Lattice_LinearArray.svg</file>
         <file>icons/Lattice_Placement.svg</file>
         <file>icons/Lattice_PlacementFromShape.svg</file>
