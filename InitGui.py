@@ -62,6 +62,8 @@ class LatticeWorkbench (Workbench):
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
         import latticeArrayFilter as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        import latticeProjectArray as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
         
         import latticeApply as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands

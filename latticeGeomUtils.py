@@ -39,6 +39,9 @@ def makeOrientationFromLocalAxes(ZAx, XAx = None):
     corrected and modified
 
     '''
+    return makeOrientationFromLocalAxesUni("ZX",XAx= XAx, ZAx= ZAx)
+    
+    #dead old code that worked
     if XAx is None:
         XAx = App.Vector(0,0,1) #Why Z? Because I prefer local X axis to be aligned so that local XZ plane is parallel to global Z axis.
     #First, compute all three axes.
@@ -67,3 +70,92 @@ def makeOrientationFromLocalAxes(ZAx, XAx = None):
     # and extract rotation from placement. 
     ori = tmpplm.Rotation
     return ori
+
+def makeOrientationFromLocalAxesUni(priorityString, XAx = None, YAx = None, ZAx = None):
+    '''
+    makeOrientationFromLocalAxesUni(priorityString, XAx = None, YAx = None, ZAx = None): 
+    constructs App.Rotation to get into alignment with given local axes. 
+    Priority string is a string like "ZXY", which defines how axes are made 
+    perpendicular. For example, "ZXY" means that Z is followed strictly, X is 
+    made to be perpendicular to Z, and Y is completely ignored (a new one will 
+    be computed from X and Z). The strict axis must be specified, all other are 
+    optional.
+    '''
+    
+    if XAx is None:
+        XAx = App.Vector()
+    if YAx is None:
+        YAx = App.Vector()
+    if ZAx is None:
+        ZAx = App.Vector()
+    
+    axDic = {"X": XAx, "Y": YAx, "Z": ZAx}
+    
+    #expand priority string to list all axes
+    if len(priorityString) == 0:
+        priorityString = "ZXY"
+    if len(priorityString) == 1:
+        if priorityString == "X":
+            priorityString = priorityString + "Z"
+        elif priorityString == "Y":
+            priorityString = priorityString + "Z"
+        elif priorityString == "Z":
+            priorityString = priorityString + "X"
+    if len(priorityString) == 2:
+        for ch in "XYZ":
+            if not (ch in priorityString):
+                priorityString = priorityString + ch
+                break
+    
+    mainAx = axDic[priorityString[0]] #Driving axis
+    secAx = axDic[priorityString[1]]  #Hint axis
+    thirdAx = axDic[priorityString[2]] #Ignored axis
+    #Note: since we need to change the actual XAx,YAx,ZAx while assigning to 
+    # mainAx, secAx, thirdAx, we can't use '=' operator, because '=' reassigns 
+    # the reference, and the variables lose linkage. For that purpose, 
+    # _assignVector routine was introuced. It assigns the coordinates of the 
+    # vector, without replacing referenes
+    
+    #force the axes be perpendicular
+    mainAx.normalize()
+    tmpAx = mainAx.cross(secAx)
+    if tmpAx.Length < ParaConfusion*10.0:
+        #failed, try some other secondary axis
+        #FIXME: consider thirdAx, maybe??
+        _assignVector( secAx, { "X":App.Vector(0,0,1),
+                                "Y":App.Vector(0,0,1), #FIXME: revise
+                                "Z":App.Vector(0,0,1)
+                                }[priorityString[1]])
+        tmpAx = mainAx.cross(secAx)
+        if tmpAx.Length < ParaConfusion*10.0:
+            #failed again. (mainAx is Z). try some other secondary axis.
+            # Z axis
+            _assignVector(secAx, {"X":App.Vector(1,0,0),
+                                  "Y":App.Vector(0,1,0), #FIXME: revise
+                                  "Z":App.Vector(1,0,0)
+                                  }[priorityString[1]])
+            tmpAx = mainAx.cross(secAx)
+            assert(tmpAx.Length > ParaConfusion*10.0)
+    tmpAx.normalize()
+    _assignVector(secAx, tmpAx.cross(mainAx))
+    
+    #secAx was made perpendicular and valid, so we can compute the last axis. 
+    # Here we need to take care to produce right handedness.
+    _assignVector(thirdAx, tmpAx)
+    if XAx.cross(YAx).dot(ZAx) < 0.0:
+        _assignVector(thirdAx, tmpAx * (-1.0))
+
+    #hacky way of constucting rotation to a local coordinate system: 
+    # make matrix,
+    m = App.Matrix()
+    m.A = list(XAx)+[0.0]+list(YAx)+[0.0]+list(ZAx)+[0.0]+[0.0]*3+[1.0]
+    m.transpose() # local axes vectors are columns of matrix, but we put them in as rwos, because it is convenient, and then transpose it.
+    # make placement out of matrix,
+    tmpplm = App.Placement(m)
+    # and extract rotation from placement. 
+    ori = tmpplm.Rotation
+    return ori
+    
+def _assignVector(lhs, rhs):
+    '''A helper function for assigning vectors without creating new ones. Used as a hack to make aliases in OrientationFromLocalAxesUni'''
+    (lhs.x,lhs.y,lhs.z) = tuple(rhs)

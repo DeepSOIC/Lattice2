@@ -74,7 +74,7 @@ class LatticeArrayFilter(latticeBaseFeature.LatticeFeature):
     def derivedExecute(self,obj):
         #validity check
         if not latticeBaseFeature.isObjectLattice(obj.Base):
-            latticeExecuter.warning(obj,"A generic shape is expected, but a lattice object was supplied. It will be treated as a generic shape.")
+            latticeExecuter.warning(obj,"A lattice object is expected as Base, but a generic shape was provided. It will be treated as a lattice object; results may be unexpected.")
 
         output = [] #variable to receive the final list of placements
         leaves = LCE.AllLeaves(obj.Base.Shape)
