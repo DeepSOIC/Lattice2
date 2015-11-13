@@ -108,7 +108,7 @@ class LinearArray(latticeBaseFeature.LatticeFeature):
 
         # Apply links
         if obj.Link:
-            if latticeBaseFeature.isObjectLattice(obj.AxisLink):
+            if latticeBaseFeature.isObjectLattice(obj.Link):
                 latticeExecuter.warning(obj,"For polar array, axis link is expected to be a regular shape. Lattice objct was supplied instead, it's going to be treated as a generic shape.")
             
             #resolve the link
@@ -133,7 +133,7 @@ class LinearArray(latticeBaseFeature.LatticeFeature):
                 obj.Point = point
             if obj.DrivenProperty != 'None':
                 if obj.DrivenProperty == 'Span':
-                    obj.SpanEnd = obj.SpanStart + dir.Length
+                    obj.SpanEnd = obj.SpanStart + App.Units.Quantity('mm')*dir.Length
                 else:
                     setattr(obj, obj.DrivenProperty, dir.Length)
 
