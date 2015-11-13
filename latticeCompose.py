@@ -139,11 +139,11 @@ class Compose(latticeBaseFeature.LatticeFeature):
                 outPlm = toolPlm.multiply(plmMatcher.multiply(basePlm))
             elif isAvg:
                 plm1 = toolPlm
-                plm2 = pltMatcher.multiply(basePlm)
+                plm2 = plmMatcher.multiply(basePlm)
                 transl = plm1.Base*0.5 + plm2.Base*0.5
                 a1,b1,c1,d1 = plm1.Rotation.Q
                 a2,b2,c2,d2 = plm2.Rotation.Q
-                rot = App.Rotation((a1+a2,b1+b2,c1+c2,d1+d2)) #no divide-by-two, because FreeCAD will normalize the quaternion automatically
+                rot = App.Rotation(a1+a2,b1+b2,c1+c2,d1+d2) #no divide-by-two, because FreeCAD will normalize the quaternion automatically
                 outPlm = App.Placement(transl,rot)
             elif isIgnore:
                 outPlm = toolPlm
