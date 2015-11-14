@@ -320,7 +320,7 @@ class _CommandExplodeArray:
             try:
                 obj = FreeCADGui.Selection.getSelection()[0]
                 if not latticeBaseFeature.isObjectLattice(obj):
-                    latticeExecuter.warning("ExplodeArray expects a lattice object; a generic shape was provided instead. Results may be unexpected.")
+                    latticeExecuter.warning(None,"ExplodeArray expects a lattice object; a generic shape was provided instead. Results may be unexpected.")
                 sh = obj.Shape
                 n_elem = len(LCE.AllLeaves(sh))
                 latticeExecuter.globalIsCreatingLatticeFeature = False
