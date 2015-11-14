@@ -245,11 +245,14 @@ class ViewProviderLatticeFeature:
 
     def onDelete(self, feature, subelements): # subelements is a tuple of strings
         try:
-            children = self.claimChildren()
-            if children and len(children) > 0:
-                marker = latticeMarkers
-                for child in children:
-                    child.ViewObject.show()
+            if hasattr(self.ViewObject,"DontUnhideOnDelete") and self.ViewObject.DontUnhideOnDelete:
+                pass
+            else:
+                children = self.claimChildren()
+                if children and len(children) > 0:
+                    marker = latticeMarkers
+                    for child in children:
+                        child.ViewObject.show()
         except Exception as err:
             # catch all exceptions, because we don't want to prevent deletion if something goes wrong
             FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
