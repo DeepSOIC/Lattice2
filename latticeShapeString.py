@@ -98,9 +98,8 @@ class LatticeShapeString:
         
         
         #initialize accompanying Draft ShapeString
-        foolObj = FoolFeatureDocumentObject()
-        self.draft_shape_string = _ShapeString(foolObj) 
-        self.foolObj = foolObj
+        self.makeFoolObj(obj)
+        foolObj = self.foolObj
         
         #add Draft ShapeString's properties to document object in posession of our LatticeShapeString
         for (proptype, propname, group, hint) in foolObj.properties:
@@ -127,6 +126,18 @@ class LatticeShapeString:
         
         self.setDefaults(obj)
         
+    def makeFoolObj(self,obj):
+        '''Makes an object that mimics a Part::FeaturePython, and makes a Draft 
+        ShapeString object on top of it. Both are added as attributes to self. 
+        This is needed to re-use Draft ShapeString'''
+        
+        if hasattr(self, "foolObj"):
+            return
+        foolObj = FoolFeatureDocumentObject()
+        self.draft_shape_string = _ShapeString(foolObj) 
+        self.foolObj = foolObj
+
+        
     def setDefaults(self, obj):
         '''initializes the properties, so that LatticeShapeString can be used with no initial fiddling'''
         obj.FontFile = "FreeUniversal-Regular.ttf"
@@ -146,6 +157,7 @@ class LatticeShapeString:
             plms = [leaf.Placement for leaf in leaves]
         
         #update foolObj's properties
+        self.makeFoolObj(obj) #make sure we have one - fixes defunct Lattice ShapeString after save-load
         for (proptype, propname, group, hint) in self.foolObj.properties:
             if propname != "String": #ignore "String", that will be taken care of in the following loop
                 setattr(self.foolObj, propname, getattr(obj, propname))
@@ -204,6 +216,12 @@ class LatticeShapeString:
             raise ValueError('No strings were converted into shapes') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
 
         obj.Shape = Part.makeCompound(shapes)
+
+    def __getstate__(self):
+        return None
+
+    def __setstate__(self,state):
+        return None
         
         
 class ViewProviderLatticeShapeString:
