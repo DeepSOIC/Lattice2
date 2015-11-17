@@ -36,22 +36,28 @@ class InterpolateF:
         
         # we want to make sure the smallest X step is way larger than possible 
         # Y step, so only X points affect knotting. This is what we are using 
-        # _x_multiplicator for - it is the scaling applied to X coordinates of 
+        # _y_multiplicator for - it is the scaling applied to Y coordinates of 
         # the interpolation points. Doing this will make u parameter of the 
         # spline equivalent to X coordinate.
-        self._x_multiplicator = 1e20*(y_max - y_min)/min_x_step 
-        
-        # This fixes nan outut if y span is zer length
         if y_max - y_min < 1e-40:
-            self._x_multiplicator = 1.0
+            self._y_multiplicator = 1.0
+        else:
+            self._y_multiplicator = 1e-20*min_x_step/(y_max - y_min)
+        
+        self._y_demultiplicator = 1.0/self._y_multiplicator
         
         # create the spline
         if not hasattr(self,"_spline"):
             self._spline = Part.BSplineCurve()
         spline = self._spline
         
-        points_for_spline = [App.Vector(XPoints[i]*self._x_multiplicator, YPoints[i], 0.0) for i in range(0,len(XPoints))]
-        spline.approximate(points_for_spline)
+        points_for_spline = [App.Vector(XPoints[i], YPoints[i]*self._y_multiplicator, 0.0) for i in range(0,len(XPoints))]
+        spline.interpolate(points_for_spline)
+        
+        #precache some scaling values for faster calculation of value()
+        self._u1 = spline.FirstParameter
+        self._u2 = spline.LastParameter
+        self._x_to_u_scale = (self._u2 - self._u1) / (self._x_max - self._x_min)
         
     def value(self, x):
-        return self._spline.value(    (x - self._x_min)  /  (self._x_max - self._x_min)    ).y
+        return self._spline.value(    self._u1 + x*self._x_to_u_scale    ).y * self._y_demultiplicator
