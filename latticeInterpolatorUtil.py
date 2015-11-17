@@ -9,7 +9,7 @@ class InterpolateF:
         self.XPoints = XPoints
         self.YPoints = YPoints
         if XPoints is not None:
-            self.recompute
+            self.recompute()
         
     def recompute(self):
         '''call before using value(), if changing sample values via attributes'''

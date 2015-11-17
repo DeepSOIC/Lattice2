@@ -107,24 +107,15 @@ class LatticeResample(latticeBaseFeature.LatticeFeature):
             prevQ = Q
         
         #  constuct function objects
-        interpolations = [] #container to receive all active interpolation function objects
         if posIsInterpolate:
             FX = LIU.InterpolateF(IArray,XArray)
-            interpolations.append(FX)
             FY = LIU.InterpolateF(IArray,YArray)
-            interpolations.append(FY)
             FZ = LIU.InterpolateF(IArray,ZArray)
-            interpolations.append(FZ)
         if oriIsInterpolate:
             FQs = []
             for iQ in [0,1,2,3]:
                 FQs.append(LIU.InterpolateF(IArray,QArrays[iQ]))
-            interpolations.extend(FQs)
                 
-        #  recompute function objects
-        for F in interpolations:
-            F.recompute()
-        
         # initialize output containers and loop variables
         outputPlms = [] #list of placements
 
