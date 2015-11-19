@@ -18,5 +18,6 @@
         <file>icons/Lattice_PlacementFromShape.svg</file>
         <file>icons/Lattice_PolarArray.svg</file>
         <file>icons/Lattice_ProjectArray.svg</file>
+        <file>icons/Lattice_Resample.svg</file>
     </qresource>
 </RCC> 
