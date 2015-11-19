@@ -84,6 +84,8 @@ class LatticeWorkbench (Workbench):
         cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
         import latticeShapeString as mod
         cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
+        import latticeSubstituteObject as mod
+        cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
         
         self.appendToolbar('LatticeArrayTools', cmdsArrayTools)
         self.appendToolbar('LatticeCompoundTools', cmdsCompoundTools)
