@@ -130,11 +130,11 @@ class _CompoundFilter:
             maxval = max(vals)
             if obj.Stencil:
                 if obj.FilterType == 'window-volume':
-                    vals[i] = obj.Stencil.Shape.Volume
+                    maxval = obj.Stencil.Shape.Volume
                 elif obj.FilterType == 'window-area':
-                    vals[i] = obj.Stencil.Shape.Area
+                    maxval = obj.Stencil.Shape.Area
                 elif obj.FilterType == 'window-length':
-                    vals[i] = obj.Stencil.Shape.Length
+                    maxval = obj.Stencil.Shape.Length
             if obj.OverrideMaxVal:
                 maxval = obj.OverrideMaxVal
             
