@@ -149,9 +149,9 @@ class _ViewProviderLatticeDowngrade:
 
 def CreateLatticeDowngrade(name, mode = "Wires"):
     FreeCAD.ActiveDocument.openTransaction("Create latticeDowngrade")
-    FreeCADGui.addModule("latticeDowngrade")
+    FreeCADGui.addModule("lattice2Downgrade")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = latticeDowngrade.makeLatticeDowngrade(name = '"+name+"')")
+    FreeCADGui.doCommand("f = lattice2Downgrade.makeLatticeDowngrade(name = '"+name+"')")
     FreeCADGui.doCommand("f.Base = FreeCADGui.Selection.getSelection()[0]")
     FreeCADGui.doCommand("f.Mode = '"+mode+"'")    
     FreeCADGui.doCommand("f.Label = f.Mode + ' of ' + f.Base.Label")    

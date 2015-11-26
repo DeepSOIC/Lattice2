@@ -195,14 +195,14 @@ def CreateLatticeArrayFilter(name,mode):
             iStc = i-1 #this may give negative index, but python accepts negative indexes
             break
     FreeCAD.ActiveDocument.openTransaction("Create ArrayFilter")
-    FreeCADGui.addModule("latticeArrayFilter")
+    FreeCADGui.addModule("lattice2ArrayFilter")
     FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("sel = Gui.Selection.getSelectionEx()")    
-    FreeCADGui.doCommand("f = latticeArrayFilter.makeArrayFilter(name = '"+name+"')")
+    FreeCADGui.doCommand("f = lattice2ArrayFilter.makeArrayFilter(name = '"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[iLtc].ObjectName)
     FreeCADGui.doCommand("f.FilterType = '"+mode+"'")
     if mode == 'specific items':
-        FreeCADGui.doCommand("f.items = latticeArrayFilter.makeItemListFromSelection(sel["+str(iLtc)+"])")
+        FreeCADGui.doCommand("f.items = lattice2ArrayFilter.makeItemListFromSelection(sel["+str(iLtc)+"])")
         if len(sel[0].SubElementNames) == 1:
             FreeCADGui.doCommand("f.SingleByDesign = True")
     else:

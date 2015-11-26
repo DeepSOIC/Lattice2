@@ -24,11 +24,11 @@
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeBaseFeature
-import latticeCompoundExplorer as LCE
-import latticeExecuter
-import latticeGeomUtils as Utils
+from lattice2Common import *
+import lattice2BaseFeature
+import lattice2CompoundExplorer as LCE
+import lattice2Executer
+import lattice2GeomUtils as Utils
 
 __title__="Lattice ProjectArray module for FreeCAD"
 __author__ = "DeepSOIC"
@@ -39,9 +39,9 @@ __url__ = ""
 
 def makeProjectArray(name):
     '''makeProjectArray(name): makes a Lattice ProjectArray object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, LatticeProjectArray, ViewProviderProjectArray)
+    return lattice2BaseFeature.makeLatticeFeature(name, LatticeProjectArray, ViewProviderProjectArray)
 
-class LatticeProjectArray(latticeBaseFeature.LatticeFeature):
+class LatticeProjectArray(lattice2BaseFeature.LatticeFeature):
     "The Lattice ProjectArray object"
         
     def derivedInit(self,obj):
@@ -68,12 +68,12 @@ class LatticeProjectArray(latticeBaseFeature.LatticeFeature):
 
     def derivedExecute(self,obj):
         #validity check
-        if not latticeBaseFeature.isObjectLattice(obj.Base):
-            latticeExecuter.warning(obj,"A lattice object is expected as Base, but a generic shape was provided. It will be treated as a lattice object; results may be unexpected.")
+        if not lattice2BaseFeature.isObjectLattice(obj.Base):
+            lattice2Executer.warning(obj,"A lattice object is expected as Base, but a generic shape was provided. It will be treated as a lattice object; results may be unexpected.")
         
         toolShape = obj.Tool.Shape
-        if latticeBaseFeature.isObjectLattice(obj.Tool):
-            latticeExecuter.warning(obj,"A lattice object was provided as Tool. It will be converted into points; orientations will be ignored.")
+        if lattice2BaseFeature.isObjectLattice(obj.Tool):
+            lattice2Executer.warning(obj,"A lattice object was provided as Tool. It will be converted into points; orientations will be ignored.")
             leaves = LCE.AllLeaves(toolShape)
             points = [Part.Vertex(leaf.Placement.Base) for leaf in leaves]
             toolShape = Part.makeCompound(points)
@@ -173,11 +173,11 @@ class LatticeProjectArray(latticeBaseFeature.LatticeFeature):
         return output
         
         
-class ViewProviderProjectArray(latticeBaseFeature.ViewProviderLatticeFeature):
+class ViewProviderProjectArray(lattice2BaseFeature.ViewProviderLatticeFeature):
     "A View Provider for the Lattice ProjectArray object"
 
     def getIcon(self):
-        return getIconPath("Lattice_ProjectArray.svg")
+        return getIconPath("Lattice2_ProjectArray.svg")
 
     def claimChildren(self):
         return [self.Object.Base]
@@ -189,21 +189,21 @@ def CreateLatticeProjectArray(name):
     iLtc = 0 #index of lattice object in selection
     iStc = 1 #index of stencil object in selection
     for i in range(0,len(sel)):
-        if latticeBaseFeature.isObjectLattice(sel[i]):
+        if lattice2BaseFeature.isObjectLattice(sel[i]):
             iLtc = i
             iStc = i-1 #this may give negative index, but python accepts negative indexes
             break
     FreeCAD.ActiveDocument.openTransaction("Create ProjectArray")
-    FreeCADGui.addModule("latticeProjectArray")
-    FreeCADGui.addModule("latticeExecuter")
+    FreeCADGui.addModule("lattice2ProjectArray")
+    FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("sel = Gui.Selection.getSelectionEx()")    
-    FreeCADGui.doCommand("f = latticeProjectArray.makeProjectArray(name = '"+name+"')")
+    FreeCADGui.doCommand("f = lattice2ProjectArray.makeProjectArray(name = '"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[iLtc].ObjectName)
     FreeCADGui.doCommand("f.Tool = App.ActiveDocument."+sel[iStc].ObjectName)
 
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 
@@ -216,10 +216,10 @@ class _CommandProjectArray:
     "Command to create Lattice ProjectArray feature"
     
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_ProjectArray.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_ProjectArray","Project Array"),
+        return {'Pixmap'  : getIconPath("Lattice2_ProjectArray.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ProjectArray","Project Array"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_ProjectArray","Project Array: alter placements based on their proximity to a shape.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ProjectArray","Project Array: alter placements based on their proximity to a shape.")}
         
     def Activated(self):
         sel = FreeCADGui.Selection.getSelectionEx()
@@ -228,8 +228,8 @@ class _CommandProjectArray:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_ProjectArray", "Select one lattice object to be projected, and one shape to project onto, first!", None))
-            mb.setWindowTitle(translate("Lattice_ProjectArray","Bad selection", None))
+            mb.setText(translate("Lattice2_ProjectArray", "Select one lattice object to be projected, and one shape to project onto, first!", None))
+            mb.setWindowTitle(translate("Lattice2_ProjectArray","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -238,8 +238,8 @@ class _CommandProjectArray:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_ProjectArray', _CommandProjectArray())
+FreeCADGui.addCommand('Lattice2_ProjectArray', _CommandProjectArray())
 
-exportedCommands = ['Lattice_ProjectArray']
+exportedCommands = ['Lattice2_ProjectArray']
 
 # -------------------------- /Gui command --------------------------------------------------

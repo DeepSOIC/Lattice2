@@ -30,19 +30,19 @@ import math
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeBaseFeature
-import latticeCompoundExplorer as LCE
-import latticeGeomUtils as Utils
-import latticeExecuter
+from lattice2Common import *
+import lattice2BaseFeature
+import lattice2CompoundExplorer as LCE
+import lattice2GeomUtils as Utils
+import lattice2Executer
 
 # -------------------------- document object --------------------------------------------------
 
 def makeLatticeInvert(name):
     '''makeLatticeInvert(name): makes a LatticeInvert object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, LatticeInvert, ViewProviderInvert)
+    return lattice2BaseFeature.makeLatticeFeature(name, LatticeInvert, ViewProviderInvert)
 
-class LatticeInvert(latticeBaseFeature.LatticeFeature):
+class LatticeInvert(lattice2BaseFeature.LatticeFeature):
     "The Lattice Invert object"
     
     def derivedInit(self,obj):
@@ -61,8 +61,8 @@ class LatticeInvert(latticeBaseFeature.LatticeFeature):
     def derivedExecute(self,obj):
         # cache stuff
         base = obj.Base.Shape
-        if not latticeBaseFeature.isObjectLattice(obj.Base):
-            latticeExecuter.warning(obj, "Base is not a lattice, but lattice is expected. Results may be unexpected.\n")
+        if not lattice2BaseFeature.isObjectLattice(obj.Base):
+            lattice2Executer.warning(obj, "Base is not a lattice, but lattice is expected. Results may be unexpected.\n")
         baseChildren = LCE.AllLeaves(base)
                         
         #cache mode comparisons, for speed
@@ -101,10 +101,10 @@ class LatticeInvert(latticeBaseFeature.LatticeFeature):
         return outputPlms
 
 
-class ViewProviderInvert(latticeBaseFeature.ViewProviderLatticeFeature):
+class ViewProviderInvert(lattice2BaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
-        return getIconPath('Lattice_Invert.svg')
+        return getIconPath('Lattice2_Invert.svg')
     
     def claimChildren(self):
         return [self.Object.Base]
@@ -117,13 +117,13 @@ class ViewProviderInvert(latticeBaseFeature.ViewProviderLatticeFeature):
 def CreateLatticeInvert(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LatticeInvert")
-    FreeCADGui.addModule("latticeInvert")
-    FreeCADGui.addModule("latticeExecuter")
-    FreeCADGui.doCommand("f = latticeInvert.makeLatticeInvert(name='"+name+"')")
+    FreeCADGui.addModule("lattice2Invert")
+    FreeCADGui.addModule("lattice2Executer")
+    FreeCADGui.doCommand("f = lattice2Invert.makeLatticeInvert(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 
@@ -131,10 +131,10 @@ def CreateLatticeInvert(name):
 class _CommandLatticeInvert:
     "Command to create LatticeInvert feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_Invert.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_Invert","Invert lattice"),
+        return {'Pixmap'  : getIconPath("Lattice2_Invert.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_Invert","Invert lattice"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_Invert","Lattice Invert: invert all placements in a lattice object.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Invert","Lattice Invert: invert all placements in a lattice object.")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
@@ -142,8 +142,8 @@ class _CommandLatticeInvert:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_Invert", "Please select one object, first. The object must be a lattice object (array of placements).", None))
-            mb.setWindowTitle(translate("Lattice_Invert","Bad selection", None))
+            mb.setText(translate("Lattice2_Invert", "Please select one object, first. The object must be a lattice object (array of placements).", None))
+            mb.setWindowTitle(translate("Lattice2_Invert","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -152,9 +152,9 @@ class _CommandLatticeInvert:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_Invert', _CommandLatticeInvert())
+FreeCADGui.addCommand('Lattice2_Invert', _CommandLatticeInvert())
 
-exportedCommands = ['Lattice_Invert']
+exportedCommands = ['Lattice2_Invert']
 
 # -------------------------- /Gui command --------------------------------------------------
 

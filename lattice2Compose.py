@@ -180,9 +180,9 @@ class ViewProviderCompose(lattice2BaseFeature.ViewProviderLatticeFeature):
 def CreateCompose(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create Compose")
-    FreeCADGui.addModule("latticeCompose")
+    FreeCADGui.addModule("lattice2Compose")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = latticeCompose.makeCompose(name='"+name+"')")
+    FreeCADGui.doCommand("f = lattice2Compose.makeCompose(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     FreeCADGui.doCommand("f.Tool = App.ActiveDocument."+sel[1].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+

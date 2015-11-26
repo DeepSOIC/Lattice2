@@ -102,9 +102,9 @@ class ViewProviderJoinArrays(lattice2BaseFeature.ViewProviderLatticeFeature):
 def CreateJoinArrays(name):
     sel = FreeCADGui.Selection.getSelection()
     FreeCAD.ActiveDocument.openTransaction("Create JoinArrays")
-    FreeCADGui.addModule("latticeJoinArrays")
+    FreeCADGui.addModule("lattice2JoinArrays")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = latticeJoinArrays.makeJoinArrays(name='"+name+"')")
+    FreeCADGui.doCommand("f = lattice2JoinArrays.makeJoinArrays(name='"+name+"')")
     FreeCADGui.doCommand("f.Links = []")
     for s in sel:
         FreeCADGui.doCommand("f.Links = f.Links + [App.ActiveDocument."+s.Name+"]")

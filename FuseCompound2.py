@@ -21,7 +21,7 @@
 #*                                                                         *
 #***************************************************************************
 
-from latticeCommon import *
+from lattice2Common import *
 
 
 __title__="FuseCompound module for FreeCAD"
@@ -69,7 +69,7 @@ class _ViewProviderFuseCompound:
         vobj.Proxy = self
        
     def getIcon(self):
-        return getIconPath("Lattice_FuseCompound.svg")
+        return getIconPath("Lattice2_FuseCompound.svg")
 
     def attach(self, vobj):
         self.ViewObject = vobj
@@ -104,9 +104,9 @@ class _ViewProviderFuseCompound:
 
 def CreateFuseCompound(name):
     FreeCAD.ActiveDocument.openTransaction("Create FuseCompound")
-    FreeCADGui.addModule("FuseCompound")
+    FreeCADGui.addModule("FuseCompound2")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = FuseCompound.makeFuseCompound(name = '"+name+"')")
+    FreeCADGui.doCommand("f = FuseCompound2.makeFuseCompound(name = '"+name+"')")
     FreeCADGui.doCommand("f.Base = FreeCADGui.Selection.getSelection()[0]")
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f.Base.ViewObject.hide()")
@@ -116,10 +116,10 @@ def CreateFuseCompound(name):
 class _CommandFuseCompound:
     "Command to create FuseCompound feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_FuseCompound.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_FuseCompound","Fuse compound"),
+        return {'Pixmap'  : getIconPath("Lattice2_FuseCompound.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_FuseCompound","Fuse compound"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_FuseCompound","Fuse objects contained in a compound")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_FuseCompound","Fuse objects contained in a compound")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
@@ -127,8 +127,8 @@ class _CommandFuseCompound:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_FuseCompound", "Select a shape that is a compound whose children intersect, first!", None))
-            mb.setWindowTitle(translate("Lattice_FuseCompound","Bad selection", None))
+            mb.setText(translate("Lattice2_FuseCompound", "Select a shape that is a compound whose children intersect, first!", None))
+            mb.setWindowTitle(translate("Lattice2_FuseCompound","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -137,8 +137,8 @@ class _CommandFuseCompound:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_FuseCompound', _CommandFuseCompound())
+FreeCADGui.addCommand('Lattice2_FuseCompound', _CommandFuseCompound())
 
-exportedCommands = ['Lattice_FuseCompound']
+exportedCommands = ['Lattice2_FuseCompound']
 
 # -------------------------- /Gui command --------------------------------------------------

@@ -215,9 +215,9 @@ class _ViewProviderCompoundFilter:
 def CreateCompoundFilter(name):
     sel = FreeCADGui.Selection.getSelection()
     FreeCAD.ActiveDocument.openTransaction("Create CompoundFilter")
-    FreeCADGui.addModule("CompoundFilter")
+    FreeCADGui.addModule("CompoundFilter2")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = CompoundFilter.makeCompoundFilter(name = '"+name+"')")
+    FreeCADGui.doCommand("f = CompoundFilter2.makeCompoundFilter(name = '"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].Name)
     FreeCADGui.doCommand("f.Base.ViewObject.hide()")
     if len(sel) == 2:

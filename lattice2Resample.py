@@ -30,11 +30,11 @@ import math
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeBaseFeature
-import latticeCompoundExplorer as LCE
-import latticeInterpolatorUtil as LIU
-import latticeExecuter
+from lattice2Common import *
+import lattice2BaseFeature
+import lattice2CompoundExplorer as LCE
+import lattice2InterpolatorUtil as LIU
+import lattice2Executer
 
 # -------------------------- document object --------------------------------------------------
 
@@ -46,9 +46,9 @@ def dotProduct(list1,list2):
 
 def makeLatticeResample(name):
     '''makeLatticeResample(name): makes a LatticeResample object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, LatticeResample, ViewProviderLatticeResample)
+    return lattice2BaseFeature.makeLatticeFeature(name, LatticeResample, ViewProviderLatticeResample)
 
-class LatticeResample(latticeBaseFeature.LatticeFeature):
+class LatticeResample(lattice2BaseFeature.LatticeFeature):
     "The Lattice Resample object"
     
     def derivedInit(self,obj):
@@ -70,8 +70,8 @@ class LatticeResample(latticeBaseFeature.LatticeFeature):
     def derivedExecute(self,obj):
         # cache stuff
         base = obj.Base.Shape
-        if not latticeBaseFeature.isObjectLattice(obj.Base):
-            latticeExecuter.warning(obj, "Base is not a lattice, but lattice is expected. Results may be unexpected.\n")
+        if not lattice2BaseFeature.isObjectLattice(obj.Base):
+            lattice2Executer.warning(obj, "Base is not a lattice, but lattice is expected. Results may be unexpected.\n")
         input = [leaf.Placement for leaf in LCE.AllLeaves(base)]
         
         if len(input) < 2:
@@ -136,10 +136,10 @@ class LatticeResample(latticeBaseFeature.LatticeFeature):
         return outputPlms
 
 
-class ViewProviderLatticeResample(latticeBaseFeature.ViewProviderLatticeFeature):
+class ViewProviderLatticeResample(lattice2BaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
-        return getIconPath('Lattice_Resample.svg')
+        return getIconPath('Lattice2_Resample.svg')
     
     def claimChildren(self):
         return [self.Object.Base]
@@ -152,13 +152,13 @@ class ViewProviderLatticeResample(latticeBaseFeature.ViewProviderLatticeFeature)
 def CreateLatticeResample(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LatticeResample")
-    FreeCADGui.addModule("latticeResample")
-    FreeCADGui.addModule("latticeExecuter")
-    FreeCADGui.doCommand("f = latticeResample.makeLatticeResample(name='"+name+"')")
+    FreeCADGui.addModule("lattice2Resample")
+    FreeCADGui.addModule("lattice2Executer")
+    FreeCADGui.doCommand("f = lattice2Resample.makeLatticeResample(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 
@@ -166,10 +166,10 @@ def CreateLatticeResample(name):
 class _CommandLatticeResample:
     "Command to create LatticeResample feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_Resample.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_Resample","Resample Array"),
+        return {'Pixmap'  : getIconPath("Lattice2_Resample.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_Resample","Resample Array"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_Resample","Lattice Resample: interpolate placement-path using 3-rd degree b-spline interpolation.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Resample","Lattice Resample: interpolate placement-path using 3-rd degree b-spline interpolation.")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
@@ -177,8 +177,8 @@ class _CommandLatticeResample:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_Resample", "Please select one object, first. The object must be a lattice object (array of placements).", None))
-            mb.setWindowTitle(translate("Lattice_Resample","Bad selection", None))
+            mb.setText(translate("Lattice2_Resample", "Please select one object, first. The object must be a lattice object (array of placements).", None))
+            mb.setWindowTitle(translate("Lattice2_Resample","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -187,9 +187,9 @@ class _CommandLatticeResample:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_Resample', _CommandLatticeResample())
+FreeCADGui.addCommand('Lattice2_Resample', _CommandLatticeResample())
 
-exportedCommands = ['Lattice_Resample']
+exportedCommands = ['Lattice2_Resample']
 
 # -------------------------- /Gui command --------------------------------------------------
 

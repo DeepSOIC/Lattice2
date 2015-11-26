@@ -77,7 +77,7 @@ class LatticePlacement(lattice2BaseFeature.LatticeFeature):
             elif obj.PlacementChoice == 'YZ plane':
                 rot.Q = (0.5, 0.5, 0.5, 0.5) #will get normalized by FC automatically
             else:
-                raise ValueError("latticePlacement: unsupported placement: "+obj.PlacementChoice)
+                raise ValueError("lattice2Placement: unsupported placement: "+obj.PlacementChoice)
             obj.Placement = App.Placement(rot.multVec(App.Vector(0,0,obj.Offset)), rot)
         if obj.FlipZ:
             obj.Placement = obj.Placement.multiply(App.Placement(App.Vector(),App.Rotation(App.Vector(1,0,0),180)))
@@ -102,9 +102,9 @@ class ViewProviderLatticePlacement(lattice2BaseFeature.ViewProviderLatticeFeatur
 def CreateLatticePlacement(name,mode = 'Custom'):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create Lattice Placement")
-    FreeCADGui.addModule("latticePlacement")
+    FreeCADGui.addModule("lattice2Placement")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = latticePlacement.makeLatticePlacement(name='"+name+"')")    
+    FreeCADGui.doCommand("f = lattice2Placement.makeLatticePlacement(name='"+name+"')")    
     FreeCADGui.doCommand("f.PlacementChoice = '"+mode+"'")
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")

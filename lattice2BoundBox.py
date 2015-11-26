@@ -179,9 +179,9 @@ class _ViewProviderBoundBox:
 
 def CreateBoundBox(name):
     FreeCAD.ActiveDocument.openTransaction("Create BoundBox")
-    FreeCADGui.addModule("latticeBoundBox")
+    FreeCADGui.addModule("lattice2BoundBox")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = latticeBoundBox.makeBoundBox(name='"+name+"')")
+    FreeCADGui.doCommand("f = lattice2BoundBox.makeBoundBox(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = FreeCADGui.Selection.getSelection()[0]")
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")

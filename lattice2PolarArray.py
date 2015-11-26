@@ -221,9 +221,9 @@ class ViewProviderPolarArray(lattice2BaseFeature.ViewProviderLatticeFeature):
 def CreatePolarArray(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create PolarArray")
-    FreeCADGui.addModule("latticePolarArray")
+    FreeCADGui.addModule("lattice2PolarArray")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = latticePolarArray.makePolarArray(name='"+name+"')")
+    FreeCADGui.doCommand("f = lattice2PolarArray.makePolarArray(name='"+name+"')")
     if len(sel) == 1:
         FreeCADGui.doCommand("f.AxisLink = App.ActiveDocument."+sel[0].ObjectName)
         if sel[0].HasSubObjects:

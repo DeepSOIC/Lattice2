@@ -125,9 +125,9 @@ class ViewProviderLatticeApply(lattice2BaseFeature.ViewProviderLatticeFeature):
 def CreateLatticeApply(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LatticeApply")
-    FreeCADGui.addModule("latticeApply")
+    FreeCADGui.addModule("lattice2Apply")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = latticeApply.makeLatticeApply(name='"+name+"')")
+    FreeCADGui.doCommand("f = lattice2Apply.makeLatticeApply(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     FreeCADGui.doCommand("f.Tool = App.ActiveDocument."+sel[1].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+

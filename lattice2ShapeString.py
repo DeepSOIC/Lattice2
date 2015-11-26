@@ -22,11 +22,11 @@
 #***************************************************************************
 
 
-from latticeCommon import *
-import latticeBaseFeature
-import latticeExecuter
-import latticeCompoundExplorer as LCE
-from latticeBoundBox import getPrecisionBoundBox #needed for alignment
+from lattice2Common import *
+import lattice2BaseFeature
+import lattice2Executer
+import lattice2CompoundExplorer as LCE
+from lattice2BoundBox import getPrecisionBoundBox #needed for alignment
 
 import FreeCAD as App
 import Part
@@ -51,8 +51,8 @@ def findFont(font_file_name):
 
     dirlist = [] #list of directories to probe
 
-    import latticeDummy
-    lattice_path = os.path.dirname(latticeDummy.__file__)
+    import lattice2Dummy
+    lattice_path = os.path.dirname(lattice2Dummy.__file__)
     dirlist.append(lattice_path + "/fonts")
     
     if len(App.ActiveDocument.FileName) > 0:
@@ -151,8 +151,8 @@ class LatticeShapeString:
         if lattice is None:
             plms = [App.Placement() for i in range(0,nOfStrings)]
         else:
-            if not latticeBaseFeature.isObjectLattice(lattice):
-                latticeExecuter.warning(obj,"ShapeString's link to array must point to a lattice. It points to a generic shape. Results may be unexpected.")
+            if not lattice2BaseFeature.isObjectLattice(lattice):
+                lattice2Executer.warning(obj,"ShapeString's link to array must point to a lattice. It points to a generic shape. Results may be unexpected.")
             leaves = LCE.AllLeaves(lattice.Shape)
             plms = [leaf.Placement for leaf in leaves]
         
@@ -253,12 +253,12 @@ class ViewProviderLatticeShapeString:
 def CreateLatticeShapeString(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LatticeShapeString")
-    FreeCADGui.addModule("latticeShapeString")
-    FreeCADGui.addModule("latticeExecuter")
-    FreeCADGui.doCommand("f = latticeShapeString.makeLatticeShapeString(name='"+name+"')")
+    FreeCADGui.addModule("lattice2ShapeString")
+    FreeCADGui.addModule("lattice2Executer")
+    FreeCADGui.doCommand("f = lattice2ShapeString.makeLatticeShapeString(name='"+name+"')")
     if len(sel) == 1:
         FreeCADGui.doCommand("f.ArrayLink = FreeCADGui.Selection.getSelection()[0]")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 
@@ -271,9 +271,9 @@ class _CommandLatticeShapeString:
     "Command to create LatticeShapeString feature"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Draft_ShapeString.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_ShapeString","ShapeString for arraying"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ShapeString","ShapeString for arraying"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_ShapeString","Make strings at given placements")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ShapeString","Make strings at given placements")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 0 or len(FreeCADGui.Selection.getSelection()) == 1:
@@ -281,8 +281,8 @@ class _CommandLatticeShapeString:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_ShapeString", "Either select nothing, or just one lattice object! You seem to have more than one object selected.", None))
-            mb.setWindowTitle(translate("Lattice_ShapeString","Bad selection", None))
+            mb.setText(translate("Lattice2_ShapeString", "Either select nothing, or just one lattice object! You seem to have more than one object selected.", None))
+            mb.setWindowTitle(translate("Lattice2_ShapeString","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -291,8 +291,8 @@ class _CommandLatticeShapeString:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_ShapeString', _CommandLatticeShapeString())
+FreeCADGui.addCommand('Lattice2_ShapeString', _CommandLatticeShapeString())
 
-exportedCommands = ['Lattice_ShapeString']
+exportedCommands = ['Lattice2_ShapeString']
 
 # -------------------------- /Gui command --------------------------------------------------

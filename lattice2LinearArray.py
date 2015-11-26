@@ -228,9 +228,9 @@ class ViewProviderLinearArray(lattice2BaseFeature.ViewProviderLatticeFeature):
 def CreateLinearArray(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LinearArray")
-    FreeCADGui.addModule("latticeLinearArray")
+    FreeCADGui.addModule("lattice2LinearArray")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = latticeLinearArray.makeLinearArray(name='"+name+"')")
+    FreeCADGui.doCommand("f = lattice2LinearArray.makeLinearArray(name='"+name+"')")
     if len(sel) == 1:
         FreeCADGui.doCommand("f.Link = App.ActiveDocument."+sel[0].ObjectName)
         if sel[0].HasSubObjects:

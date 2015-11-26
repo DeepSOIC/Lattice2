@@ -30,19 +30,19 @@ import math
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeBaseFeature
-import latticeCompoundExplorer as LCE
-import latticeGeomUtils as Utils
-import latticeExecuter
+from lattice2Common import *
+import lattice2BaseFeature
+import lattice2CompoundExplorer as LCE
+import lattice2GeomUtils as Utils
+import lattice2Executer
 
 # -------------------------- document object --------------------------------------------------
 
 def makeLatticeArrayFromShape(name):
     '''makeLatticeArrayFromShape(name): makes a LatticeArrayFromShape object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, LatticeArrayFromShape, ViewProviderArrayFromShape)
+    return lattice2BaseFeature.makeLatticeFeature(name, LatticeArrayFromShape, ViewProviderArrayFromShape)
 
-class LatticeArrayFromShape(latticeBaseFeature.LatticeFeature):
+class LatticeArrayFromShape(lattice2BaseFeature.LatticeFeature):
     "The Lattice ArrayFromShape object"
     
     def derivedInit(self,obj):
@@ -70,14 +70,14 @@ class LatticeArrayFromShape(latticeBaseFeature.LatticeFeature):
 
     def derivedExecute(self,obj):
         # cache stuff
-        if latticeBaseFeature.isObjectLattice(obj.Base):
-            latticeExecuter.warning(obj,"Base is a lattice object. Since a non-lattice object is required by arrayFromShape tool, the results may be unexpected.")
+        if lattice2BaseFeature.isObjectLattice(obj.Base):
+            lattice2Executer.warning(obj,"Base is a lattice object. Since a non-lattice object is required by arrayFromShape tool, the results may be unexpected.")
 
         base = obj.Base.Shape
         if obj.WholeObject:
             baseChildren = [base]
             #if obj.FlattenBaseHierarchy:
-            #    latticeExecuter.warning(obj, "FlattenBaseHierarchy is ignored because WholeObject is set to True")
+            #    lattice2Executer.warning(obj, "FlattenBaseHierarchy is ignored because WholeObject is set to True")
         else:
             if base.ShapeType != 'Compound':
                 base = Part.makeCompound([base])
@@ -139,14 +139,14 @@ class LatticeArrayFromShape(latticeBaseFeature.LatticeFeature):
                     totalW += w
                 pos = pos * (1.0/totalW)
             elif posIsCenterBB:
-                import latticeBoundBox
-                bb = latticeBoundBox.getPrecisionBoundBox(child)
+                import lattice2BoundBox
+                bb = lattice2BoundBox.getPrecisionBoundBox(child)
                 pos = bb.Center
             elif posIsVertex:
                 v = child.Vertexes[obj.TranslateElementIndex - 1]
                 pos = v.Point
             else:
-                raise ValueError("latticePolarArrayFromShape: translation mode not implemented: "+obj.TranslateMode)
+                raise ValueError("lattice2PolarArrayFromShape: translation mode not implemented: "+obj.TranslateMode)
             
             if oriIsNone:
                 pass
@@ -157,7 +157,7 @@ class LatticeArrayFromShape(latticeBaseFeature.LatticeFeature):
             elif oriIsInertial:
                 leaves = LCE.AllLeaves(child)
                 if len(leaves)>1:
-                    raise ValueError("latticePolarArrayFromShape: calculation of principal axes of compounds is not supported yet")
+                    raise ValueError("lattice2PolarArrayFromShape: calculation of principal axes of compounds is not supported yet")
                 props = leaves[0].PrincipalProperties
                 XAx = props['FirstAxisOfInertia']
                 ZAx = props['ThirdAxisOfInertia']
@@ -172,17 +172,17 @@ class LatticeArrayFromShape(latticeBaseFeature.LatticeFeature):
                 face = child.Faces[obj.OrientElementIndex - 1]
                 ZAx = face.Surface.Axis
             else:
-                raise ValueError("latticePolarArrayFromShape: rientation mode not implemented: "+obj.OrientMode)
+                raise ValueError("lattice2PolarArrayFromShape: rientation mode not implemented: "+obj.OrientMode)
 
             plm = App.Placement(pos, ori)
             outputPlms.append(plm)
         return outputPlms
 
 
-class ViewProviderArrayFromShape(latticeBaseFeature.ViewProviderLatticeFeature):
+class ViewProviderArrayFromShape(lattice2BaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
-        return getIconPath('Lattice_ArrayFromShape.svg') if self.Object.WholeObject == False else getIconPath('Lattice_PlacementFromShape.svg')
+        return getIconPath('Lattice2_ArrayFromShape.svg') if self.Object.WholeObject == False else getIconPath('Lattice2_PlacementFromShape.svg')
 
 # -------------------------- /document object --------------------------------------------------
 
@@ -191,9 +191,9 @@ class ViewProviderArrayFromShape(latticeBaseFeature.ViewProviderLatticeFeature):
 def CreateLatticeArrayFromShape(name, nonArray = False):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LatticeArrayFromShape")
-    FreeCADGui.addModule("latticeArrayFromShape")
-    FreeCADGui.addModule("latticeExecuter")
-    FreeCADGui.doCommand("f = latticeArrayFromShape.makeLatticeArrayFromShape(name='"+name+"')")
+    FreeCADGui.addModule("lattice2ArrayFromShape")
+    FreeCADGui.addModule("lattice2Executer")
+    FreeCADGui.doCommand("f = lattice2ArrayFromShape.makeLatticeArrayFromShape(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     if nonArray:
         FreeCADGui.doCommand("f.WholeObject = True")
@@ -204,7 +204,7 @@ def CreateLatticeArrayFromShape(name, nonArray = False):
         
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 
@@ -212,10 +212,10 @@ def CreateLatticeArrayFromShape(name, nonArray = False):
 class _CommandLatticeArrayFromShape:
     "Command to create LatticeArrayFromShape feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_ArrayFromShape.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_ArrayFromShape","Make lattice from compound"),
+        return {'Pixmap'  : getIconPath("Lattice2_ArrayFromShape.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Make lattice from compound"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_ArrayFromShape","Lattice ArrayFromShape: make placements array from shapes in a compound.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Lattice ArrayFromShape: make placements array from shapes in a compound.")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
@@ -223,8 +223,8 @@ class _CommandLatticeArrayFromShape:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_ArrayFromShape", "Please select one object, first.", None))
-            mb.setWindowTitle(translate("Lattice_ArrayFromShape","Bad selection", None))
+            mb.setText(translate("Lattice2_ArrayFromShape", "Please select one object, first.", None))
+            mb.setWindowTitle(translate("Lattice2_ArrayFromShape","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -233,15 +233,15 @@ class _CommandLatticeArrayFromShape:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_ArrayFromShape', _CommandLatticeArrayFromShape())
+FreeCADGui.addCommand('Lattice2_ArrayFromShape', _CommandLatticeArrayFromShape())
 
 class _CommandLatticePlacementFromShape:
     "Command to create LatticeArrayFromShape feature linking to placement of one shape"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_PlacementFromShape.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_ArrayFromShape","Single Placement: linked to shape"),
+        return {'Pixmap'  : getIconPath("Lattice2_PlacementFromShape.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Single Placement: linked to shape"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_ArrayFromShape","Lattice PlacementFromShape: make Placement linked to placement of selected object.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Lattice PlacementFromShape: make Placement linked to placement of selected object.")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
@@ -249,8 +249,8 @@ class _CommandLatticePlacementFromShape:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_ArrayFromShape", "Please select one object, first.", None))
-            mb.setWindowTitle(translate("Lattice_ArrayFromShape","Bad selection", None))
+            mb.setText(translate("Lattice2_ArrayFromShape", "Please select one object, first.", None))
+            mb.setWindowTitle(translate("Lattice2_ArrayFromShape","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -259,9 +259,9 @@ class _CommandLatticePlacementFromShape:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_PlacementFromShape', _CommandLatticePlacementFromShape())
+FreeCADGui.addCommand('Lattice2_PlacementFromShape', _CommandLatticePlacementFromShape())
 
-exportedCommands = ['Lattice_ArrayFromShape'] #Lattice_PlacementFromShape will be included in latticePlacement set of commands. I know, it's ugly....
+exportedCommands = ['Lattice2_ArrayFromShape'] #Lattice2_PlacementFromShape will be included in lattice2Placement set of commands. I know, it's ugly....
 
 # -------------------------- /Gui command --------------------------------------------------
 
