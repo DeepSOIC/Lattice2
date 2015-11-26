@@ -25,76 +25,76 @@ __Comment__ = 'Advanced array tools and parametric compounding tools'
 __Web__ = 'http://forum.freecadweb.org/viewtopic.php?f=22&t=12464'
 __Wiki__ = ''
 __Icon__  = ''
-__Help__ = 'Install as a workbench - copy everything to path/to/FreeCAD/Mod/Lattice'
+__Help__ = 'Install as a workbench - copy everything to path/to/FreeCAD/Mod/Lattice2'
 __Author__ = 'DeepSOIC'
-__Version__ = '0'
+__Version__ = '2'
 __Status__ = 'alpha'
 __Requires__ = 'freecad 0.16.5155'
 __Communication__ = 'vv.titov@gmail.com; DeepSOIC on FreeCAD forum'
 
 
 
-class LatticeWorkbench (Workbench): 
-    MenuText = 'Lattice'
+class Lattice2Workbench (Workbench): 
+    MenuText = 'Lattice2'
     def __init__(self):
         # Hack: obtain path to Lattice by loading a dummy Py module
         import os
-        import latticeDummy
-        self.__class__.Icon = os.path.dirname(latticeDummy.__file__) + u"/PyResources/icons/Lattice.svg".replace("/", os.path.sep)
+        import lattice2Dummy
+        self.__class__.Icon = os.path.dirname(lattice2Dummy.__file__) + u"/PyResources/icons/Lattice2.svg".replace("/", os.path.sep)
     
     def Initialize(self):
         cmdsArrayTools = []
         cmdsCompoundTools = []
         cmdsMiscTools = []
         
-        import latticePlacement as mod
+        import lattice2Placement as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
-        import latticeLinearArray as mod
+        import lattice2LinearArray as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
-        import latticePolarArray as mod
+        import lattice2PolarArray as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
-        import latticeArrayFromShape as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
-        
-        import latticeInvert as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
-        import latticeJoinArrays as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
-        import latticeArrayFilter as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
-        import latticeProjectArray as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
-        import latticeResample as mod
+        import lattice2ArrayFromShape as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
         
-        import latticeApply as mod
+        import lattice2Invert as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        import lattice2JoinArrays as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        import lattice2ArrayFilter as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        import lattice2ProjectArray as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        import lattice2Resample as mod
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        
+        import lattice2Apply as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import latticeCompose as mod
+        import lattice2Compose as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import latticeDowngrade as mod
+        import lattice2Downgrade as mod
         
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
         import CompoundFilter as mod
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
         import FuseCompound as mod
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
-        import latticeInspect as mod
+        import lattice2Inspect as mod
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
-        import latticeBoundBox as mod
+        import lattice2BoundBox as mod
         cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
-        import latticeShapeString as mod
+        import lattice2ShapeString as mod
         cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
-        import latticeSubstituteObject as mod
+        import lattice2SubstituteObject as mod
         cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
         
-        self.appendToolbar('LatticeArrayTools', cmdsArrayTools)
-        self.appendToolbar('LatticeCompoundTools', cmdsCompoundTools)
-        self.appendToolbar('LatticeMiscTools', cmdsMiscTools)
+        self.appendToolbar('Lattice2ArrayTools', cmdsArrayTools)
+        self.appendToolbar('Lattice2CompoundTools', cmdsCompoundTools)
+        self.appendToolbar('Lattice2MiscTools', cmdsMiscTools)
         #FreeCADGui.addIconPath( '' )
-        #FreeCADGui.addPreferencePage( '','Lattice' )
-        self.appendMenu('Lattice', cmdsArrayTools)
-        self.appendMenu('Lattice', cmdsCompoundTools)
-        self.appendMenu('Lattice', cmdsMiscTools)
+        #FreeCADGui.addPreferencePage( '','Lattice2' )
+        self.appendMenu('Lattice2', cmdsArrayTools)
+        self.appendMenu('Lattice2', cmdsCompoundTools)
+        self.appendMenu('Lattice2', cmdsMiscTools)
 
     def Activated(self):
         pass
@@ -124,5 +124,5 @@ class LatticeWorkbench (Workbench):
  			"""
 
 
-Gui.addWorkbench(LatticeWorkbench())
+Gui.addWorkbench(Lattice2Workbench())
 
