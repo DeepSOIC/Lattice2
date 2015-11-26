@@ -27,7 +27,7 @@ __author__ = "DeepSOIC"
 import FreeCAD as App
 
 from replaceobj import replaceobj #from OpenSCAD wb, the code that drives replaceChild
-from latticeCommon import *
+from lattice2Common import *
 
 def substituteobj(oldobj, newobj):
     'Replaces all links to oldobj in the document with links to newobj'
@@ -38,10 +38,10 @@ def substituteobj(oldobj, newobj):
 class CommandSubstituteObject:
     "Command to substitute object"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_SubstituteObject.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_SubstituteObject","Substitute object"),
+        return {'Pixmap'  : getIconPath("Lattice2_SubstituteObject.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_SubstituteObject","Substitute object"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_SubstituteObject","Substitute Object: find all links to one of the selected objects, and rediret them all to another object")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_SubstituteObject","Substitute Object: find all links to one of the selected objects, and rediret them all to another object")}
         
     def Activated(self):
         sel = FreeCADGui.Selection.getSelectionEx()
@@ -58,18 +58,18 @@ class CommandSubstituteObject:
                 if len(sel[0].Object.InList) != 0:
                     mb = QtGui.QMessageBox()
                     mb.setIcon(mb.Icon.Warning)
-                    msg = translate("Lattice_SubstituteObject", "Some of the links coudn't be redirected, because they are not supported by the tool. Objects still linking to the object that was replaced are: \n%1\nTo redirect these links, the objects have to be edited manually. Sorry!", None)
+                    msg = translate("Lattice2_SubstituteObject", "Some of the links coudn't be redirected, because they are not supported by the tool. Objects still linking to the object that was replaced are: \n%1\nTo redirect these links, the objects have to be edited manually. Sorry!", None)
                     rem_links = [lnk.Label for lnk in sel[0].Object.InList]
                     mb.setText(msg.replace(u"%1", u"\n".join(rem_links)))
-                    mb.setWindowTitle(translate("Lattice_SubstituteObject","Error", None))
+                    mb.setWindowTitle(translate("Lattice2_SubstituteObject","Error", None))
                     mb.exec_()
                     
             except Exception as err:
                 mb = QtGui.QMessageBox()
                 mb.setIcon(mb.Icon.Warning)
-                mb.setText(translate("Lattice_SubstituteObject", "An error occured while substituting object:", None)+ u"\n"
+                mb.setText(translate("Lattice2_SubstituteObject", "An error occured while substituting object:", None)+ u"\n"
                                + unicode(err.message))
-                mb.setWindowTitle(translate("Lattice_SubstituteObject","Error", None))
+                mb.setWindowTitle(translate("Lattice2_SubstituteObject","Error", None))
                 mb.exec_()
                 App.ActiveDocument.abortTransaction()
                 return
@@ -85,8 +85,8 @@ class CommandSubstituteObject:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_SubstituteObject", "Select two objects, first! The first one is the one to be substituted, and the second one is the object to redirect all links to.", None))
-            mb.setWindowTitle(translate("Lattice_SubstituteObject","Bad selection", None))
+            mb.setText(translate("Lattice2_SubstituteObject", "Select two objects, first! The first one is the one to be substituted, and the second one is the object to redirect all links to.", None))
+            mb.setWindowTitle(translate("Lattice2_SubstituteObject","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -95,6 +95,6 @@ class CommandSubstituteObject:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_SubstituteObject', CommandSubstituteObject())
+FreeCADGui.addCommand('Lattice2_SubstituteObject', CommandSubstituteObject())
 
-exportedCommands = ['Lattice_SubstituteObject']
+exportedCommands = ['Lattice2_SubstituteObject']

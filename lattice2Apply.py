@@ -30,10 +30,10 @@ import math
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeBaseFeature
-import latticeCompoundExplorer as LCE
-import latticeExecuter
+from lattice2Common import *
+import lattice2BaseFeature
+import lattice2CompoundExplorer as LCE
+import lattice2Executer
 
 # -------------------------- document object --------------------------------------------------
 
@@ -113,7 +113,7 @@ class LatticeApply(latticeBaseFeature.LatticeFeature):
 class ViewProviderLatticeApply(latticeBaseFeature.ViewProviderLatticeFeature):
 
     def getIcon(self):
-        return getIconPath("Lattice_Apply.svg")
+        return getIconPath("Lattice2_Apply.svg")
         
     def claimChildren(self):
         return [self.Object.Base, self.Object.Tool]
@@ -140,10 +140,10 @@ def CreateLatticeApply(name):
 class _CommandLatticeApply:
     "Command to create LatticeApply feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_Apply.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_Apply","Apply array"),
+        return {'Pixmap'  : getIconPath("Lattice2_Apply.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_Apply","Apply array"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_Apply","Lattice Apply: put copies of an object at every placement in an array.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Apply","Lattice Apply: put copies of an object at every placement in an array.")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 2 :
@@ -151,8 +151,8 @@ class _CommandLatticeApply:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_Apply", "Please select two objects, first. The fist object is Base, second is Tool. Base can be a lattice or any shape, that is to be arrayed. Tool must be a lattice object.", None))
-            mb.setWindowTitle(translate("Lattice_Apply","Bad selection", None))
+            mb.setText(translate("Lattice2_Apply", "Please select two objects, first. The fist object is Base, second is Tool. Base can be a lattice or any shape, that is to be arrayed. Tool must be a lattice object.", None))
+            mb.setWindowTitle(translate("Lattice2_Apply","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -161,9 +161,9 @@ class _CommandLatticeApply:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_Apply', _CommandLatticeApply())
+FreeCADGui.addCommand('Lattice2_Apply', _CommandLatticeApply())
 
-exportedCommands = ['Lattice_Apply']
+exportedCommands = ['Lattice2_Apply']
 
 # -------------------------- /Gui command --------------------------------------------------
 

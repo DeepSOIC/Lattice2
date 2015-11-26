@@ -28,9 +28,9 @@ __url__ = ""
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeCompoundExplorer as LCE
-import latticeBaseFeature
+from lattice2Common import *
+import lattice2CompoundExplorer as LCE
+import lattice2BaseFeature
 
 def shapeInfoString(shape):
     strMsg = shape.ShapeType 
@@ -59,10 +59,10 @@ class _CommandInspect:
         pass
     
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_Inspect.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_Inspect","Inspect selection") , # FIXME: not translation-friendly!
+        return {'Pixmap'  : getIconPath("Lattice2_Inspect.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_Inspect","Inspect selection") , # FIXME: not translation-friendly!
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_Inspect","Lattice Inspect: display info on compounding structure of selected object.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Inspect","Lattice Inspect: display info on compounding structure of selected object.")}
         
     def Activated(self):
         sel = FreeCADGui.Selection.getSelectionEx()[0]
@@ -115,7 +115,7 @@ class _CommandInspect:
         mb = QtGui.QMessageBox()
         mb.setIcon(mb.Icon.Information)
         mb.setText(allText)
-        mb.setWindowTitle(translate("Lattice_Inspect","Selection info", None))
+        mb.setWindowTitle(translate("Lattice2_Inspect","Selection info", None))
         
         btnClose = mb.addButton(QtGui.QMessageBox.StandardButton.Close)
         btnCopy = mb.addButton("Copy to clipboard",QtGui.QMessageBox.ButtonRole.ActionRole)
@@ -132,7 +132,7 @@ class _CommandInspect:
         else:
             return False
 
-FreeCADGui.addCommand('Lattice_Inspect',_CommandInspect())
+FreeCADGui.addCommand('Lattice2_Inspect',_CommandInspect())
 
-exportedCommands = ['Lattice_Inspect']
+exportedCommands = ['Lattice2_Inspect']
 

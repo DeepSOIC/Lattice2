@@ -28,10 +28,10 @@ __url__ = ""
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeBaseFeature
-import latticeCompoundExplorer as LCE
-import latticeExecuter
+from lattice2Common import *
+import lattice2BaseFeature
+import lattice2CompoundExplorer as LCE
+import lattice2Executer
 
 # -------------------------- document object --------------------------------------------------
 
@@ -90,7 +90,7 @@ class JoinArrays(latticeBaseFeature.LatticeFeature):
 class ViewProviderJoinArrays(latticeBaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
-        return getIconPath('Lattice_JoinArrays.svg')
+        return getIconPath('Lattice2_JoinArrays.svg')
 
     def claimChildren(self):
         return self.Object.Links
@@ -119,10 +119,10 @@ def CreateJoinArrays(name):
 class _CommandJoinArrays:
     "Command to create JoinArrays feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_JoinArrays.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_JoinArrays","Join arrays"),
+        return {'Pixmap'  : getIconPath("Lattice2_JoinArrays.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_JoinArrays","Join arrays"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_JoinArrays","Lattice JoinArrays: concatenate or interleave two or more arrays.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_JoinArrays","Lattice JoinArrays: concatenate or interleave two or more arrays.")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) > 1 :
@@ -130,8 +130,8 @@ class _CommandJoinArrays:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_JoinArrays", "Please select at least two lattice objects. Selected lattice objects will be concatenated or interleaved into one array.", None))
-            mb.setWindowTitle(translate("Lattice_JoinArrays","Bad selection", None))
+            mb.setText(translate("Lattice2_JoinArrays", "Please select at least two lattice objects. Selected lattice objects will be concatenated or interleaved into one array.", None))
+            mb.setWindowTitle(translate("Lattice2_JoinArrays","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -140,9 +140,9 @@ class _CommandJoinArrays:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_JoinArrays', _CommandJoinArrays())
+FreeCADGui.addCommand('Lattice2_JoinArrays', _CommandJoinArrays())
 
-exportedCommands = ['Lattice_JoinArrays']
+exportedCommands = ['Lattice2_JoinArrays']
 
 # -------------------------- /Gui command --------------------------------------------------
 

@@ -21,8 +21,8 @@
 #*                                                                         *
 #***************************************************************************
 
-from latticeCommon import *
-import latticeMarkers as markers
+from lattice2Common import *
+import lattice2Markers as markers
 import math
 
 __title__="CompoundFilter module for FreeCAD"
@@ -31,10 +31,10 @@ __url__ = ""
 
 
 try:
-    from latticeBaseFeature import isObjectLattice
+    from lattice2BaseFeature import isObjectLattice2
 except Exception:
-    # I want to keep the module easy to strip off Lattice wb, so:
-    def isObjectLattice(obj):
+    # I want to keep the module easy to strip off Lattice2 wb, so:
+    def isObjectLattice2(obj):
         return False
 
 # -------------------------- common stuff --------------------------------------------------
@@ -77,9 +77,9 @@ class _CompoundFilter:
 
     def execute(self,obj):
         #validity check
-        if isObjectLattice(obj.Base):
-            import latticeExecuter
-            latticeExecuter.warning(obj,"A generic shape is expected, but a lattice object was supplied. It will be treated as a generic shape.")
+        if isObjectLattice2(obj.Base):
+            import lattice2Executer
+            lattice2Executer.warning(obj,"A generic shape is expected, but a lattice2 object was supplied. It will be treated as a generic shape.")
 
         rst = [] #variable to receive the final list of shapes
         shps = obj.Base.Shape.childShapes()
@@ -177,7 +177,7 @@ class _ViewProviderCompoundFilter:
         vobj.setEditorMode("DontUnhideOnDelete", 2) # set hidden
         
     def getIcon(self):
-        return getIconPath("Lattice_CompoundFilter.svg")
+        return getIconPath("Lattice2_CompoundFilter.svg")
 
     def attach(self, vobj):
         self.ViewObject = vobj
@@ -216,7 +216,7 @@ def CreateCompoundFilter(name):
     sel = FreeCADGui.Selection.getSelection()
     FreeCAD.ActiveDocument.openTransaction("Create CompoundFilter")
     FreeCADGui.addModule("CompoundFilter")
-    FreeCADGui.addModule("latticeExecuter")
+    FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("f = CompoundFilter.makeCompoundFilter(name = '"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].Name)
     FreeCADGui.doCommand("f.Base.ViewObject.hide()")
@@ -226,7 +226,7 @@ def CreateCompoundFilter(name):
         FreeCADGui.doCommand("f.FilterType = 'collision-pass'")
     else:
         FreeCADGui.doCommand("f.FilterType = 'window-volume'")    
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 
@@ -238,10 +238,10 @@ def CreateCompoundFilter(name):
 class _CommandCompoundFilter:
     "Command to create CompoundFilter feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_CompoundFilter.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_CompoundFilter","Compound Filter"),
+        return {'Pixmap'  : getIconPath("Lattice2_CompoundFilter.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_CompoundFilter","Compound Filter"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_CompoundFilter","Compound Filter: remove some childs from a compound")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_CompoundFilter","Compound Filter: remove some childs from a compound")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 or len(FreeCADGui.Selection.getSelection()) == 2 :
@@ -249,8 +249,8 @@ class _CommandCompoundFilter:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_CompoundFilter", "Select a shape that is a compound, first! Second selected item (optional) will be treated as a stencil.", None))
-            mb.setWindowTitle(translate("Lattice_CompoundFilter","Bad selection", None))
+            mb.setText(translate("Lattice2_CompoundFilter", "Select a shape that is a compound, first! Second selected item (optional) will be treated as a stencil.", None))
+            mb.setWindowTitle(translate("Lattice2_CompoundFilter","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -259,15 +259,15 @@ class _CommandCompoundFilter:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_CompoundFilter', _CommandCompoundFilter())
+FreeCADGui.addCommand('Lattice2_CompoundFilter', _CommandCompoundFilter())
 
 class _CommandExplode:
     "Command to explode compound with parametric links to its children"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_Explode.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_CompoundFilter","Explode compound"),
+        return {'Pixmap'  : getIconPath("Lattice2_Explode.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_CompoundFilter","Explode compound"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_CompoundFilter","Explode compound: each member of compound as a separate object")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_CompoundFilter","Explode compound: each member of compound as a separate object")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
@@ -294,8 +294,8 @@ class _CommandExplode:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_CompoundFilter", "Select a shape that is a compound, first!", None))
-            mb.setWindowTitle(translate("Lattice_CompoundFilter","Bad selection", None))
+            mb.setText(translate("Lattice2_CompoundFilter", "Select a shape that is a compound, first!", None))
+            mb.setWindowTitle(translate("Lattice2_CompoundFilter","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -304,8 +304,8 @@ class _CommandExplode:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_Explode', _CommandExplode())
+FreeCADGui.addCommand('Lattice2_Explode', _CommandExplode())
 
-exportedCommands = ['Lattice_CompoundFilter', 'Lattice_Explode']
+exportedCommands = ['Lattice2_CompoundFilter', 'Lattice2_Explode']
 
 # -------------------------- /Gui command --------------------------------------------------

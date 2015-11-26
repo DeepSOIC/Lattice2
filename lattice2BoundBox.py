@@ -22,7 +22,7 @@
 #***************************************************************************
 
 
-from latticeCommon import *
+from lattice2Common import *
 
 
 __title__="BoundingBox module for FreeCAD"
@@ -158,7 +158,7 @@ class _ViewProviderBoundBox:
         vobj.DisplayMode = "Wireframe"
        
     def getIcon(self):
-        return getIconPath("Lattice_BoundBox.svg")
+        return getIconPath("Lattice2_BoundBox.svg")
 
     def attach(self, vobj):
         self.ViewObject = vobj
@@ -195,10 +195,10 @@ def CreateBoundBox(name):
 class _CommandBoundBox:
     "Command to create BoundBox feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_BoundBox.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_BoundBox","Parametric bounding box"),
+        return {'Pixmap'  : getIconPath("Lattice2_BoundBox.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_BoundBox","Parametric bounding box"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_BoundBox","Make a box that precisely fits the object")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_BoundBox","Make a box that precisely fits the object")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
@@ -206,8 +206,8 @@ class _CommandBoundBox:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_BoundBox", "Select a shape to make a bounding box for, first!", None))
-            mb.setWindowTitle(translate("Lattice_BoundBox","Bad selection", None))
+            mb.setText(translate("Lattice2_BoundBox", "Select a shape to make a bounding box for, first!", None))
+            mb.setWindowTitle(translate("Lattice2_BoundBox","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -216,8 +216,8 @@ class _CommandBoundBox:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_BoundBox', _CommandBoundBox())
+FreeCADGui.addCommand('Lattice2_BoundBox', _CommandBoundBox())
 
-exportedCommands = ['Lattice_BoundBox']
+exportedCommands = ['Lattice2_BoundBox']
 
 # -------------------------- /Gui command --------------------------------------------------

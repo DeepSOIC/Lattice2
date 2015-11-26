@@ -24,7 +24,7 @@
 
 import FreeCAD as App
 
-from latticeCommon import *
+from lattice2Common import *
 
 __title__="Geometric utility routines for Lattice workbench for FreeCAD"
 __author__ = "DeepSOIC"

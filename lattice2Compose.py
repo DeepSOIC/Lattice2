@@ -30,10 +30,10 @@ import math
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeBaseFeature
-import latticeCompoundExplorer as LCE
-import latticeExecuter
+from lattice2Common import *
+import lattice2BaseFeature
+import lattice2CompoundExplorer as LCE
+import lattice2Executer
 
 # -------------------------- document object --------------------------------------------------
 
@@ -168,7 +168,7 @@ class Compose(latticeBaseFeature.LatticeFeature):
 class ViewProviderCompose(latticeBaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
-        return getIconPath('Lattice_Compose.svg')
+        return getIconPath('Lattice2_Compose.svg')
 
     def claimChildren(self):
         return [self.Object.Base, self.Object.Tool]
@@ -195,10 +195,10 @@ def CreateCompose(name):
 class _CommandCompose:
     "Command to create Compose feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_Compose.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_Compose","Compose arrays"),
+        return {'Pixmap'  : getIconPath("Lattice2_Compose.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_Compose","Compose arrays"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_Compose","Lattice Compose: element-wise operations between compounds")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Compose","Lattice Compose: element-wise operations between compounds")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 2 :
@@ -206,8 +206,8 @@ class _CommandCompose:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_Compose", "Please select two objects, first. The fist object is Base, second is Tool. Base can contain real shapes, as well as be a lattice object. Tool is typically a lattice object.", None))
-            mb.setWindowTitle(translate("Lattice_Compose","Bad selection", None))
+            mb.setText(translate("Lattice2_Compose", "Please select two objects, first. The fist object is Base, second is Tool. Base can contain real shapes, as well as be a lattice object. Tool is typically a lattice object.", None))
+            mb.setWindowTitle(translate("Lattice2_Compose","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -216,9 +216,9 @@ class _CommandCompose:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_Compose', _CommandCompose())
+FreeCADGui.addCommand('Lattice2_Compose', _CommandCompose())
 
-exportedCommands = ['Lattice_Compose']
+exportedCommands = ['Lattice2_Compose']
 
 # -------------------------- /Gui command --------------------------------------------------
 

@@ -30,8 +30,8 @@ import math
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeBaseFeature
+from lattice2Common import *
+import lattice2BaseFeature
 
 def makeLatticePlacement(name):
     '''makePlacement(name): makes a Placement object.'''
@@ -93,7 +93,7 @@ class LatticePlacement(latticeBaseFeature.LatticeFeature):
 class ViewProviderLatticePlacement(latticeBaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
-        return getIconPath('Lattice_Placement.svg')
+        return getIconPath('Lattice2_Placement.svg')
 
 # -------------------------- /document object --------------------------------------------------
 
@@ -118,10 +118,10 @@ class _CommandPlacement:
         self.mode = mode
     
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_Placement.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_Placement","Single Placement: ") + self.mode, # FIXME: not translation-friendly!
+        return {'Pixmap'  : getIconPath("Lattice2_Placement.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_Placement","Single Placement: ") + self.mode, # FIXME: not translation-friendly!
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_Placement","Lattice Placement: Create lattice object with single item")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Placement","Lattice Placement: Create lattice object with single item")}
         
     def Activated(self):
         CreateLatticePlacement(name= "Placement", mode= self.mode)
@@ -134,11 +134,11 @@ class _CommandPlacement:
 
 _listOfSubCommands = []
 for mode in LatticePlacement._PlacementChoiceList: 
-    cmdName = 'Lattice_Placement' + mode
+    cmdName = 'Lattice2_Placement' + mode
     FreeCADGui.addCommand(cmdName, _CommandPlacement(mode))
     _listOfSubCommands.append(cmdName)
-import latticeArrayFromShape
-_listOfSubCommands.append('Lattice_PlacementFromShape')    
+import lattice2ArrayFromShape
+_listOfSubCommands.append('Lattice2_PlacementFromShape')    
 
 class GroupCommandPlacement:
     def GetCommands(self):
@@ -154,11 +154,11 @@ class GroupCommandPlacement:
     def IsActive(self): # optional
         return True
         
-FreeCADGui.addCommand('Lattice_Placement_GroupCommand',GroupCommandPlacement())
+FreeCADGui.addCommand('Lattice2_Placement_GroupCommand',GroupCommandPlacement())
 
 
 
 
-exportedCommands = ['Lattice_Placement_GroupCommand']
+exportedCommands = ['Lattice2_Placement_GroupCommand']
 
 # -------------------------- /Gui command --------------------------------------------------

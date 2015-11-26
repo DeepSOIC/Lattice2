@@ -21,8 +21,8 @@
 #*                                                                         *
 #***************************************************************************
 
-from latticeCommon import *
-import latticeMarkers as markers
+from lattice2Common import *
+import lattice2Markers as markers
 import math
 
 __title__="latticeDowngrade module for FreeCAD"
@@ -117,7 +117,7 @@ class _ViewProviderLatticeDowngrade:
         vobj.Proxy = self
        
     def getIcon(self):
-        return getIconPath("Lattice_Downgrade.svg")
+        return getIconPath("Lattice2_Downgrade.svg")
 
     def attach(self, vobj):
         self.ViewObject = vobj
@@ -177,10 +177,10 @@ class _CommandLatticeDowngrade:
         self.mode = mode
     
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_Downgrade.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_Downgrade","Downgrade to ") + self.mode, # FIXME: not translation-friendly!
+        return {'Pixmap'  : getIconPath("Lattice2_Downgrade.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_Downgrade","Downgrade to ") + self.mode, # FIXME: not translation-friendly!
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_Downgrade","Parametric Downgrade: downgrade and put results into a compound.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Downgrade","Parametric Downgrade: downgrade and put results into a compound.")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
@@ -188,8 +188,8 @@ class _CommandLatticeDowngrade:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_Downgrade", "Select a shape to downgrade, first!", None))
-            mb.setWindowTitle(translate("Lattice_Downgrade","Bad selection", None))
+            mb.setText(translate("Lattice2_Downgrade", "Select a shape to downgrade, first!", None))
+            mb.setWindowTitle(translate("Lattice2_Downgrade","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -200,7 +200,7 @@ class _CommandLatticeDowngrade:
 
 _listOfSubCommands = []
 for mode in _latticeDowngrade._DowngradeModeList: 
-    cmdName = 'Lattice_Downgrade' + mode
+    cmdName = 'Lattice2_Downgrade' + mode
     FreeCADGui.addCommand(cmdName, _CommandLatticeDowngrade(mode))
     _listOfSubCommands.append(cmdName)
     
@@ -219,11 +219,11 @@ class GroupCommandLatticeDowngrade:
     def IsActive(self): # optional
         return True
         
-FreeCADGui.addCommand('Lattice_Downgrade_GroupCommand',GroupCommandLatticeDowngrade())
+FreeCADGui.addCommand('Lattice2_Downgrade_GroupCommand',GroupCommandLatticeDowngrade())
 
 
 
 
-exportedCommands = ['Lattice_Downgrade_GroupCommand']
+exportedCommands = ['Lattice2_Downgrade_GroupCommand']
 
 # -------------------------- /Gui command --------------------------------------------------

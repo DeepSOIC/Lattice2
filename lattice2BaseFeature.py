@@ -28,10 +28,10 @@ __url__ = ""
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeCompoundExplorer as LCE
-import latticeMarkers
-import latticeExecuter
+from lattice2Common import *
+import lattice2CompoundExplorer as LCE
+import lattice2Markers
+import lattice2Executer
 
 def getDefLatticeFaceColor():
     return (1.0, 0.7019608020782471, 0.0, 0.0) #orange

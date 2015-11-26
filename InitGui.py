@@ -74,9 +74,9 @@ class Lattice2Workbench (Workbench):
         import lattice2Downgrade as mod
         
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
-        import CompoundFilter as mod
+        import CompoundFilter2 as mod
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
-        import FuseCompound as mod
+        import FuseCompound2 as mod
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
         import lattice2Inspect as mod
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands

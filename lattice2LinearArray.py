@@ -30,10 +30,10 @@ import math
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeBaseFeature
-import latticeExecuter
-import latticeGeomUtils
+from lattice2Common import *
+import lattice2BaseFeature
+import lattice2Executer
+import lattice2GeomUtils
 
 def makeLinearArray(name):
     '''makeLinearArray(name): makes a LinearArray object.'''
@@ -219,7 +219,7 @@ class LinearArray(latticeBaseFeature.LatticeFeature):
 class ViewProviderLinearArray(latticeBaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
-        return getIconPath('Lattice_LinearArray.svg')
+        return getIconPath('Lattice2_LinearArray.svg')
         
 # -------------------------- /document object --------------------------------------------------
 
@@ -243,10 +243,10 @@ def CreateLinearArray(name):
 class _CommandLinearArray:
     "Command to create LinearArray feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_LinearArray.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_LinearArray","Generate linear array"),
+        return {'Pixmap'  : getIconPath("Lattice2_LinearArray.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_LinearArray","Generate linear array"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_LinearArray","Make a linear array lattice object (array of placements)")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_LinearArray","Make a linear array lattice object (array of placements)")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) < 2 :
@@ -254,8 +254,8 @@ class _CommandLinearArray:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_LinearArray", "Either don't select anything, or select a linear edge to serve an axis. More than one object was selected, not supported.", None))
-            mb.setWindowTitle(translate("Lattice_LinearArray","Bad selection", None))
+            mb.setText(translate("Lattice2_LinearArray", "Either don't select anything, or select a linear edge to serve an axis. More than one object was selected, not supported.", None))
+            mb.setWindowTitle(translate("Lattice2_LinearArray","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -264,9 +264,9 @@ class _CommandLinearArray:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_LinearArray', _CommandLinearArray())
+FreeCADGui.addCommand('Lattice2_LinearArray', _CommandLinearArray())
 
-exportedCommands = ['Lattice_LinearArray']
+exportedCommands = ['Lattice2_LinearArray']
 
 # -------------------------- /Gui command --------------------------------------------------
 

@@ -24,10 +24,10 @@
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeBaseFeature
-import latticeCompoundExplorer as LCE
-import latticeExecuter
+from lattice2Common import *
+import lattice2BaseFeature
+import lattice2CompoundExplorer as LCE
+import lattice2Executer
 
 
 __title__="Lattice ArrayFilter module for FreeCAD"
@@ -134,7 +134,7 @@ class ViewProviderArrayFilter(latticeBaseFeature.ViewProviderLatticeFeature):
     "A View Provider for the Lattice ArrayFilter object"
 
     def getIcon(self):
-        return getIconPath("Lattice_ArrayFilter.svg")
+        return getIconPath("Lattice2_ArrayFilter.svg")
 
     def claimChildren(self):
         children = [self.Object.Base]
@@ -224,10 +224,10 @@ class _CommandArrayFilterItems:
     "Command to create Lattice ArrayFilter feature in 'specific items' mode based on current selection"
     
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_ArrayFilter.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_ArrayFilter","Array Filter: selected items"),
+        return {'Pixmap'  : getIconPath("Lattice2_ArrayFilter.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFilter","Array Filter: selected items"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_ArrayFilter","Array Filter: keep only items that are currently selected.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFilter","Array Filter: keep only items that are currently selected.")}
         
     def Activated(self):
         sel = FreeCADGui.Selection.getSelectionEx()
@@ -236,8 +236,8 @@ class _CommandArrayFilterItems:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_ArrayFilter", "Select elements of a lattice feature, first! Placements other than those that were selected are going to be rejected. The order of selection matters.", None))
-            mb.setWindowTitle(translate("Lattice_ArrayFilter","Bad selection", None))
+            mb.setText(translate("Lattice2_ArrayFilter", "Select elements of a lattice feature, first! Placements other than those that were selected are going to be rejected. The order of selection matters.", None))
+            mb.setWindowTitle(translate("Lattice2_ArrayFilter","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -246,8 +246,8 @@ class _CommandArrayFilterItems:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_ArrayFilter_Items', _CommandArrayFilterItems())
-_listOfSubCommands.append('Lattice_ArrayFilter_Items')
+FreeCADGui.addCommand('Lattice2_ArrayFilter_Items', _CommandArrayFilterItems())
+_listOfSubCommands.append('Lattice2_ArrayFilter_Items')
 
 class _CommandArrayFilterStencilBased:
     "Command to create Lattice ArrayFilter feature in 'specific items' mode based on current selection"
@@ -256,7 +256,7 @@ class _CommandArrayFilterStencilBased:
         self.mode = mode
     
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_ArrayFilter.svg"),
+        return {'Pixmap'  : getIconPath("Lattice2_ArrayFilter.svg"),
                 'MenuText': "Array Filter: " + {"collision-pass":"touching",
                                                 "window-distance":"within distance window",
                                                 "pointing-at":"pointing at shape"}[mode],
@@ -272,8 +272,8 @@ class _CommandArrayFilterStencilBased:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_ArrayFilter", "Select a lattice array and a stencil shape, first!", None))
-            mb.setWindowTitle(translate("Lattice_ArrayFilter","Bad selection", None))
+            mb.setText(translate("Lattice2_ArrayFilter", "Select a lattice array and a stencil shape, first!", None))
+            mb.setWindowTitle(translate("Lattice2_ArrayFilter","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -283,7 +283,7 @@ class _CommandArrayFilterStencilBased:
             return False
             
 for mode in LatticeArrayFilter.stencilModeList:
-    cmdName = 'Lattice_ArrayFilter'+mode.replace("-","_")
+    cmdName = 'Lattice2_ArrayFilter'+mode.replace("-","_")
     FreeCADGui.addCommand(cmdName, _CommandArrayFilterStencilBased(mode))
     _listOfSubCommands.append(cmdName)
     
@@ -297,21 +297,21 @@ class GroupCommandLatticeArrayFilter:
 
     def GetResources(self):
         return { 'MenuText': 'Array filter:', 
-                 'ToolTip': 'Array filter: tool to exctract specific elements from lattice arrays.'}
+                 'ToolTip': 'Array filter: tool to exctract specific elements from lattice2 arrays.'}
         
     def IsActive(self): # optional
         return bool(App.ActiveDocument)
         
-FreeCADGui.addCommand('Lattice_ArrayFilter_GroupCommand',GroupCommandLatticeArrayFilter())
+FreeCADGui.addCommand('Lattice2_ArrayFilter_GroupCommand',GroupCommandLatticeArrayFilter())
 
 
 class _CommandExplodeArray:
     "Command to explode array with parametric links to its elements"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_ExplodeArray.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_ArrayFilter","Explode array"),
+        return {'Pixmap'  : getIconPath("Lattice2_ExplodeArray.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFilter","Explode array"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_ArrayFilter","Explode array: get each element of array as a separate object")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFilter","Explode array: get each element of array as a separate object")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
@@ -344,8 +344,8 @@ class _CommandExplodeArray:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_ArrayFilter", "Select a lattice object, first!", None))
-            mb.setWindowTitle(translate("Lattice_ArrayFilter","Bad selection", None))
+            mb.setText(translate("Lattice2_ArrayFilter", "Select a lattice object, first!", None))
+            mb.setWindowTitle(translate("Lattice2_ArrayFilter","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -354,8 +354,8 @@ class _CommandExplodeArray:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_ExplodeArray', _CommandExplodeArray())
+FreeCADGui.addCommand('Lattice2_ExplodeArray', _CommandExplodeArray())
 
-exportedCommands = ['Lattice_ArrayFilter_GroupCommand', 'Lattice_ExplodeArray']
+exportedCommands = ['Lattice2_ArrayFilter_GroupCommand', 'Lattice2_ExplodeArray']
 
 # -------------------------- /Gui command --------------------------------------------------

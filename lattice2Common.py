@@ -55,4 +55,4 @@ def getIconPath(icon_dot_svg):
 DistConfusion = 1e-7
 ParaConfusion = 1e-8
 
-import lattice_rc
+import lattice2_rc

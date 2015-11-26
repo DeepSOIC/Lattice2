@@ -30,10 +30,10 @@ import math
 import FreeCAD as App
 import Part
 
-from latticeCommon import *
-import latticeBaseFeature
-import latticeExecuter
-import latticeGeomUtils
+from lattice2Common import *
+import lattice2BaseFeature
+import lattice2Executer
+import lattice2GeomUtils
 
 def makePolarArray(name):
     '''makePolarArray(name): makes a PolarArray object.'''
@@ -212,7 +212,7 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
 class ViewProviderPolarArray(latticeBaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
-        return getIconPath('Lattice_PolarArray.svg')
+        return getIconPath('Lattice2_PolarArray.svg')
         
 # -------------------------- /document object --------------------------------------------------
 
@@ -236,10 +236,10 @@ def CreatePolarArray(name):
 class _CommandPolarArray:
     "Command to create PolarArray feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice_PolarArray.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice_PolarArray","Generate polar array"),
+        return {'Pixmap'  : getIconPath("Lattice2_PolarArray.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_PolarArray","Generate polar array"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice_PolarArray","Make a polar array lattice object (array of placements)")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_PolarArray","Make a polar array lattice object (array of placements)")}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) < 2 :
@@ -247,8 +247,8 @@ class _CommandPolarArray:
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice_PolarArray", "Either don't select anything, or select an object to serve an axis. More than one object was selected, not supported.", None))
-            mb.setWindowTitle(translate("Lattice_PolarArray","Bad selection", None))
+            mb.setText(translate("Lattice2_PolarArray", "Either don't select anything, or select an object to serve an axis. More than one object was selected, not supported.", None))
+            mb.setWindowTitle(translate("Lattice2_PolarArray","Bad selection", None))
             mb.exec_()
             
     def IsActive(self):
@@ -257,9 +257,9 @@ class _CommandPolarArray:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice_PolarArray', _CommandPolarArray())
+FreeCADGui.addCommand('Lattice2_PolarArray', _CommandPolarArray())
 
-exportedCommands = ['Lattice_PolarArray']
+exportedCommands = ['Lattice2_PolarArray']
 
 # -------------------------- /Gui command --------------------------------------------------
 
