@@ -39,9 +39,9 @@ import lattice2Executer
 
 def makeCompose(name):
     '''makeCompose(name): makes a Compose object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, Compose, ViewProviderCompose)
+    return lattice2BaseFeature.makeLatticeFeature(name, Compose, ViewProviderCompose)
 
-class Compose(latticeBaseFeature.LatticeFeature):
+class Compose(lattice2BaseFeature.LatticeFeature):
     "The Lattice Compose object"
     
     operList = ['MultiplyPlacements','AveragePlacements', 'IgnoreBasePlacements','OverrideBasePlacements']
@@ -94,11 +94,11 @@ class Compose(latticeBaseFeature.LatticeFeature):
         isOverride = obj.Operation == 'OverrideBasePlacements'
 
         #mode validity logic
-        if not latticeBaseFeature.isObjectLattice(obj.Tool):
-            latticeExecuter.warning(obj, 'Tool is not a lattice object. Results may be unexpected.\n')
-        outputIsLattice = latticeBaseFeature.isObjectLattice(obj.Base)
+        if not lattice2BaseFeature.isObjectLattice(obj.Tool):
+            lattice2Executer.warning(obj, 'Tool is not a lattice object. Results may be unexpected.\n')
+        outputIsLattice = lattice2BaseFeature.isObjectLattice(obj.Base)
         if isOverride and outputIsLattice:
-            latticeExecuter.warning(obj, 'Base is a lattice object. OverrideBasePlacements operation requires a generic compound as Base. So, the lattice is being treated as a generic compound.\n')
+            lattice2Executer.warning(obj, 'Base is a lattice object. OverrideBasePlacements operation requires a generic compound as Base. So, the lattice is being treated as a generic compound.\n')
             outputIsLattice = False
         
         # initialize output containers and loop variables
@@ -165,7 +165,7 @@ class Compose(latticeBaseFeature.LatticeFeature):
         else:
             obj.Shape = Part.makeCompound(outputShapes)
 
-class ViewProviderCompose(latticeBaseFeature.ViewProviderLatticeFeature):
+class ViewProviderCompose(lattice2BaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
         return getIconPath('Lattice2_Compose.svg')
@@ -181,13 +181,13 @@ def CreateCompose(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create Compose")
     FreeCADGui.addModule("latticeCompose")
-    FreeCADGui.addModule("latticeExecuter")
+    FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("f = latticeCompose.makeCompose(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     FreeCADGui.doCommand("f.Tool = App.ActiveDocument."+sel[1].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

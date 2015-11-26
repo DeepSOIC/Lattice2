@@ -66,7 +66,7 @@ class _CommandInspect:
         
     def Activated(self):
         sel = FreeCADGui.Selection.getSelectionEx()[0]
-        isLattice = latticeBaseFeature.isObjectLattice(sel.Object)
+        isLattice = lattice2BaseFeature.isObjectLattice(sel.Object)
         
         strStructure = []
         if not hasattr(sel.Object,"Shape"):

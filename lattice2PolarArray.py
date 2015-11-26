@@ -37,9 +37,9 @@ import lattice2GeomUtils
 
 def makePolarArray(name):
     '''makePolarArray(name): makes a PolarArray object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, PolarArray, ViewProviderPolarArray)
+    return lattice2BaseFeature.makeLatticeFeature(name, PolarArray, ViewProviderPolarArray)
 
-class PolarArray(latticeBaseFeature.LatticeFeature):
+class PolarArray(lattice2BaseFeature.LatticeFeature):
     "The Lattice PolarArray object"
     def derivedInit(self,obj):
         self.Type = "LatticePolarArray"
@@ -124,8 +124,8 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
             
         # Apply links
         if obj.AxisLink:
-            if latticeBaseFeature.isObjectLattice(obj.AxisLink):
-                latticeExecuter.warning(obj,"For polar array, axis link is expected to be a regular shape. Lattice objct was supplied instead, it's going to be treated as a generic shape.")
+            if lattice2BaseFeature.isObjectLattice(obj.AxisLink):
+                lattice2Executer.warning(obj,"For polar array, axis link is expected to be a regular shape. Lattice objct was supplied instead, it's going to be treated as a generic shape.")
                 
             #resolve the link        
             if len(obj.AxisLinkSubelement) > 0:
@@ -165,7 +165,7 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
         radius = float(obj.Radius)
         
         # compute initial vector. It is to be perpendicular to Axis
-        rot_ini = latticeGeomUtils.makeOrientationFromLocalAxes(ZAx= obj.AxisDir)
+        rot_ini = lattice2GeomUtils.makeOrientationFromLocalAxes(ZAx= obj.AxisDir)
         overallPlacement = App.Placement(obj.AxisPoint, rot_ini)
         
         # Make the array
@@ -209,7 +209,7 @@ class PolarArray(latticeBaseFeature.LatticeFeature):
             
         return output
 
-class ViewProviderPolarArray(latticeBaseFeature.ViewProviderLatticeFeature):
+class ViewProviderPolarArray(lattice2BaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
         return getIconPath('Lattice2_PolarArray.svg')
@@ -222,13 +222,13 @@ def CreatePolarArray(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create PolarArray")
     FreeCADGui.addModule("latticePolarArray")
-    FreeCADGui.addModule("latticeExecuter")
+    FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("f = latticePolarArray.makePolarArray(name='"+name+"')")
     if len(sel) == 1:
         FreeCADGui.doCommand("f.AxisLink = App.ActiveDocument."+sel[0].ObjectName)
         if sel[0].HasSubObjects:
             FreeCADGui.doCommand("f.AxisLinkSubelement = '"+sel[0].SubElementNames[0]+"'")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

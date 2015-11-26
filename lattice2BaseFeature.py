@@ -129,11 +129,11 @@ class LatticeFeature():
             markerSize = obj.MarkerSize
             if markerSize < DistConfusion:
                 markerSize = getMarkerSizeEstimate(plms)
-            marker = latticeMarkers.getPlacementMarker(scale= markerSize, markerID= obj.MarkerShape)
+            marker = lattice2Markers.getPlacementMarker(scale= markerSize, markerID= obj.MarkerShape)
             #FIXME: make hierarchy-aware
             if obj.SingleByDesign:
                 if len(plms) != 1:
-                    latticeExecuter.warning(obj,"Multiple placements are being fed, but object is single by design. Only fisrt placement will be used...")
+                    lattice2Executer.warning(obj,"Multiple placements are being fed, but object is single by design. Only fisrt placement will be used...")
                 obj.Shape = marker.copy()
                 obj.Placement = plms[0]
             else:
@@ -143,7 +143,7 @@ class LatticeFeature():
                     shapes.append(sh)
                     
                 if len(shapes) == 0:
-                    obj.Shape = latticeMarkers.getNullShapeShape(markerSize)
+                    obj.Shape = lattice2Markers.getNullShapeShape(markerSize)
                     raise ValueError('Lattice object is null') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
                 
                 sh = Part.makeCompound(shapes)
@@ -250,7 +250,7 @@ class ViewProviderLatticeFeature:
             else:
                 children = self.claimChildren()
                 if children and len(children) > 0:
-                    marker = latticeMarkers
+                    marker = lattice2Markers
                     for child in children:
                         child.ViewObject.show()
         except Exception as err:

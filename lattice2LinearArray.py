@@ -37,9 +37,9 @@ import lattice2GeomUtils
 
 def makeLinearArray(name):
     '''makeLinearArray(name): makes a LinearArray object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, LinearArray, ViewProviderLinearArray)
+    return lattice2BaseFeature.makeLatticeFeature(name, LinearArray, ViewProviderLinearArray)
 
-class LinearArray(latticeBaseFeature.LatticeFeature):
+class LinearArray(lattice2BaseFeature.LatticeFeature):
     "The Lattice LinearArray object"
     def derivedInit(self,obj):
         self.Type = "LatticeLinearArray"
@@ -108,8 +108,8 @@ class LinearArray(latticeBaseFeature.LatticeFeature):
 
         # Apply links
         if obj.Link:
-            if latticeBaseFeature.isObjectLattice(obj.Link):
-                latticeExecuter.warning(obj,"For polar array, axis link is expected to be a regular shape. Lattice objct was supplied instead, it's going to be treated as a generic shape.")
+            if lattice2BaseFeature.isObjectLattice(obj.Link):
+                lattice2Executer.warning(obj,"For polar array, axis link is expected to be a regular shape. Lattice objct was supplied instead, it's going to be treated as a generic shape.")
             
             #resolve the link
             if len(obj.LinkSubelement) > 0:
@@ -146,14 +146,14 @@ class LinearArray(latticeBaseFeature.LatticeFeature):
                 n = 1
             obj.Step = (obj.SpanEnd - obj.SpanStart)/n
             if obj.DrivenProperty == 'Step' and obj.Link:
-                latticeExecuter.warning(obj,"Step property is being driven by both the link and the selected mode. Mode has priority.")
+                lattice2Executer.warning(obj,"Step property is being driven by both the link and the selected mode. Mode has priority.")
         elif obj.Mode == 'StepN':
             n = obj.NumberLinear
             if obj.EndInclusive:
                 n -= 1
             obj.SpanEnd = obj.SpanStart + obj.Step*n
             if 'Span' in obj.DrivenProperty and obj.Link:
-                latticeExecuter.warning(obj,"SpanEnd property is being driven by both the link and the selected mode. Mode has priority.")
+                lattice2Executer.warning(obj,"SpanEnd property is being driven by both the link and the selected mode. Mode has priority.")
         elif obj.Mode == 'SpanStep':
             nfloat = float((obj.SpanEnd - obj.SpanStart) / obj.Step)
             n = math.trunc(nfloat - ParaConfusion) + 1
@@ -178,8 +178,8 @@ class LinearArray(latticeBaseFeature.LatticeFeature):
 
         # precompute orientation
         if obj.OrientMode == 'Along axis':
-            ori = latticeGeomUtils.makeOrientationFromLocalAxes(ZAx= obj.Dir).multiply(
-                    latticeGeomUtils.makeOrientationFromLocalAxes(ZAx= App.Vector(1,0,0), XAx= App.Vector(0,0,1)) )
+            ori = lattice2GeomUtils.makeOrientationFromLocalAxes(ZAx= obj.Dir).multiply(
+                    lattice2GeomUtils.makeOrientationFromLocalAxes(ZAx= App.Vector(1,0,0), XAx= App.Vector(0,0,1)) )
         else:
             ori = App.Rotation()
         
@@ -216,7 +216,7 @@ class LinearArray(latticeBaseFeature.LatticeFeature):
             
         return output
 
-class ViewProviderLinearArray(latticeBaseFeature.ViewProviderLatticeFeature):
+class ViewProviderLinearArray(lattice2BaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
         return getIconPath('Lattice2_LinearArray.svg')
@@ -229,13 +229,13 @@ def CreateLinearArray(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LinearArray")
     FreeCADGui.addModule("latticeLinearArray")
-    FreeCADGui.addModule("latticeExecuter")
+    FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("f = latticeLinearArray.makeLinearArray(name='"+name+"')")
     if len(sel) == 1:
         FreeCADGui.doCommand("f.Link = App.ActiveDocument."+sel[0].ObjectName)
         if sel[0].HasSubObjects:
             FreeCADGui.doCommand("f.LinkSubelement = '"+sel[0].SubElementNames[0]+"'")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

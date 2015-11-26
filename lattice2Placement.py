@@ -35,9 +35,9 @@ import lattice2BaseFeature
 
 def makeLatticePlacement(name):
     '''makePlacement(name): makes a Placement object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, LatticePlacement, ViewProviderLatticePlacement)
+    return lattice2BaseFeature.makeLatticeFeature(name, LatticePlacement, ViewProviderLatticePlacement)
 
-class LatticePlacement(latticeBaseFeature.LatticeFeature):
+class LatticePlacement(lattice2BaseFeature.LatticeFeature):
     "The Lattice Placement object"
     
     _PlacementChoiceList = ['Custom','XY plane', 'XZ plane', 'YZ plane']
@@ -90,7 +90,7 @@ class LatticePlacement(latticeBaseFeature.LatticeFeature):
         
         return [obj.Placement]
 
-class ViewProviderLatticePlacement(latticeBaseFeature.ViewProviderLatticeFeature):
+class ViewProviderLatticePlacement(lattice2BaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
         return getIconPath('Lattice2_Placement.svg')
@@ -103,10 +103,10 @@ def CreateLatticePlacement(name,mode = 'Custom'):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create Lattice Placement")
     FreeCADGui.addModule("latticePlacement")
-    FreeCADGui.addModule("latticeExecuter")
+    FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("f = latticePlacement.makeLatticePlacement(name='"+name+"')")    
     FreeCADGui.doCommand("f.PlacementChoice = '"+mode+"'")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

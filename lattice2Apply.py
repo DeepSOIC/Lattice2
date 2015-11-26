@@ -39,9 +39,9 @@ import lattice2Executer
 
 def makeLatticeApply(name):
     '''makeLatticeApply(name): makes a LatticeApply object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, LatticeApply, ViewProviderLatticeApply)
+    return lattice2BaseFeature.makeLatticeFeature(name, LatticeApply, ViewProviderLatticeApply)
 
-class LatticeApply(latticeBaseFeature.LatticeFeature):
+class LatticeApply(lattice2BaseFeature.LatticeFeature):
     "The Lattice Apply object"
     
     def derivedInit(self,obj):
@@ -71,9 +71,9 @@ class LatticeApply(latticeBaseFeature.LatticeFeature):
             toolChildren = tool.childShapes()
         
         # validity logic
-        if not latticeBaseFeature.isObjectLattice(obj.Tool):
-            latticeExecuter.warning(obj, 'Tool is not a lattice object. Results may be unexpected.\n')
-        outputIsLattice = latticeBaseFeature.isObjectLattice(obj.Base)
+        if not lattice2BaseFeature.isObjectLattice(obj.Tool):
+            lattice2Executer.warning(obj, 'Tool is not a lattice object. Results may be unexpected.\n')
+        outputIsLattice = lattice2BaseFeature.isObjectLattice(obj.Base)
         
         plmMatcher = App.Placement() #extra placement, that makes first item to preserve its original placement
         if obj.KeepBaseFirstItemPos:
@@ -110,7 +110,7 @@ class LatticeApply(latticeBaseFeature.LatticeFeature):
             obj.Shape = Part.makeCompound(outputShapes)
             return None
 
-class ViewProviderLatticeApply(latticeBaseFeature.ViewProviderLatticeFeature):
+class ViewProviderLatticeApply(lattice2BaseFeature.ViewProviderLatticeFeature):
 
     def getIcon(self):
         return getIconPath("Lattice2_Apply.svg")
@@ -126,13 +126,13 @@ def CreateLatticeApply(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LatticeApply")
     FreeCADGui.addModule("latticeApply")
-    FreeCADGui.addModule("latticeExecuter")
+    FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("f = latticeApply.makeLatticeApply(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     FreeCADGui.doCommand("f.Tool = App.ActiveDocument."+sel[1].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 

@@ -39,9 +39,9 @@ __url__ = ""
 
 def makeArrayFilter(name):
     '''makeArrayFilter(name): makes a Lattice ArrayFilter object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, LatticeArrayFilter, ViewProviderArrayFilter)
+    return lattice2BaseFeature.makeLatticeFeature(name, LatticeArrayFilter, ViewProviderArrayFilter)
 
-class LatticeArrayFilter(latticeBaseFeature.LatticeFeature):
+class LatticeArrayFilter(lattice2BaseFeature.LatticeFeature):
     "The Lattice ArrayFilter object"
     
     stencilModeList = ['collision-pass','window-distance', 'pointing-at']
@@ -73,8 +73,8 @@ class LatticeArrayFilter(latticeBaseFeature.LatticeFeature):
 
     def derivedExecute(self,obj):
         #validity check
-        if not latticeBaseFeature.isObjectLattice(obj.Base):
-            latticeExecuter.warning(obj,"A lattice object is expected as Base, but a generic shape was provided. It will be treated as a lattice object; results may be unexpected.")
+        if not lattice2BaseFeature.isObjectLattice(obj.Base):
+            lattice2Executer.warning(obj,"A lattice object is expected as Base, but a generic shape was provided. It will be treated as a lattice object; results may be unexpected.")
 
         output = [] #variable to receive the final list of placements
         leaves = LCE.AllLeaves(obj.Base.Shape)
@@ -130,7 +130,7 @@ class LatticeArrayFilter(latticeBaseFeature.LatticeFeature):
         return output
         
         
-class ViewProviderArrayFilter(latticeBaseFeature.ViewProviderLatticeFeature):
+class ViewProviderArrayFilter(lattice2BaseFeature.ViewProviderLatticeFeature):
     "A View Provider for the Lattice ArrayFilter object"
 
     def getIcon(self):
@@ -190,13 +190,13 @@ def CreateLatticeArrayFilter(name,mode):
     iLtc = 0 #index of lattice object in selection
     iStc = 1 #index of stencil object in selection
     for i in range(0,len(sel)):
-        if latticeBaseFeature.isObjectLattice(sel[i]):
+        if lattice2BaseFeature.isObjectLattice(sel[i]):
             iLtc = i
             iStc = i-1 #this may give negative index, but python accepts negative indexes
             break
     FreeCAD.ActiveDocument.openTransaction("Create ArrayFilter")
     FreeCADGui.addModule("latticeArrayFilter")
-    FreeCADGui.addModule("latticeExecuter")
+    FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("sel = Gui.Selection.getSelectionEx()")    
     FreeCADGui.doCommand("f = latticeArrayFilter.makeArrayFilter(name = '"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[iLtc].ObjectName)
@@ -209,7 +209,7 @@ def CreateLatticeArrayFilter(name,mode):
         FreeCADGui.doCommand("f.Stencil = App.ActiveDocument."+sel[iStc].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 
@@ -316,14 +316,14 @@ class _CommandExplodeArray:
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
             FreeCAD.ActiveDocument.openTransaction("Explode Array")
-            latticeExecuter.globalIsCreatingLatticeFeature = True
+            lattice2Executer.globalIsCreatingLatticeFeature = True
             try:
                 obj = FreeCADGui.Selection.getSelection()[0]
-                if not latticeBaseFeature.isObjectLattice(obj):
-                    latticeExecuter.warning(None,"ExplodeArray expects a lattice object; a generic shape was provided instead. Results may be unexpected.")
+                if not lattice2BaseFeature.isObjectLattice(obj):
+                    lattice2Executer.warning(None,"ExplodeArray expects a lattice object; a generic shape was provided instead. Results may be unexpected.")
                 sh = obj.Shape
                 n_elem = len(LCE.AllLeaves(sh))
-                latticeExecuter.globalIsCreatingLatticeFeature = False
+                lattice2Executer.globalIsCreatingLatticeFeature = False
                 for i in range(0, n_elem):
                     af = makeArrayFilter(name = 'Element')
                     af.Label = u'Element' + unicode(i)
@@ -338,7 +338,7 @@ class _CommandExplodeArray:
                 FreeCAD.ActiveDocument.abortTransaction()
                 raise
             finally:
-                latticeExecuter.globalIsCreatingLatticeFeature = False
+                lattice2Executer.globalIsCreatingLatticeFeature = False
             FreeCAD.ActiveDocument.commitTransaction()
 
         else:

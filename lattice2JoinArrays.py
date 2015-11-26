@@ -37,9 +37,9 @@ import lattice2Executer
 
 def makeJoinArrays(name):
     '''makeJoinArrays(name): makes a JoinArrays object.'''
-    return latticeBaseFeature.makeLatticeFeature(name, JoinArrays, ViewProviderJoinArrays)
+    return lattice2BaseFeature.makeLatticeFeature(name, JoinArrays, ViewProviderJoinArrays)
 
-class JoinArrays(latticeBaseFeature.LatticeFeature):
+class JoinArrays(lattice2BaseFeature.LatticeFeature):
     "The Lattice JoinArrays object"
         
     def derivedInit(self,obj):
@@ -56,10 +56,10 @@ class JoinArrays(latticeBaseFeature.LatticeFeature):
         nonLattices = []
         for iArr in range(0, len(obj.Links)):
             link = obj.Links[iArr]
-            if not latticeBaseFeature.isObjectLattice(link):
+            if not lattice2BaseFeature.isObjectLattice(link):
                 nonLattices.append(link.Label)
         if len(nonLattices) > 0:
-            latticeExecuter.warning(obj, "Only lattice objects are expected to be linked as arrays in JoinArrays. There are "
+            lattice2Executer.warning(obj, "Only lattice objects are expected to be linked as arrays in JoinArrays. There are "
                                     +len(nonLattices)+" objects which are not lattice objects. Results may me unexpected.")
         
         #extract placements
@@ -75,7 +75,7 @@ class JoinArrays(latticeBaseFeature.LatticeFeature):
         if obj.Interleave:
             for l in lengths[1:]:
                 if l != lengths[0]:
-                    latticeExecuter.warning(obj,"Array lengths are unequal: "+repr(lengths)+". Interleaving will be inconsistent.")
+                    lattice2Executer.warning(obj,"Array lengths are unequal: "+repr(lengths)+". Interleaving will be inconsistent.")
                     break
             
             for iItem in range(0,max(lengths)):
@@ -87,7 +87,7 @@ class JoinArrays(latticeBaseFeature.LatticeFeature):
                 output.extend(list)
         return output
 
-class ViewProviderJoinArrays(latticeBaseFeature.ViewProviderLatticeFeature):
+class ViewProviderJoinArrays(lattice2BaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
         return getIconPath('Lattice2_JoinArrays.svg')
@@ -103,7 +103,7 @@ def CreateJoinArrays(name):
     sel = FreeCADGui.Selection.getSelection()
     FreeCAD.ActiveDocument.openTransaction("Create JoinArrays")
     FreeCADGui.addModule("latticeJoinArrays")
-    FreeCADGui.addModule("latticeExecuter")
+    FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("f = latticeJoinArrays.makeJoinArrays(name='"+name+"')")
     FreeCADGui.doCommand("f.Links = []")
     for s in sel:
@@ -111,7 +111,7 @@ def CreateJoinArrays(name):
     
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
-    FreeCADGui.doCommand("latticeExecuter.executeFeature(f)")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 
