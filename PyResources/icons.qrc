@@ -1,23 +1,23 @@
 <RCC>
     <qresource>
-        <file>icons/Lattice_Apply.svg</file>
-        <file>icons/Lattice_ArrayFilter.svg</file>
-        <file>icons/Lattice_ArrayFromShape.svg</file>
-        <file>icons/Lattice_BoundBox.svg</file>
-        <file>icons/Lattice_Compose.svg</file>
-        <file>icons/Lattice_CompoundFilter.svg</file>
-        <file>icons/Lattice_Downgrade.svg</file>
-        <file>icons/Lattice_Explode.svg</file>
-        <file>icons/Lattice_ExplodeArray.svg</file>
-        <file>icons/Lattice_FuseCompound.svg</file>
-        <file>icons/Lattice_Inspect.svg</file>
-        <file>icons/Lattice_Invert.svg</file>
-        <file>icons/Lattice_JoinArrays.svg</file>
-        <file>icons/Lattice_LinearArray.svg</file>
-        <file>icons/Lattice_Placement.svg</file>
-        <file>icons/Lattice_PlacementFromShape.svg</file>
-        <file>icons/Lattice_PolarArray.svg</file>
-        <file>icons/Lattice_ProjectArray.svg</file>
-        <file>icons/Lattice_Resample.svg</file>
+        <file>icons/Lattice2_Apply.svg</file>
+        <file>icons/Lattice2_ArrayFilter.svg</file>
+        <file>icons/Lattice2_ArrayFromShape.svg</file>
+        <file>icons/Lattice2_BoundBox.svg</file>
+        <file>icons/Lattice2_Compose.svg</file>
+        <file>icons/Lattice2_CompoundFilter.svg</file>
+        <file>icons/Lattice2_Downgrade.svg</file>
+        <file>icons/Lattice2_Explode.svg</file>
+        <file>icons/Lattice2_ExplodeArray.svg</file>
+        <file>icons/Lattice2_FuseCompound.svg</file>
+        <file>icons/Lattice2_Inspect.svg</file>
+        <file>icons/Lattice2_Invert.svg</file>
+        <file>icons/Lattice2_JoinArrays.svg</file>
+        <file>icons/Lattice2_LinearArray.svg</file>
+        <file>icons/Lattice2_Placement.svg</file>
+        <file>icons/Lattice2_PlacementFromShape.svg</file>
+        <file>icons/Lattice2_PolarArray.svg</file>
+        <file>icons/Lattice2_ProjectArray.svg</file>
+        <file>icons/Lattice2_Resample.svg</file>
     </qresource>
 </RCC> 
