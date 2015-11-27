@@ -46,6 +46,7 @@ class Lattice2Workbench (Workbench):
         cmdsArrayTools = []
         cmdsCompoundTools = []
         cmdsMiscTools = []
+        cmdsDocTools = []
         
         import lattice2Placement as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
@@ -86,15 +87,20 @@ class Lattice2Workbench (Workbench):
         cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
         import lattice2SubstituteObject as mod
         cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
+
+        import lattice2RecomputeLocker as mod
+        cmdsDocTools = cmdsDocTools + mod.exportedCommands
         
         self.appendToolbar('Lattice2ArrayTools', cmdsArrayTools)
         self.appendToolbar('Lattice2CompoundTools', cmdsCompoundTools)
         self.appendToolbar('Lattice2MiscTools', cmdsMiscTools)
+        self.appendToolbar('Lattice2DocTools', cmdsDocTools)
         #FreeCADGui.addIconPath( '' )
         #FreeCADGui.addPreferencePage( '','Lattice2' )
         self.appendMenu('Lattice2', cmdsArrayTools)
         self.appendMenu('Lattice2', cmdsCompoundTools)
         self.appendMenu('Lattice2', cmdsMiscTools)
+        self.appendMenu('Recomputes', cmdsDocTools)
 
     def Activated(self):
         pass
