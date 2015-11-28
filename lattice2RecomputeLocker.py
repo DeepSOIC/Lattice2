@@ -152,7 +152,7 @@ class LatticeRecomputeLocker:
     def restoreTouched(self, selfobj, dict):
         doc = selfobj.Document
         for docobj in doc.Objects:
-            if dict[docobj.Name] != 'Touched' in docobj.State:
+            if dict[docobj.Name] != ('Touched' in docobj.State):
                 if dict[docobj.Name] == True:
                     touch(docobj)
                 else:
