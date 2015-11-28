@@ -218,7 +218,10 @@ class ViewProviderLatticeRecomputeLocker:
         vobj.Proxy = self
         
     def getIcon(self):
-        return getIconPath("Lattice2_RecomputeLocker_Feature.svg")
+        if self.Object.LockRecomputes:
+            return getIconPath("Lattice2_RecomputeLocker_Locked.svg")
+        else:
+            return getIconPath("Lattice2_RecomputeLocker_Unlocked.svg")
 
     def attach(self, vobj):
         self.ViewObject = vobj
@@ -259,6 +262,7 @@ class _CommandMakeLockerObj:
         if getLocker() is None:
             FreeCADGui.addModule("lattice2RecomputeLocker")
             FreeCADGui.doCommand("lattice2RecomputeLocker.makeRecomputeLocker('LatticeRecomputeLocker')")
+            FreeCADGui.doCommand("App.ActiveDocument.LatticeRecomputeLocker.purgeTouched()")
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
@@ -283,6 +287,7 @@ class _CommandLockRecomputes:
         if getLocker is not None:
             FreeCADGui.addModule("lattice2RecomputeLocker")
             FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().LockRecomputes = True")
+            FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().touch()") #gets rid of the tick, plus updates the icon.
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
@@ -291,7 +296,7 @@ class _CommandLockRecomputes:
             mb.exec_()
             
     def IsActive(self):
-        return getLocker() is not None
+        return getLocker() is not None and not getLocker().LockRecomputes
             
 FreeCADGui.addCommand('Lattice2_RecomputeLocker_LockRecomputes', _CommandLockRecomputes())
 
@@ -307,6 +312,7 @@ class _CommandUnlockRecomputes:
         if getLocker is not None:
             FreeCADGui.addModule("lattice2RecomputeLocker")
             FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().LockRecomputes = False")
+            FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().purgeTouched()") #gets rid of the tick, plus updates the icon.
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
@@ -315,7 +321,7 @@ class _CommandUnlockRecomputes:
             mb.exec_()
             
     def IsActive(self):
-        return getLocker() is not None
+        return getLocker() is not None and getLocker().LockRecomputes
             
 FreeCADGui.addCommand('Lattice2_RecomputeLocker_UnlockRecomputes', _CommandUnlockRecomputes())
 

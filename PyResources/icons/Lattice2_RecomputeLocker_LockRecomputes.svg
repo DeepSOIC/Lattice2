@@ -18,7 +18,7 @@
    id="svg11300"
    sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="Lattice2_RecomputeLocker_MakeFeature.svg"
+   sodipodi:docname="Lattice2_RecomputeLocker_LockRecomputes.svg"
    version="1.1">
   <defs
      id="defs3">
@@ -263,7 +263,7 @@
         <dc:source>http://jimmac.musichall.cz</dc:source>
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
-        <dc:title></dc:title>
+        <dc:title />
         <dc:subject>
           <rdf:Bag>
             <rdf:li>reload</rdf:li>
@@ -403,6 +403,36 @@
          id="path3805"
          d="M 16.793786,22.367379 C 16.440233,9.285903 31.112698,10.876893 30.405591,22.013825"
          style="fill:none;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 39.59798,25.726136 8.308505,-2.298097"
+         id="path3036"
+         inkscape:connector-curvature="0" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 39.421203,31.736544 8.131728,0.53033"
+         id="path3038"
+         inkscape:connector-curvature="0" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 39.59798,37.746952 8.131728,2.828427"
+         id="path3040"
+         inkscape:connector-curvature="0" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 9.1923882,35.448855 1.2374369,38.807612"
+         id="path3042"
+         inkscape:connector-curvature="0" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 8.8388348,30.85266 0.88388348,30.675884"
+         id="path3044"
+         inkscape:connector-curvature="0" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 8.3085048,24.665476 1.4142136,21.660272"
+         id="path3046"
+         inkscape:connector-curvature="0" />
     </g>
   </g>
 </svg>
