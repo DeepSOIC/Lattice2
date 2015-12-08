@@ -33,6 +33,7 @@ import lattice2CompoundExplorer as LCE
 import lattice2Markers
 import lattice2Executer
 
+
 def getDefLatticeFaceColor():
     return (1.0, 0.7019608020782471, 0.0, 0.0) #orange
 def getDefShapeColor():
@@ -104,10 +105,8 @@ class LatticeFeature():
         obj.isLattice = ['Auto-Off','Auto-On','Force-Off','Force-On']
         # Auto-On an Auto-Off can be modified when recomputing. Force values are going to stay.
         
-        #Hidden properties affecting some standard behaviours
-        prop = "SingleByDesign"
-        obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the element be populated into object's Placement property")
-        obj.setEditorMode(prop, 2) # set hidden
+        prop = "ExposePlacement"
+        obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the placement syncronized to Placement property. This will oftem make this object unmoveable. Not applicable to arrays.")
 
         self.derivedInit(obj)
         
@@ -130,10 +129,16 @@ class LatticeFeature():
             if markerSize < DistConfusion:
                 markerSize = getMarkerSizeEstimate(plms)
             marker = lattice2Markers.getPlacementMarker(scale= markerSize, markerID= obj.MarkerShape)
-            #FIXME: make hierarchy-aware
-            if obj.SingleByDesign:
-                if len(plms) != 1:
-                    lattice2Executer.warning(obj,"Multiple placements are being fed, but object is single by design. Only fisrt placement will be used...")
+            
+            bExposing = False
+            if obj.ExposePlacement:
+                if len(plms) == 1:
+                    bExposing = True
+                else:
+                    lattice2Executer.warning(obj,"Multiple placements are being fed, can't expose placements. Placement property will be forced to zero.")
+                    obj.Placement = App.Placement()
+            
+            if bExposing:
                 obj.Shape = marker.copy()
                 obj.Placement = plms[0]
             else:
@@ -158,8 +163,18 @@ class LatticeFeature():
             # Moreover, we assume that it is no longer a lattice object, so:
             if obj.isLattice == 'Auto-On':
                 obj.isLattice = 'Auto-Off'
-            obj.NumElements = len(obj.Shape.childShapes(False,False))
-        
+                
+            if obj.ExposePlacement:
+                if obj.Shape.ShapeType == "Compound":
+                    children = obj.Shape.childShapes()
+                    if len(children) == 1:
+                        obj.Placement = children[0].Placement
+                        obj.Shape = children[0]
+                    else:
+                        obj.Placement = App.Placement()
+                else:
+                    #nothing to do - FreeCAD will take care to make obj.Placement and obj.Shape.Placement synchronized.
+                    pass
         return
     
     def derivedExecute(self,obj):
@@ -259,3 +274,33 @@ class ViewProviderLatticeFeature:
         return True
 
     
+ # ----------------------utility functions -------------------------------------
+
+def makeMoveFromTo(plmFrom, plmTo):
+    '''makeMoveFromTo(plmFrom, plmTo): construct a placement that moves something 
+    from one placement to another placement'''
+    return plmTo.multiply(plmFrom.inverse())
+
+def getPlacementsList(documentObject, context = None):
+    '''getPlacementsList(documentObject, context = None): extract list of placements 
+    from an array object. Context is an object to report as context, when displaying 
+    a warning if the documentObject happens to be a non-lattice.'''
+    if not isObjectLattice(documentObject):
+        lattice2Executer.warning(context, documentObject.Name + " is not a placement or an array of placements. Results may be unexpected.")
+    leaves = LCE.AllLeaves(documentObject.Shape)
+    return [leaf.Placement for leaf in leaves]
+
+def splitSelection(sel):
+    '''splitSelection(sel): splits sel (use getSelectionEx()) into lattices and non-lattices.
+    returns a tuple: (lattices, shapes). lattices is a list, containing all objects 
+    that are lattices (placements of arrays of placements). shapes contains all 
+    the rest. The lists conain SelectionObjects, not the actual document objects.'''
+    lattices = []
+    shapes = []
+    for selobj in sel:
+        if isObjectLattice(selobj.Object):
+            lattices.append(selobj)
+        else:
+            shapes.append(selobj)
+    return (lattices, shapes)
+

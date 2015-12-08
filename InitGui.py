@@ -68,7 +68,7 @@ class Lattice2Workbench (Workbench):
         import lattice2Resample as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
         
-        import lattice2Apply as mod
+        import lattice2PopulateCopies as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import lattice2Compose as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands

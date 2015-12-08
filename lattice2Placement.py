@@ -54,7 +54,7 @@ class LatticePlacement(lattice2BaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyBool","Invert","Lattice Placement","Invert the placement")
         
-        obj.SingleByDesign = True
+        obj.ExposePlacement = True
         
     def updateReadOnlyness(self, obj):
         m = obj.PlacementChoice

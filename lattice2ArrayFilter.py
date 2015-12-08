@@ -204,7 +204,7 @@ def CreateLatticeArrayFilter(name,mode):
     if mode == 'specific items':
         FreeCADGui.doCommand("f.items = lattice2ArrayFilter.makeItemListFromSelection(sel["+str(iLtc)+"])")
         if len(sel[0].SubElementNames) == 1:
-            FreeCADGui.doCommand("f.SingleByDesign = True")
+            FreeCADGui.doCommand("f.ExposePlacement = True")
     else:
         FreeCADGui.doCommand("f.Stencil = App.ActiveDocument."+sel[iStc].ObjectName)
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
@@ -330,7 +330,7 @@ class _CommandExplodeArray:
                     af.Base = obj
                     af.FilterType = 'specific items'
                     af.items = str(i)
-                    af.SingleByDesign = True
+                    af.ExposePlacement = True
                     af.ViewObject.DontUnhideOnDelete = True
                 FreeCAD.ActiveDocument.recompute()
                 obj.ViewObject.hide()

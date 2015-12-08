@@ -197,7 +197,7 @@ def CreateLatticeArrayFromShape(name, nonArray = False):
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
     if nonArray:
         FreeCADGui.doCommand("f.WholeObject = True")
-        FreeCADGui.doCommand("f.SingleByDesign = True")
+        FreeCADGui.doCommand("f.ExposePlacement = True")
         FreeCADGui.doCommand("f.Label = 'Placement of ' + f.Base.Label")
     else:
         FreeCADGui.doCommand("f.Label = 'Array from ' + f.Base.Label")

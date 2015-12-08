@@ -50,6 +50,33 @@ def getParamRefine():
 def getIconPath(icon_dot_svg):
     return ":/icons/" + icon_dot_svg
 
+class SelectionError(FreeCAD.Base.FreeCADError):
+    '''Error that isused inside Gui command code'''
+    def __init__(self, title, message):
+        self.message = message
+        self.title = title
+        
+def msgError(err):
+    mb = QtGui.QMessageBox()
+    mb.setIcon(mb.Icon.Warning)
+    mb.setText(err.message)
+    if type(err) is SelectionError:
+        mb.setWindowTitle(err.title)
+    else:
+        mb.setWindowTitle("Error")
+    mb.exec_()
+
+def infoMessage(title, message):
+    mb = QtGui.QMessageBox()
+    mb.setIcon(mb.Icon.Information)
+    mb.setText(message)
+    mb.setWindowTitle(title)
+    mb.exec_()
+
+def deselect(sel):
+    '''deselect(sel): remove objects in sel from selection'''
+    for selobj in sel:
+        FreeCADGui.Selection.removeSelection(selobj.Object)
 
 # OCC's Precision::Confusion; should have taken this from FreeCAD but haven't found; unlikely to ever change.
 DistConfusion = 1e-7
