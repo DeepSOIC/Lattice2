@@ -1,6 +1,5 @@
 <RCC>
     <qresource>
-        <file>icons/Lattice2_Apply.svg</file>
         <file>icons/Lattice2_ArrayFilter.svg</file>
         <file>icons/Lattice2_ArrayFromShape.svg</file>
         <file>icons/Lattice2_BoundBox.svg</file>
@@ -17,6 +16,12 @@
         <file>icons/Lattice2_Placement.svg</file>
         <file>icons/Lattice2_PlacementFromShape.svg</file>
         <file>icons/Lattice2_PolarArray.svg</file>
+        <file>icons/Lattice2_PopulateCopies_Array.svg</file>
+        <file>icons/Lattice2_PopulateCopies_Move.svg</file>
+        <file>icons/Lattice2_PopulateCopies_Normal.svg</file>        
+        <file>icons/Lattice2_PopulateCopies_Plms_Array.svg</file>
+        <file>icons/Lattice2_PopulateCopies_Plms_Normal.svg</file>
+        <file>icons/Lattice2_PopulateCopies_Plms_Move.svg</file>
         <file>icons/Lattice2_ProjectArray.svg</file>
         <file>icons/Lattice2_RecomputeLocker_Locked.svg</file>
         <file>icons/Lattice2_RecomputeLocker_LockRecomputes.svg</file>

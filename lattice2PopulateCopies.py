@@ -279,7 +279,7 @@ FreeCADGui.addCommand('Lattice2_PopulateCopies_Array', _CommandLatticePopulateCo
 class _CommandLatticePopulateCopies_Move:
     "Command to create LatticePopulateCopies feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice2_PopulateCopies.svg"),
+        return {'Pixmap'  : getIconPath("Lattice2_PopulateCopies_Move.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_PopulateCopies","Moved object"),
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_PopulateCopies","Moved object: move object from one placement to another placement. Select the object, placement to move from, and placement to move to. Arrays of placements are accepted.")}
