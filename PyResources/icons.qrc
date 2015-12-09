@@ -16,6 +16,12 @@
         <file>icons/Lattice2_Placement.svg</file>
         <file>icons/Lattice2_PlacementFromShape.svg</file>
         <file>icons/Lattice2_PolarArray.svg</file>
+        <file>icons/Lattice2_PopulateChildren_Array.svg</file>
+        <file>icons/Lattice2_PopulateChildren_Move.svg</file>
+        <file>icons/Lattice2_PopulateChildren_Normal.svg</file>        
+        <file>icons/Lattice2_PopulateChildren_Plms_Array.svg</file>
+        <file>icons/Lattice2_PopulateChildren_Plms_Normal.svg</file>
+        <file>icons/Lattice2_PopulateChildren_Plms_Move.svg</file>
         <file>icons/Lattice2_PopulateCopies_Array.svg</file>
         <file>icons/Lattice2_PopulateCopies_Move.svg</file>
         <file>icons/Lattice2_PopulateCopies_Normal.svg</file>        
