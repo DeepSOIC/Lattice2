@@ -35,6 +35,40 @@ import lattice2BaseFeature
 import lattice2CompoundExplorer as LCE
 import lattice2Executer
 
+# ---------------------------shared code--------------------------------------
+def DereferenceArray(obj,placements, lnkFrom, refmode):
+    '''common implementation of treatment Referencing property. Returns a list of placements to use directly.
+    obj - feature being executed (used for error reporting; can be None)
+    placements - the array, converted into a list of placements.
+    lnkFrom - object linked as a lattice of 'from' placements. Can be None, if mode is not 'Use PlacemenetsFrom'
+    refmode - a string - enum property item'''
+        
+    plmDeref = App.Placement() #inverse placement of reference (reference is a substitute of origin)
+    if lnkFrom is not None  and  refmode != "Use PlacementsFrom":
+        lattice2Executer.warning(obj,"Referencing mode is '"+refmode+"', doesn't need PlacementsFrom link to be set. The link is set, but it will be ignored.")
+    if refmode == "Origin":
+        return placements
+    elif refmode == "First item":
+        plmDeref = placements[0].inverse()
+    elif refmode == "Last item":
+        plmDeref = placements[0].inverse()
+    elif refmode == "Use PlacementsFrom":
+        if lnkFrom is None:
+            raise ValueError("Referencing mode is 'Move from to', but PlacementsFrom link is not set.")
+        placementsFrom = lattice2BaseFeature.getPlacementsList(lnkFrom, obj)
+        if len(placementsFrom) == 1:
+            plmDeref = placementsFrom[0].inverse()
+        elif len(placementsFrom) == len(placements):
+            return [lattice2BaseFeature.makeMoveFromTo(placementsFrom[i], placements[i]) for i in range(0, len(placements))]
+        else:
+            latticeExecuter.warning(obj,"Lengths of arrays linked as PlacementsTo and PlacementsFrom must equal, or PlacementsFrom can be one placement. Violation: lengths are "+str(len(placements))+ " and "+str(len(placementsFrom)))
+    else:
+        raise ValueError("Referencing mode not implemented: "+refmode)
+    
+    return [plm.multiply(plmDeref) for plm in placements]
+
+    
+
 # -------------------------- document object --------------------------------------------------
 
 def makeLatticePopulateCopies(name):
@@ -68,30 +102,7 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         if outputIsLattice:
             objectPlms = lattice2BaseFeature.getPlacementsList(obj.Object,obj)
         
-        # Precompute referencing
-        plmDeref = App.Placement() #inverse placement of reference (reference is a substitute of origin)
-        if obj.PlacementsFrom is not None  and  obj.Referencing != "Use PlacementsFrom":
-            lattice2Executer.warning(obj,"Referencing mode is '"+obj.Referencing+"', doesn't need PlacementsFrom link to be set. The link is set, but it will be ignored.")
-        if obj.Referencing == "Origin":
-            pass
-        elif obj.Referencing == "First item":
-            plmDeref = placements[0].inverse()
-        elif obj.Referencing == "Last item":
-            plmDeref = placements[0].inverse()
-        elif obj.Referencing == "Use PlacementsFrom":
-            if obj.PlacementsFrom is None:
-                raise ValueError("Referencing mode is 'Move from to', but PlacementsFrom link is not set.")
-            placementsFrom = lattice2BaseFeature.getPlacementsList(obj.PlacementsFrom, obj)
-            if len(placementsFrom) == 1:
-                plmDeref = placementsFrom[0].inverse()
-            elif len(placementsFrom) == len(placements):
-                for i in range(0, len(placements)):
-                    placements[i] = lattice2BaseFeature.makeMoveFromTo(placementsFrom[i],placements[i])
-            else:
-                latticeExecuter.warning(obj,"Lengths of arrays linked as PlacementsTo and PlacementsFrom must equal, or PlacementsFrom can be one placement. Violation: lengths are "+str(len(placements))+ " and "+str(len(placementsFrom)))
-        else:
-            raise ValueError("Referencing mode not implemented: "+obj.Referencing)
-        
+        placements = DereferenceArray(obj, placements, obj.PlacementsFrom, obj.Referencing)
         
         # initialize output containers and loop variables
         outputShapes = [] #output list of shapes
@@ -99,14 +110,13 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         
         # the essence
         for plm in placements:
-            refdPlm = plm.multiply(plmDeref)
 
             if outputIsLattice:
                 for objectPlm in objectPlms:
-                    outputPlms.append(refdPlm.multiply(objectPlm))
+                    outputPlms.append(plm.multiply(objectPlm))
             else:
                 outputShape = objectShape.copy()
-                outputShape.Placement = refdPlm.multiply(outputShape.Placement)
+                outputShape.Placement = plm.multiply(outputShape.Placement)
                 outputShapes.append(outputShape)
             
         if outputIsLattice:

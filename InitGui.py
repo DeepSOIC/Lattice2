@@ -70,7 +70,7 @@ class Lattice2Workbench (Workbench):
 
         import lattice2PopulateCopies as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import lattice2Compose as mod
+        import lattice2PopulateChildren as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import lattice2Downgrade as mod
 
