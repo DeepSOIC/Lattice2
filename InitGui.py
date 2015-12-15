@@ -1,7 +1,7 @@
 #***************************************************************************
 #*                                                                         *
 #*   copyright (c) 2015 - victor titov (deepsoic)                          *
-#*                                               <vv.titov@gmail.com>      *  
+#*                                               <vv.titov@gmail.com>      *
 #*                                                                         *
 #*   this program is free software; you can redistribute it and/or modify  *
 #*   it under the terms of the gnu lesser general public license (lgpl)    *
@@ -34,46 +34,46 @@ __Communication__ = 'vv.titov@gmail.com; DeepSOIC on FreeCAD forum'
 
 
 
-class Lattice2Workbench (Workbench): 
+class Lattice2Workbench (Workbench):
     MenuText = 'Lattice2'
     def __init__(self):
         # Hack: obtain path to Lattice by loading a dummy Py module
         import os
         import lattice2Dummy
         self.__class__.Icon = os.path.dirname(lattice2Dummy.__file__) + u"/PyResources/icons/Lattice2.svg".replace("/", os.path.sep)
-    
+
     def Initialize(self):
         cmdsArrayTools = []
         cmdsCompoundTools = []
         cmdsMiscTools = []
         cmdsDocTools = []
-        
+
         import lattice2Placement as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import lattice2LinearArray as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import lattice2PolarArray as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import lattice2ArrayFromShape as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
-        
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
+
         import lattice2Invert as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import lattice2JoinArrays as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import lattice2ArrayFilter as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import lattice2ProjectArray as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import lattice2Resample as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands        
-        
+        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
+
         import lattice2PopulateCopies as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import lattice2Compose as mod
         cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
         import lattice2Downgrade as mod
-        
+
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
         import CompoundFilter2 as mod
         cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
@@ -90,7 +90,7 @@ class Lattice2Workbench (Workbench):
 
         import lattice2RecomputeLocker as mod
         cmdsDocTools = cmdsDocTools + mod.exportedCommands
-        
+
         self.appendToolbar('Lattice2ArrayTools', cmdsArrayTools)
         self.appendToolbar('Lattice2CompoundTools', cmdsCompoundTools)
         self.appendToolbar('Lattice2MiscTools', cmdsMiscTools)
