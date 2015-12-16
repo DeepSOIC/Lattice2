@@ -15,7 +15,7 @@
    id="svg2568"
    sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="Part_Fuse.svg"
+   sodipodi:docname="Lattice2_FuseCompound.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.1">
   <defs
@@ -77,7 +77,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -99,11 +99,25 @@
          style="fill:url(#radialGradient3587);fill-opacity:1;fill-rule:evenodd;stroke:#000137;stroke-width:2.57598066;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          inkscape:connector-curvature="0" />
     </g>
-    <path
-       inkscape:connector-curvature="0"
-       style="fill:none;stroke:#ffbf00;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       d="M 41.25885,1.7563056 C 25.041528,2.3017601 23.680685,12.374379 19.900596,15.814964 16.120507,19.255548 2.0922681,26.180976 1.4821045,37.386072 0.66636987,52.366294 10.841061,63.282884 26.114202,62.60733 45.045965,61.769951 45.83395,48.728264 49.660749,44.289847 53.487549,39.851431 62.517897,37.825044 62.881533,22.536922 63.130516,12.06912 51.791797,1.4020397 41.25885,1.7563056 z"
-       id="path3570-0"
-       sodipodi:nodetypes="szsszss" />
+    <g
+       id="g3049"
+       style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
+       transform="matrix(1.618065,0,0,2.0916488,-5.7269883,-47.073726)">
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path3045"
+         d="m 10.351377,24.493827 -5.6980057,0 0,25.925926 5.6980057,0"
+         style="fill:none;stroke:#000000;stroke-width:1.08714545;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <use
+         height="64"
+         width="64"
+         transform="matrix(-1,0,0,1,47.081698,0)"
+         id="use3047"
+         xlink:href="#path3045"
+         y="0"
+         x="0"
+         style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none" />
+    </g>
   </g>
 </svg>

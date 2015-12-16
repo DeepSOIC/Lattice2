@@ -118,7 +118,7 @@ class _CommandPlacement:
         self.mode = mode
     
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice2_Placement.svg"),
+        return {'Pixmap'  : getIconPath("Lattice2_Placement_New.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_Placement","Single Placement: ") + self.mode, # FIXME: not translation-friendly!
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Placement","Lattice Placement: Create lattice object with single item")}

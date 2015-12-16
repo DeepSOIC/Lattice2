@@ -15,7 +15,7 @@
    id="svg3074"
    sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="Draft_Downgrade.svg"
+   sodipodi:docname="Lattice2_Downgrade.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.1">
   <defs
@@ -75,7 +75,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -98,11 +98,25 @@
          d="M 3848.6875,999.84375 L 3699.1875,1155.4062 L 3784.0312,1155.4062 L 3784.0312,1294.8125 L 3911.3125,1294.8125 L 3911.3125,1155.4062 L 3988.0938,1155.4062 L 3848.6875,999.84375 z"
          style="opacity:1;fill:url(#linearGradient3863);fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:8;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
     </g>
-    <path
-       inkscape:connector-curvature="0"
-       style="fill:none;stroke:#ffbf00;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       d="M 31.917457,1.0437873 C 1.7185854,0.86249546 1.9546699,12.541107 2.3052079,29.036925 2.6557458,45.532743 22.932394,61.303995 31.66807,61.645253 40.403745,61.986511 60.755505,41.620107 60.659117,30.016015 60.562729,18.411922 62.116328,1.2250792 31.917457,1.0437873 z"
-       id="path3570"
-       sodipodi:nodetypes="zzzzz" />
+    <g
+       id="g3049"
+       style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
+       transform="matrix(1.1097458,0,0,0.61958115,6.0168593,29.221641)">
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path3045"
+         d="m 10.351377,24.493827 -5.6980057,0 0,25.925926 5.6980057,0"
+         style="fill:none;stroke:#000000;stroke-width:2.41195464;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <use
+         height="64"
+         width="64"
+         transform="matrix(-1,0,0,1,47.081698,0)"
+         id="use3047"
+         xlink:href="#path3045"
+         y="0"
+         x="0"
+         style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none" />
+    </g>
   </g>
 </svg>

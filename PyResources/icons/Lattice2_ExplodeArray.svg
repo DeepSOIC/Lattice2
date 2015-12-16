@@ -15,7 +15,7 @@
    id="svg2568"
    sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="Lattice_Explode.svg"
+   sodipodi:docname="Lattice2_ExplodeArray.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.1"
    inkscape:export-filename="/home/user/Downloads/cad/mystuff/icons/Part/mystuff/Part_Compound_5_32px.png"
@@ -203,7 +203,7 @@
      inkscape:zoom="7.7781746"
      inkscape:cx="2.1990621"
      inkscape:cy="34.595467"
-     inkscape:current-layer="g3804"
+     inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
@@ -220,7 +220,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -231,53 +231,57 @@
     <g
        id="g3817"
        mask="none"
-       transform="matrix(0.82912438,0,0,0.82912438,33.887962,-20.601297)">
+       transform="matrix(0.91292971,0,0,0.91292971,8.0480813,-36.274852)">
       <g
          id="g3804">
         <g
            id="g3794"
-           transform="matrix(1.0725003,0,0,1.0725003,4.6709164,8.8711066)">
+           transform="matrix(1.0725003,0,0,1.0725003,15.525188,32.440381)">
           <path
              inkscape:connector-curvature="0"
              id="path3018"
              d="m -18.909091,25.818182 4.272727,17 30.454546,-11.545455 z"
-             style="fill:none;stroke:#000000;stroke-width:1.12456071px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+             style="fill:none;stroke:#000000;stroke-width:1.02132797px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
           <path
              inkscape:connector-curvature="0"
              id="path3020"
              d="M -14.636364,42.818182 15.818182,31.272727 -15.090909,28.545455 z"
-             style="fill:#e9a60a;fill-opacity:1;stroke:#000000;stroke-width:1.12456071px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+             style="fill:#e9a60a;fill-opacity:1;stroke:#000000;stroke-width:1.02132797px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
           <path
              inkscape:connector-curvature="0"
              id="path3022"
              d="m -18.909091,25.818182 4.272727,17 -0.454545,-14.272727 z"
-             style="fill:#4c390a;fill-opacity:1;stroke:#000000;stroke-width:1.12456071px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1" />
+             style="fill:#4c390a;fill-opacity:1;stroke:#000000;stroke-width:1.02132797px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1" />
           <path
              inkscape:connector-curvature="0"
              id="path3024"
              d="m -15.090909,28.545455 30.909091,2.727272 -34.727273,-5.454545 z"
-             style="fill:#2f240a;fill-opacity:1;stroke:#000000;stroke-width:1.12456071px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+             style="fill:#2f240a;fill-opacity:1;stroke:#000000;stroke-width:1.02132797px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
         </g>
-        <use
-           x="0"
-           y="0"
-           xlink:href="#g3794"
-           id="use3800"
-           transform="translate(5.9525077,21.360788)"
-           width="64"
-           height="64" />
-        <use
-           x="0"
-           y="0"
-           xlink:href="#g3794"
-           id="use3055"
-           transform="translate(11.1423,42.40726)"
-           width="64"
-           height="64" />
+        <g
+           id="g3049"
+           style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
+           transform="matrix(1.0732592,0,0,1.1036248,-11.478413,26.197601)">
+          <path
+             sodipodi:nodetypes="cccc"
+             inkscape:connector-curvature="0"
+             id="path3045"
+             d="m 10.351377,24.493827 -5.6980057,0 0,25.925926 5.6980057,0"
+             style="fill:none;stroke:#000000;stroke-width:2.01293421;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+          <use
+             height="64"
+             width="64"
+             transform="matrix(-1,0,0,1,47.081698,0)"
+             id="use3047"
+             xlink:href="#path3045"
+             y="0"
+             x="0"
+             style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none" />
+        </g>
       </g>
     </g>
     <g
-       transform="translate(0.69349258,0.07259564)"
+       transform="translate(38.491564,0.32972538)"
        id="g3073">
       <g
          transform="matrix(0.84096804,-0.46792735,0.48377141,0.79640302,-35.221278,20.515799)"

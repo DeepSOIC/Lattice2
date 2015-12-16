@@ -15,7 +15,7 @@
    id="svg2980"
    sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="OpenSCAD_Explode_Group.svg"
+   sodipodi:docname="Lattice2_ProjectArray.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.1"
    inkscape:export-filename="/home/user/Downloads/cad/mystuff/icons/OpenSCAD_workbench/OpenSCAD_Explode_Group_9_32px.png"
@@ -481,9 +481,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="6.1953125"
-     inkscape:cx="-27.493322"
-     inkscape:cy="36.437751"
+     inkscape:zoom="8.761495"
+     inkscape:cx="7.3178327"
+     inkscape:cy="37.159038"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:document-units="px"
@@ -502,7 +502,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -580,6 +580,26 @@
          id="path3088"
          d="M 54.966909,69.759776 36.533863,47.79193"
          style="fill:none;stroke:#008000;stroke-width:3;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:3.00000002999999980, 6.00000008000000040;stroke-dashoffset:1.50000002000000010;marker-start:none;marker-end:url(#DiamondSend)" />
+    </g>
+    <g
+       id="g3049"
+       style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
+       transform="matrix(1.1743954,0,0,0.94843597,-3.3007929,-22.509883)">
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path3045"
+         d="m 10.351377,24.493827 -5.6980057,0 0,25.925926 5.6980057,0"
+         style="fill:none;stroke:#000000;stroke-width:1.89504182;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <use
+         height="64"
+         width="64"
+         transform="matrix(-1,0,0,1,47.081698,0)"
+         id="use3047"
+         xlink:href="#path3045"
+         y="0"
+         x="0"
+         style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none" />
     </g>
   </g>
 </svg>
