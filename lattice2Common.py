@@ -22,6 +22,7 @@
 #***************************************************************************
 
 import FreeCAD, Part
+from latticeExecuter import CancelError
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore, QtGui
@@ -57,6 +58,8 @@ class SelectionError(FreeCAD.Base.FreeCADError):
         self.title = title
         
 def msgError(err):
+    #if type(err) is CancelError: return   # doesn't work! Why!
+    if hasattr(err, "isCancelError") and err.isCancelError: return   #workaround
     mb = QtGui.QMessageBox()
     mb.setIcon(mb.Icon.Warning)
     mb.setText(err.message)

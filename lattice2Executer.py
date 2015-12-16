@@ -95,3 +95,4 @@ def _showMsg(obj, message, _type):
 class CancelError(Exception):
     def __init__(self):
         self.message = "Canceled by user"
+        self.isCancelError = True
