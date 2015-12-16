@@ -236,7 +236,7 @@ def CreatePolarArray(name):
 class _CommandPolarArray:
     "Command to create PolarArray feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice2_PolarArray.svg"),
+        return {'Pixmap'  : getIconPath("Lattice2_PolarArray_New.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_PolarArray","Generate polar array"),
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_PolarArray","Make a polar array lattice object (array of placements)")}

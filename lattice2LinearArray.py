@@ -243,7 +243,7 @@ def CreateLinearArray(name):
 class _CommandLinearArray:
     "Command to create LinearArray feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice2_LinearArray.svg"),
+        return {'Pixmap'  : getIconPath("Lattice2_LinearArray_New.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_LinearArray","Generate linear array"),
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_LinearArray","Make a linear array lattice object (array of placements)")}
