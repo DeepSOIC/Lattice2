@@ -37,5 +37,6 @@
         <file>icons/Lattice2_RecomputeLocker_Unlocked.svg</file>
         <file>icons/Lattice2_RecomputeLocker_UnlockRecomputes.svg</file>
         <file>icons/Lattice2_Resample.svg</file>
+        <file>icons/Lattice2_ShapeString.svg</file>
     </qresource>
 </RCC> 

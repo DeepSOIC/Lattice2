@@ -231,7 +231,7 @@ class ViewProviderLatticeShapeString:
         vobj.Proxy = self
        
     def getIcon(self):
-        return getIconPath("Draft_ShapeString.svg")
+        return getIconPath("Lattice2_ShapeString.svg")
 
     def attach(self, vobj):
         self.ViewObject = vobj
@@ -270,7 +270,7 @@ def CreateLatticeShapeString(name):
 class _CommandLatticeShapeString:
     "Command to create LatticeShapeString feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Draft_ShapeString.svg"),
+        return {'Pixmap'  : getIconPath("Lattice2_ShapeString.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ShapeString","ShapeString for arraying"),
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ShapeString","Make strings at given placements")}
