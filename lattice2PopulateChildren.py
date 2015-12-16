@@ -94,7 +94,7 @@ class LatticePopulateChildren(lattice2BaseFeature.LatticeFeature):
         
         # the essence
         for iPlm in range(len(placements)):
-            if iChild > numChildren:
+            if iChild == numChildren:
                 if obj.LoopObjectSequence:
                     iChild = 0
                 else:
