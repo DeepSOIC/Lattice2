@@ -29,8 +29,6 @@ import Lattice2CodeModules as Code
 
 import Lattice2CompoundFeatures as CompoundFeatures
 
-import Lattice2GPFeatures as GPFeatures
-
 import Lattice2ArrayFeatures as ArrayFeatures
 
 import Lattice2GuiTools as GuiTools

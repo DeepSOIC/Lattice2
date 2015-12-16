@@ -43,64 +43,48 @@ class Lattice2Workbench (Workbench):
         self.__class__.Icon = os.path.dirname(lattice2Dummy.__file__) + u"/PyResources/icons/Lattice2.svg".replace("/", os.path.sep)
 
     def Initialize(self):
-        cmdsArrayTools = []
-        cmdsCompoundTools = []
-        cmdsMiscTools = []
-        cmdsDocTools = []
-
-        import lattice2Placement as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import lattice2LinearArray as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import lattice2PolarArray as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import lattice2ArrayFromShape as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-
-        import lattice2Invert as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import lattice2JoinArrays as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import lattice2ArrayFilter as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import lattice2ProjectArray as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import lattice2Resample as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-
-        import lattice2PopulateCopies as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import lattice2PopulateChildren as mod
-        cmdsArrayTools = cmdsArrayTools + mod.exportedCommands
-        import lattice2Downgrade as mod
-
-        cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
-        import CompoundFilter2 as mod
-        cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
-        import FuseCompound2 as mod
-        cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
-        import lattice2Inspect as mod
-        cmdsCompoundTools = cmdsCompoundTools + mod.exportedCommands
-        import lattice2BoundBox as mod
-        cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
-        import lattice2ShapeString as mod
-        cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
-        import lattice2SubstituteObject as mod
-        cmdsMiscTools = cmdsMiscTools + mod.exportedCommands
-
-        import lattice2RecomputeLocker as mod
-        cmdsDocTools = cmdsDocTools + mod.exportedCommands
-
-        self.appendToolbar('Lattice2ArrayTools', cmdsArrayTools)
-        self.appendToolbar('Lattice2CompoundTools', cmdsCompoundTools)
-        self.appendToolbar('Lattice2MiscTools', cmdsMiscTools)
-        self.appendToolbar('Lattice2DocTools', cmdsDocTools)
-        #FreeCADGui.addIconPath( '' )
-        #FreeCADGui.addPreferencePage( '','Lattice2' )
+        
+        import Lattice2
+        cmdsArrayTools = ([]
+            + Lattice2.ArrayFeatures.Placement.exportedCommands
+            + Lattice2.ArrayFeatures.LinearArray.exportedCommands
+            + Lattice2.ArrayFeatures.PolarArray.exportedCommands
+            + Lattice2.ArrayFeatures.ArrayFromShape.exportedCommands
+            + Lattice2.ArrayFeatures.Invert.exportedCommands
+            + Lattice2.ArrayFeatures.JoinArrays.exportedCommands
+            + Lattice2.ArrayFeatures.ArrayFilter.exportedCommands
+            + Lattice2.ArrayFeatures.ProjectArray.exportedCommands
+            + Lattice2.ArrayFeatures.PopulateCopies.exportedCommands
+            + Lattice2.ArrayFeatures.PopulateChildren.exportedCommands
+            + Lattice2.ArrayFeatures.Resample.exportedCommands
+            + Lattice2.ArrayFeatures.PopulateCopies.exportedCommands
+        )
+        self.appendToolbar('Lattice2ArrayFeatres', cmdsArrayTools)
         self.appendMenu('Lattice2', cmdsArrayTools)
+        
+        cmdsCompoundTools = ([]
+            + Lattice2.CompoundFeatures.Downgrade.exportedCommands
+            + Lattice2.CompoundFeatures.CompoundFilter.exportedCommands
+            + Lattice2.CompoundFeatures.FuseCompound.exportedCommands        
+            + Lattice2.CompoundFeatures.BoundBox.exportedCommands
+            + Lattice2.CompoundFeatures.ShapeString.exportedCommands
+        )
+        self.appendToolbar('Lattice2CompoundFeatures', cmdsCompoundTools)
         self.appendMenu('Lattice2', cmdsCompoundTools)
-        self.appendMenu('Lattice2', cmdsMiscTools)
-        self.appendMenu('Recomputes', cmdsDocTools)
+        
+        cmdsGuiTools = ([]
+            + Lattice2.GuiTools.Inspect.exportedCommands
+            + Lattice2.GuiTools.SubstituteObject.exportedCommands
+        )
+        self.appendToolbar('Lattice2GuiTools', cmdsGuiTools)
+        self.appendMenu('Lattice2', cmdsGuiTools)
+
+        
+        cmdsRecomputeLocker = ([]
+            + Lattice2.GuiTools.RecomputeLocker.exportedCommands
+        )
+        self.appendToolbar('Lattice2RecomputeLocker', cmdsRecomputeLocker)
+        self.appendMenu('Recomputes', cmdsRecomputeLocker)
 
     def Activated(self):
         pass
