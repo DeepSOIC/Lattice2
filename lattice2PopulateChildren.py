@@ -176,9 +176,10 @@ def CreateLatticePopulateChildren(name, label, shapeObj, latticeObjFrom, lattice
     #hide something
     if (refmode != "Origin" and refmode != "Use PlacementsFrom") or lattice2BaseFeature.isObjectLattice(shapeObj):
         FreeCADGui.doCommand("f.Object.ViewObject.hide()")
-    FreeCADGui.doCommand("f.PlacementsTo.ViewObject.hide()")
-    if latticeObjFrom is not None:
-        FreeCADGui.doCommand("f.PlacementsFrom.ViewObject.hide()")
+    if lattice2BaseFeature.isObjectLattice(shapeObj):
+        FreeCADGui.doCommand("f.PlacementsTo.ViewObject.hide()")
+        if latticeObjFrom is not None:
+            FreeCADGui.doCommand("f.PlacementsFrom.ViewObject.hide()")
         
     #finalize
     FreeCADGui.doCommand("Gui.Selection.addSelection(f)")
