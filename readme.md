@@ -42,9 +42,9 @@ The goal was to be able to have both Lattice v1 and v2 in a single FreeCAD insta
 # Download/install
 repository: https://github.com/DeepSOIC/Lattice2
 
-Installation: download zip, unpack the contents into a "Lattice" folder created in \Path\to\FreeCAD\Mod, restart FreeCAD. Lattice workbench was also packaged to Launchpad in the Ubuntu FreeCAD Community PPA. 
+Installation: download zip, unpack the contents into a "Lattice2" folder created in \Path\to\FreeCAD\Mod, restart FreeCAD. Lattice2 workbench was also packaged to Launchpad in the Ubuntu FreeCAD Community PPA. 
 
-Lattice WB requires FreeCAD no less than v0.16.5155 (only available as development snapshots at the moment of writing). In earlier FreeCADs, dropdown toolbar buttons are not going to work, making many useful commands unavailable (and possibly, total inability to load the workbench). That may be fixed at some point in future.
+Lattice2 WB requires FreeCAD no less than v0.16.5155 (only available as development snapshots at the moment of writing). In earlier FreeCADs, dropdown toolbar buttons are not going to work, making many useful commands unavailable (and possibly, total inability to load the workbench). That may be fixed at some point in future.
 
 The workbench is OS independent, it should work on any system FreeCAD can be run on. If you find that it doesn't - that is a bug. Please make an issue.
 
