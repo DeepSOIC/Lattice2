@@ -29,11 +29,43 @@ import FreeCAD as App
 from replaceobj import replaceobj #from OpenSCAD wb, the code that drives replaceChild
 from lattice2Common import *
 
+def getAllDependencies(feat):
+    '''getAllDependencies(feat): gets all features feat depends on, directly or indirectly. Returns a list, with deepest dependencies last.'''
+    list_traversing_now = [feat]
+    set_of_deps = set()
+    list_of_deps = []
+    
+    while len(list_traversing_now) > 0:
+        list_to_be_traversed_next = []
+        for feat in list_traversing_now:
+            for dep in feat.OutList:
+                if not (dep in set_of_deps):
+                    set_of_deps.add(dep)
+                    list_of_deps.append(dep)
+                    list_to_be_traversed_next.append(dep)
+        
+        list_traversing_now = list_to_be_traversed_next
+    
+    return list_of_deps
+    
+
 def substituteobj(oldobj, newobj):
-    'Replaces all links to oldobj in the document with links to newobj'
+    '''Replaces all links to oldobj in the document with links to newobj.
+    Returns a tuple (list_replaced, list_not_replaced)'''
+    deps_of_new = getAllDependencies(newobj) + [newobj]
+    list_not_replaced = []
+    list_replaced = []
     for dep in oldobj.InList:
-        replaceobj(dep, oldobj, newobj)
-    return len(oldobj.OutList)
+        if dep in deps_of_new:
+            #we are about to make an object newobj depends on, to depend on newobj. 
+            #This will create a circular graph, so we must skip this.
+            print "not replacing "+oldobj.Name+" with " + newobj.Name +" in " + dep.Name
+            list_not_replaced.append(dep)
+        else:
+            print "replacing "+oldobj.Name+" with " + newobj.Name +" in " + dep.Name
+            list_replaced.append(dep)
+            replaceobj(dep, oldobj, newobj)
+    return (list_replaced, list_not_replaced)
         
 class CommandSubstituteObject:
     "Command to substitute object"
@@ -51,15 +83,21 @@ class CommandSubstituteObject:
                 #do it
                 if len(sel[0].Object.InList) == 0:
                     raise ValueError("First selected object isn't referenced by anything; nothing to do.")
-                substituteobj(sel[0].Object, sel[1].Object)
+                dummy, list_not_replaced = substituteobj(sel[0].Object, sel[1].Object)
                 App.ActiveDocument.commitTransaction()
                 
                 #verify results: oldobject should not be referenced by anything anymore.
                 if len(sel[0].Object.InList) != 0:
+                    set_failed = set(sel[0].Object.InList).difference(set(list_not_replaced))
                     mb = QtGui.QMessageBox()
-                    mb.setIcon(mb.Icon.Warning)
-                    msg = translate("Lattice2_SubstituteObject", "Some of the links coudn't be redirected, because they are not supported by the tool. Objects still linking to the object that was replaced are: \n%1\nTo redirect these links, the objects have to be edited manually. Sorry!", None)
-                    rem_links = [lnk.Label for lnk in sel[0].Object.InList]
+                    if len(set_failed) > 0:
+                        mb.setIcon(mb.Icon.Warning)
+                        msg = translate("Lattice2_SubstituteObject", "Some of the links couldn't be redirected, because they are not supported by the tool. Link redirection failed for: \n%1\nTo redirect these links, the objects have to be edited manually. Sorry!", None)
+                        rem_links = [lnk.Label for lnk in set_failed]
+                    else:
+                        mb.setIcon(mb.Icon.Information)
+                        msg = translate("Lattice2_SubstituteObject", "The following objects still link to old object: \n%1\nReplacing those links would have caused loops in dependency graph, so they were skipped.", None)
+                        rem_links = [lnk.Label for lnk in sel[0].Object.InList]
                     mb.setText(msg.replace(u"%1", u"\n".join(rem_links)))
                     mb.setWindowTitle(translate("Lattice2_SubstituteObject","Error", None))
                     mb.exec_()
