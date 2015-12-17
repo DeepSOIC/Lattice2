@@ -9,11 +9,6 @@ Additionally, the workbench features a few general-purpose tools, such as parame
 
 One of the big design goals of the workbench is being as parametric as possible.
 
-# Why Lattice2, not just Lattice?
-Lattice2 was created at the moment when breaking changes needed to be made, but there were a few things made with Lattice. So, it was decided to keep the workbench in that time's state indefinitely as version 1.0, and start development of a new version.
-
-The goal was to be able to have both Lattice v1 and v2 in a single FreeCAD installation. So a new repository was started, and all the files were renamed to start with 'lattice2' or otherwise differ from those of Lattice v1.
-
 # Highlights
 Let's have a glance over the most important capabilities that the workbench adds to FreeCAD:
 
@@ -28,6 +23,21 @@ Let's have a glance over the most important capabilities that the workbench adds
 * linear arrays and polar arrays can have their axes linked to edges of shapes
 
 * parametric explode commands allow extraction of specific elements of arrays, without losing parametric relation to the original. 
+
+# Why Lattice2, not just Lattice?
+Lattice2 was created at the moment when breaking changes needed to be made, but there were a few things made with Lattice. So, it was decided to keep the workbench in that time's state indefinitely as version 1.0, and start development of a new version.
+
+The goal was to be able to have both Lattice v1 and v2 in a single FreeCAD installation. So a new repository was started, and all the files were renamed to start with 'lattice2' or otherwise differ from those of Lattice v1.
+
+# What's changed in Lattice2
+
+* Population tools now have 'move' mode: a placement/set of placements can be supplied to treat as origins of the objects being populated
+
+* Experimental recompute controlling tools were added
+
+* Most icons were redesigned to follow a concept
+
+* Lattice workbench can now be imported from Py console all at once, like that: `import Lattice2`
 
 # Download/install
 repository: https://github.com/DeepSOIC/Lattice2
