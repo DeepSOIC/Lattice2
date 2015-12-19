@@ -101,7 +101,11 @@ class LatticeRecomputeLocker:
             #Python feature - easy!
             featureToRecompute.Proxy.execute(featureToRecompute)
             featureToRecompute.purgeTouched()
+            for docobj in featureToRecompute.InList:
+                touch(docobj)
         else:
+            infoMessage("RecomputeFeature","Selected feature is a C++ feature. Recomputing them with this command was temporarily disabled, because it is known to break dependencies. The command will be frozen, till a reliable way of recomputing c++ feature gets exposed.")
+            return
             #non-Py feature. Hard.
             #overview: FreeCAD will recompute just one feature, if it is the 
             #only one that is touched, and no other features depend on it. So 
