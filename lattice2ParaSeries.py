@@ -79,7 +79,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
         self.generator.execute()
         
         if selfobj.Recomputing == "Disabled":
-            raise ValueError("Recomputing of this object is currently disabled. Modify 'Recomputing' property to enable it.")
+            raise ValueError(selfobj.Name+": recomputing of this object is currently disabled. Modify 'Recomputing' property to enable it.")
         try:            
             #convert values to type
             values = []
@@ -122,9 +122,13 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                 if bGui:
                     progress.setValue(1)
                 refstr = selfobj.ParameterRef #dict(selfobj.ExpressionEngine)["ParameterRef"]
+                if len(refstr) == 0:
+                    raise ValueError(selfobj.Name+": ParameterRef is not set. It is required.")
                 pieces = refstr.split(".")
                 objname = pieces[0]
                 obj_to_modify = doc2.getObject(objname)
+                if obj_to_modify is None:
+                    raise ValueError(selfobj.Name+": failed to get the object named '"+objname+"'. Maybe you had put in its label instead?..")
                 output_shapes = []
                 for val in values:
                     #set parameter
