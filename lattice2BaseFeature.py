@@ -123,6 +123,8 @@ class LatticeFeature():
         plms = self.derivedExecute(obj)
 
         if plms is not None:
+            if plms == "suppress":
+                return
             obj.NumElements = len(plms)
             shapes = []
             markerSize = obj.MarkerSize

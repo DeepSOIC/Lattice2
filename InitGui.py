@@ -68,6 +68,7 @@ class Lattice2Workbench (Workbench):
             + Lattice2.CompoundFeatures.FuseCompound.exportedCommands        
             + Lattice2.CompoundFeatures.BoundBox.exportedCommands
             + Lattice2.CompoundFeatures.ShapeString.exportedCommands
+            + Lattice2.CompoundFeatures.ParaSeries.exportedCommands
         )
         self.appendToolbar('Lattice2CompoundFeatures', cmdsCompoundTools)
         self.appendMenu('Lattice2', cmdsCompoundTools)
