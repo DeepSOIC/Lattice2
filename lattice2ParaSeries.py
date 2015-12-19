@@ -35,6 +35,7 @@ from lattice2Common import *
 import lattice2BaseFeature
 import lattice2Executer
 import lattice2Markers as markers
+from lattice2ValueSeriesGenerator import ValueSeriesGenerator
 
 # -------------------------- document object --------------------------------------------------
 
@@ -53,30 +54,35 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyEnumeration","ParameterType","Lattice ParaSeries","Data type of parameter to vary.")
         obj.ParameterType = ['float','int','string']
         
-        obj.addProperty("App::PropertyString","ParameterRef","Lattice ParaSeries","Reference to the parameter to vary. Use expression. Example: Box.Height")
-                
-        obj.addProperty("App::PropertyEnumeration","ValuesSource","Lattice ParaSeries","Select where to take the values for parameter from.")
-        obj.ValuesSource = ["Values Property","Spreadsheet", "Generator"]
-        
-        obj.addProperty("App::PropertyStringList","Values","Lattice ParaSeries","List of values for series")
-        
+        obj.addProperty("App::PropertyString","ParameterRef","Lattice ParaSeries","Reference to the parameter to vary. Syntax: ObjectName.Property. Examples: 'Box.Height'; 'Sketch.Constaints.myLength'.")
+                        
         obj.addProperty("App::PropertyEnumeration","Recomputing","Lattice ParaSeries","Sets recomputing policy.")
         obj.Recomputing = ["Disabled", "Recompute Once", "Enabled"]
         obj.Recomputing = "Disabled" # recomputing ParaSeries can be very long, so disable it by default
         
+        self.assureGenerator(obj)
+        
+    def assureGenerator(self, obj):
+        '''Adds an instance of value series generator, if one doesn't exist yet.'''
+        if hasattr(self,"generator"):
+            return
+        self.generator = ValueSeriesGenerator(obj)
+        self.generator.addProperties(groupname= "Lattice ParaSeries", 
+                                     groupname_gen= "Lattice ParaSeries Generator", 
+                                     valuesdoc= "List of parameter values to compute object for.")
+        self.generator.updateReadonlyness()
 
     def derivedExecute(self,selfobj):
+        # values generator should be functional even if recomputing is disabled, so do it first
+        self.assureGenerator(selfobj)
+        self.generator.updateReadonlyness()
+        self.generator.execute()
+        
         if selfobj.Recomputing == "Disabled":
             raise ValueError("Recomputing of this object is currently disabled. Modify 'Recomputing' property to enable it.")
-        try:
-            #collect values
-            values = []
-            if selfobj.ValuesSource == "Values Property":
-                pass
-            else:
-                raise ValueError(selfobj.Name + ": ValuesSource = "+selfobj.ValuesSource+" is not yet implemented")
-            
+        try:            
             #convert values to type
+            values = []
             for strv in selfobj.Values:
                 if len(strv) == 0: continue
                 if selfobj.ParameterType == 'float' or selfobj.ParameterType == 'int':
