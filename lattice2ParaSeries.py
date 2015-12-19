@@ -100,7 +100,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                 scale = 1.0
                 try:
                     if not selfobj.Object.Shape.isNull():
-                        scale = selfobj.Object.Shape.BoundBox.DiagonalLength/math.sqrt(3)/math.sqrt(len(shps))
+                        scale = selfobj.Object.Shape.BoundBox.DiagonalLength/math.sqrt(3)
                 except Exception:
                     pass
                 if scale < DistConfusion * 100:
@@ -153,7 +153,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                             scale = 1.0
                             try:
                                 if not selfobj.Object.Shape.isNull():
-                                    scale = selfobj.Object.Shape.BoundBox.DiagonalLength/math.sqrt(3)/math.sqrt(len(shps))
+                                    scale = selfobj.Object.Shape.BoundBox.DiagonalLength/math.sqrt(3)
                             except Exception:
                                 pass
                             if scale < DistConfusion * 100:
