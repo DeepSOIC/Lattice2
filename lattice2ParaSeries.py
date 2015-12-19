@@ -108,17 +108,26 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                 selfobj.Shape = markers.getNullShapeShape(scale)
                 raise ValueError(selfobj.Name + ": list of values is empty.") 
             
+            bGui = bool(App.GuiUp)
+            if bGui:
+                import PySide
+                progress = PySide.QtGui.QProgressDialog(u"Recomputing "+selfobj.Label, u"Abort", 0, len(values)+1)
+                progress.setModal(True)
+            
             doc1 = selfobj.Document
             doc2 = App.newDocument()
             object_in_doc2 = None # define the variable, to prevent del() in finally block from raising another error
             try:
                 object_in_doc2 = doc2.copyObject(selfobj.Object, True)
+                if bGui:
+                    progress.setValue(1)
                 refstr = selfobj.ParameterRef #dict(selfobj.ExpressionEngine)["ParameterRef"]
                 pieces = refstr.split(".")
                 objname = pieces[0]
                 obj_to_modify = doc2.getObject(objname)
                 output_shapes = []
                 for val in values:
+                    #set parameter
                     if obj_to_modify.isDerivedFrom("Spreadsheet::Sheet"):
                         if len(pieces) != 2:
                             raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
@@ -132,8 +141,10 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                             raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
                         setattr(obj_to_modify, pieces[1], val)
                     
+                    #recompute
                     doc2.recompute()
                     
+                    #get shape
                     shape = None
                     for obj in doc2.Objects:
                         if 'Invalid' in obj.State:
@@ -152,6 +163,12 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                         shape = object_in_doc2.Shape.copy()
                     output_shapes.append(shape)
                     
+                    #update progress
+                    if bGui:
+                        progress.setValue(progress.value()+1)
+                        if progress.wasCanceled():
+                            raise lattice2Executer.CancelError()
+
                     
             finally:
                 #delete all references, before destroying the document. Probably not required, but to be sure...
@@ -159,6 +176,9 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                 doc2_name = doc2.Name
                 del(doc2)
                 App.closeDocument(doc2_name)
+                if bGui:
+                    progress.setValue(len(values)+1)
+
                 
             selfobj.Shape = Part.makeCompound(output_shapes)
 
