@@ -54,10 +54,9 @@ class Lattice2Workbench (Workbench):
             + Lattice2.ArrayFeatures.JoinArrays.exportedCommands
             + Lattice2.ArrayFeatures.ArrayFilter.exportedCommands
             + Lattice2.ArrayFeatures.ProjectArray.exportedCommands
-            + Lattice2.ArrayFeatures.PopulateCopies.exportedCommands
-            + Lattice2.ArrayFeatures.PopulateChildren.exportedCommands
             + Lattice2.ArrayFeatures.Resample.exportedCommands
             + Lattice2.ArrayFeatures.PopulateCopies.exportedCommands
+            + Lattice2.ArrayFeatures.PopulateChildren.exportedCommands
         )
         self.appendToolbar('Lattice2ArrayFeatres', cmdsArrayTools)
         self.appendMenu('Lattice2', cmdsArrayTools)
