@@ -214,6 +214,11 @@ class LatticeFeature():
                     #--DeepSOIC
                     pass 
                     
+    def __getstate__(self):
+        return None
+
+    def __setstate__(self,state):
+        return None
     
 class ViewProviderLatticeFeature:
     "A View Provider for base lattice object"
