@@ -151,7 +151,12 @@ class ValueSeriesGenerator:
             n = int(obj.Count)
             
             # Generate the values
-            list_evenDistrib = [vStart + vStep*i for i in range(0, n)]
+            if obj.GeneratorMode == 'Random':
+                import random
+                list_evenDistrib = [vStart + (vEnd-vStart)*random.random() for i in range(0, n)]
+            else:
+                list_evenDistrib = [vStart + vStep*i for i in range(0, n)]
+                
             if obj.DistributionLaw == 'Linear':
                 values = list_evenDistrib
             elif obj.DistributionLaw == 'Exponential':
