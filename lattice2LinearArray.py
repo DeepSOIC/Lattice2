@@ -93,7 +93,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         self.generator = ValueSeriesGenerator(obj)
         self.generator.addProperties(groupname= "Lattice Array", 
                                      groupname_gen= "Lattice Series Generator", 
-                                     valuesdoc= "List of parameter values to compute object for.",
+                                     valuesdoc= "List of distances. Distance is measured from Point, along Dir, in millimeters.",
                                      valuestype= "App::PropertyDistance")
         self.updateReadonlyness(obj)
         
