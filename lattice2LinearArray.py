@@ -34,6 +34,7 @@ from lattice2Common import *
 import lattice2BaseFeature
 import lattice2Executer
 import lattice2GeomUtils
+from lattice2ValueSeriesGenerator import ValueSeriesGenerator
 
 def makeLinearArray(name):
     '''makeLinearArray(name): makes a LinearArray object.'''
@@ -43,24 +44,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
     "The Lattice LinearArray object"
     def derivedInit(self,obj):
         self.Type = "LatticeLinearArray"
-        obj.addProperty("App::PropertyEnumeration","Mode","Lattice Array","")
-        obj.Mode = ['SpanN','StepN','SpanStep','Spreadsheet']
-        obj.Mode = 'StepN'
-        
-        obj.addProperty("App::PropertyLength","SpanStart","Lattice Array","starting position value.")  
-        obj.addProperty("App::PropertyLength","SpanEnd","Lattice Array","ending position value")  
-        
-        obj.addProperty("App::PropertyBool","EndInclusive","Lattice Array","Determines if the last occurence is placed exactly at the ending position of the span, or the ending position is that of super-last item.")  
-        obj.EndInclusive = True
-        
-        obj.addProperty("App::PropertyLength","Step","Lattice Array","Distance between occurences")
-        obj.Step = 3.0
-        
-        obj.addProperty("App::PropertyInteger","NumberLinear","Lattice Array","Number of occurences")  
-        obj.NumberLinear = 5
-        
-        obj.addProperty("App::PropertyFloat","Offset","Lattice Array","Offset of the first item (in fractions of step).")  
-                        
+
         obj.addProperty("App::PropertyVector","Dir","Lattice Array","Vector that defines axis direction")  
         obj.Dir = App.Vector(1,0,0)
         
@@ -68,43 +52,56 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyLink","Link","Lattice Array","Link to the axis (Edge1 is used for the axis).")  
         obj.addProperty("App::PropertyString","LinkSubelement","Lattice Array","subelement to take from axis link shape")
-        
+
         obj.addProperty("App::PropertyBool","Reverse","Lattice Array","Set to true to reverse direction")
-        
+
         obj.addProperty("App::PropertyBool","DirIsDriven","Lattice Array","If True, Dir property is driven by link.")
         obj.DirIsDriven = True
 
         obj.addProperty("App::PropertyBool","PointIsDriven","Lattice Array","If True, AxisPoint is not updated based on the link.")
         obj.PointIsDriven = True
-        
+
         obj.addProperty("App::PropertyEnumeration","DrivenProperty","Lattice Array","Select, which property is to be driven by length of axis link.")
         obj.DrivenProperty = ['None','Span','SpanStart','SpanEnd','Step']
         obj.DrivenProperty = 'Step'
-
-        obj.addProperty("App::PropertyLink","SpreadSheet","SpreadSheet mode","Link to spreadsheet")
-        obj.addProperty("App::PropertyString","CellStart","SpreadSheet mode","Starting cell of list of positions")
-        obj.CellStart = 'A1'
-        
+                        
         obj.addProperty("App::PropertyEnumeration","OrientMode","Lattice Array","Orientation of elements")
         obj.OrientMode = ['None','Along axis']
         obj.OrientMode = 'Along axis'
         
-    def updateReadOnlyness(self, obj):
-        m = obj.Mode
-        obj.setEditorMode("Step", 1 if m == "SpanN" or m == "Spreadsheet" else 0)
-        obj.setEditorMode("SpanEnd", 1 if m == "StepN" or m == "Spreadsheet" else 0)
-        obj.setEditorMode("NumberLinear", 1 if m == "SpanStep" or m == "Spreadsheet" else 0)
+        self.assureGenerator(obj)
+        obj.ValuesSource = "Generator"
+        obj.EndInclusive = True
+        obj.SpanStart = 0.0
+        obj.SpanEnd = 12.0
+        obj.Step = 3.0
+        obj.Count = 5.0
+
+    def updateReadonlyness(self, obj):
         obj.setEditorMode("Dir", 1 if (obj.Link and obj.DirIsDriven) else 0)
         obj.setEditorMode("Point", 1 if (obj.Link and not obj.PointIsDriven) else 0)
         obj.setEditorMode("DirIsDriven", 0 if obj.Link else 1)
         obj.setEditorMode("PointIsDriven", 0 if obj.Link else 1)
         obj.setEditorMode("DrivenProperty", 0 if obj.Link else 1)
-        obj.setEditorMode("SpreadSheet", 0 if m == "Spreadsheet" else 1)
-        obj.setEditorMode("CellStart", 0 if m == "Spreadsheet" else 1)
+        
+        self.generator.updateReadonlyness()
+
+    def assureGenerator(self, obj):
+        '''Adds an instance of value series generator, if one doesn't exist yet.'''
+        if hasattr(self,"generator"):
+            return
+        self.generator = ValueSeriesGenerator(obj)
+        self.generator.addProperties(groupname= "Lattice Array", 
+                                     groupname_gen= "Lattice Series Generator", 
+                                     valuesdoc= "List of parameter values to compute object for.",
+                                     valuestype= "App::PropertyDistance")
+        self.updateReadonlyness(obj)
+        
         
 
     def derivedExecute(self,obj):
-        self.updateReadOnlyness(obj)
+        self.assureGenerator(obj)
+        self.updateReadonlyness(obj)
 
         # Apply links
         if obj.Link:
@@ -133,42 +130,18 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
                 obj.Point = point
             if obj.DrivenProperty != 'None':
                 if obj.DrivenProperty == 'Span':
+                    propname = "SpanEnd"
                     obj.SpanEnd = obj.SpanStart + App.Units.Quantity('mm')*dir.Length
                 else:
-                    setattr(obj, obj.DrivenProperty, dir.Length)
+                    propname = obj.DrivenProperty
+                    setattr(obj, propname, dir.Length)
+                if obj.generator.isPropertyControlledByGenerator(propname):
+                    lattice2executer.warning(obj, "Property "+propname+" is driven by both generator and link. Generator has priority.")
 
-        # Fill in (update read-only) properties that are driven by the mode.
-        if obj.Mode == 'SpanN':
-            n = obj.NumberLinear
-            if obj.EndInclusive:
-                n -= 1
-            if n == 0:
-                n = 1
-            obj.Step = (obj.SpanEnd - obj.SpanStart)/n
-            if obj.DrivenProperty == 'Step' and obj.Link:
-                lattice2Executer.warning(obj,"Step property is being driven by both the link and the selected mode. Mode has priority.")
-        elif obj.Mode == 'StepN':
-            n = obj.NumberLinear
-            if obj.EndInclusive:
-                n -= 1
-            obj.SpanEnd = obj.SpanStart + obj.Step*n
-            if 'Span' in obj.DrivenProperty and obj.Link:
-                lattice2Executer.warning(obj,"SpanEnd property is being driven by both the link and the selected mode. Mode has priority.")
-        elif obj.Mode == 'SpanStep':
-            nfloat = float((obj.SpanEnd - obj.SpanStart) / obj.Step)
-            n = math.trunc(nfloat - ParaConfusion) + 1
-            if obj.EndInclusive and abs(nfloat-round(nfloat)) <= ParaConfusion:
-                n = n + 1
-            obj.NumberLinear = n
-            
         
-        # Generate the actual array. We can use Step and N directly to 
-        # completely avoid mode logic, since we had updated them
-        
-        # cache properties into variables
-        step = float(obj.Step)
-        start = float(obj.SpanStart) + step*float(obj.Offset)
-        n = int(obj.NumberLinear)
+        # Generate series of values
+        self.generator.execute()
+        values = [float(strv) for strv in obj.Values]
         
         #Apply reversal
         if obj.Reverse:
@@ -188,31 +161,8 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         
         # Make the array
         output = [] # list of placements
-        if obj.Mode != "Spreadsheet":
-            for i in range(0, n):
-                position = start + step*i
-                output.append( App.Placement(obj.Point + obj.Dir*position, ori) )
-        else:
-            #parse address
-            addr = obj.CellStart
-            #assuming only two letter column
-            if addr[1].isalpha():
-                col = addr[0:2]
-                row = addr[2:]
-            else:
-                col = addr[0:1]
-                row = addr[1:]
-            row = int(row)
-            
-            #loop until the value can't be read out
-            while True:
-                try:
-                    position = obj.SpreadSheet.get(col+str(row))
-                except ValueError:
-                    break
-                position = float(position)
-                output.append( App.Placement(obj.Point + obj.Dir*position, ori) )
-                row += 1
+        for v in values:
+            output.append( App.Placement(obj.Point + obj.Dir*v, ori) )
             
         return output
 

@@ -38,7 +38,7 @@ class ValueSeriesGenerator:
         self.gen_laws = ['Linear','Exponential']
         self.readonlynessDict = {}
         
-    def addProperties(self, groupname, groupname_gen, valuesdoc):
+    def addProperties(self, groupname, groupname_gen, valuesdoc, valuestype = 'App::PropertyFloat'):
         #    _addProperty(proptype                  , propname        , defvalue, group, tooltip)
         self._addProperty("App::PropertyStringList" ,"Values"         , None, groupname, valuesdoc)
         self._addProperty("App::PropertyEnumeration","ValuesSource"   , self.source_modes, groupname, "Select where to take the value series from.")
@@ -48,10 +48,10 @@ class ValueSeriesGenerator:
         self._addProperty("App::PropertyEnumeration","GeneratorMode"  , self.gen_modes, groupname_gen,"")
         self._addProperty("App::PropertyEnumeration","DistributionLaw", self.gen_laws, groupname_gen,"")
                                                                                                            
-        self._addProperty("App::PropertyFloat"      ,"SpanStart"      , 1.0, groupname_gen, "Starting value for value series generator")
-        self._addProperty("App::PropertyFloat"      ,"SpanEnd"        , 7.0, groupname_gen, "Ending value for value series generator")
+        self._addProperty(valuestype                ,"SpanStart"      , 1.0, groupname_gen, "Starting value for value series generator")
+        self._addProperty(valuestype                ,"SpanEnd"        , 7.0, groupname_gen, "Ending value for value series generator")
         self._addProperty("App::PropertyBool"       ,"EndInclusive"   , True, groupname_gen, "If True, the last value in series will equal SpanEnd. If False, the value equal to SpanEnd will be dropped.")
-        self._addProperty("App::PropertyFloat"      ,"Step"           , 1.0, groupname_gen, "Step for value generator. For exponential law, it is a natural logarithm of change ratio.")
+        self._addProperty("App::PropertyFloat"      ,"Step"           , 1.0, groupname_gen, "Step for value generator. For exponential law, it is a natural logarithm of change ratio.") # using float for Step, because step's unit depends n selected distribution law
         self._addProperty("App::PropertyFloat"      ,"Count"          , 7.0, groupname_gen, "Number of values to generate")
     
     def _addProperty(self, proptype, propname, defvalue, group, tooltip):
@@ -65,21 +65,42 @@ class ValueSeriesGenerator:
         obj = self.documentObject
         m = obj.GeneratorMode
         src = obj.ValuesSource
-        genOn = obj.ValuesSource == "Generator"
         
         self._setPropertyWritable("Values"          , src == "Values Property"                    )
         self._setPropertyWritable("ValuesSource"    , True                                        )
         self._setPropertyWritable("SpreadsheetLink" , src == "Spreadsheet"                        )
         self._setPropertyWritable("CellStart"       , src == "Spreadsheet"                        )
                                                                                                   
-        self._setPropertyWritable("GeneratorMode"   , genOn                                       )
-        self._setPropertyWritable("DistributionLaw" , genOn                                       )
-                                                                                                  
-        self._setPropertyWritable("SpanStart"       , genOn                                       )
-        self._setPropertyWritable("SpanEnd"         , genOn and not(m == "StepN")                 )
-        self._setPropertyWritable("EndInclusive"    , genOn                                       )
-        self._setPropertyWritable("Step"            , genOn and not(m == "SpanN" or m == "Random"))
-        self._setPropertyWritable("Count"           , genOn and not(m == "SpanStep")              )
+        self._setPropertyWritable("GeneratorMode"   , not self.isPropertyControlledByGenerator("GeneratorMode"  )  )
+        self._setPropertyWritable("DistributionLaw" , not self.isPropertyControlledByGenerator("DistributionLaw")  )
+                                                                                             
+        self._setPropertyWritable("SpanStart"       , not self.isPropertyControlledByGenerator("SpanStart"      )  )
+        self._setPropertyWritable("SpanEnd"         , not self.isPropertyControlledByGenerator("SpanEnd"        )  )
+        self._setPropertyWritable("EndInclusive"    , not self.isPropertyControlledByGenerator("EndInclusive"   )  )
+        self._setPropertyWritable("Step"            , not self.isPropertyControlledByGenerator("Step"           )  )
+        self._setPropertyWritable("Count"           , not self.isPropertyControlledByGenerator("Count"          )  )
+    
+    def isPropertyControlledByGenerator(self, propname):
+        obj = self.documentObject
+        if not hasattr(obj, propname):
+            raise AttributeError(obj.Name+": has no property named "+propname)
+        
+        m = obj.GeneratorMode
+
+        genOn = obj.ValuesSource == "Generator"
+        if not genOn:
+            return False        
+
+        if propname == "SpanStart": 
+            return False
+        elif propname == "SpanEnd":
+            return m == "StepN"
+        elif propname == "Step":
+            return m == "SpanN"
+        elif propname == "Count":
+            return m == "SpanStep"
+        else:
+            return False
 
     def setPropertyWritable(self, propname, bool_writable):
         '''setPropertyWritable(self, propname, bool_writable): Use to force a property read-only 
@@ -89,8 +110,6 @@ class ValueSeriesGenerator:
         
     def _setPropertyWritable(self, propname, bool_writable, suppress_warning = False):
         if self.readonlynessDict.has_key(propname):
-            if   bool_writable == False   and   self.readonlynessDict[propname] == False   and   not suppress_warning:
-                lattice2Executer.warning(self.documentObject, "Property "+propname+" is being driven by generator, and something else (e.g., a link). Generator has priority.")
             bool_writable = bool_writable and self.readonlynessDict[propname] 
         self.documentObject.setEditorMode(propname, 0 if bool_writable else 1)
         
@@ -104,12 +123,14 @@ class ValueSeriesGenerator:
             if obj.DistributionLaw == 'Linear':
                 vStart = float(obj.SpanStart)
                 vEnd = float(obj.SpanEnd)
+                vStep = float(obj.Step)
             elif obj.DistributionLaw == 'Exponential':
                 vSign = 1 if obj.SpanStart > 0.0 else -1.0
                 vStart = math.log(obj.SpanStart * vSign)
                 if obj.SpanEnd * vSign < ParaConfusion: 
                     raise ValueError(obj.Name+": Wrong SpanEnd value. It is either zero, or of different sign compared to SpanStart. In exponential distribution, it is not allowed.")
                 vEnd = math.log(obj.SpanEnd * vSign)
+                vStep = float(obj.Step)
             else:
                 raise ValueError(obj.Name+": distribution law not implemented: "+obj.DistributionLaw)
                 
@@ -119,12 +140,13 @@ class ValueSeriesGenerator:
                     n -= 1
                 if n == 0:
                     n = 1
-                obj.Step = (vEnd - vStart)/n
+                vStep = (vEnd - vStart)/n
+                obj.Step = vStep
             elif obj.GeneratorMode == 'StepN':
                 n = obj.Count
                 if obj.EndInclusive:
                     n -= 1
-                vEnd = vStart + obj.Step*n
+                vEnd = vStart + float(vStep)*n
                 if obj.DistributionLaw == 'Linear':
                     obj.SpanEnd = vEnd
                 elif obj.DistributionLaw == 'Exponential':
@@ -132,7 +154,7 @@ class ValueSeriesGenerator:
                 else:
                     raise ValueError(obj.Name+": distribution law not implemented: "+obj.DistributionLaw)
             elif obj.GeneratorMode == 'SpanStep':
-                nfloat = float((vEnd - vStart) / obj.Step)
+                nfloat = float((vEnd - vStart) / vStep)
                 n = math.trunc(nfloat - ParaConfusion) + 1
                 if obj.EndInclusive and abs(nfloat-round(nfloat)) <= ParaConfusion:
                     n = n + 1
