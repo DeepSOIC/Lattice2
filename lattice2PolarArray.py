@@ -34,6 +34,7 @@ from lattice2Common import *
 import lattice2BaseFeature
 import lattice2Executer
 import lattice2GeomUtils
+from lattice2ValueSeriesGenerator import ValueSeriesGenerator
 
 def makePolarArray(name):
     '''makePolarArray(name): makes a PolarArray object.'''
@@ -46,24 +47,9 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyEnumeration","Mode","Lattice Array","")
         obj.Mode = ['SpanN','StepN','SpanStep','Spreadsheet']
         obj.Mode = 'SpanN'
-        
-        obj.addProperty("App::PropertyFloat","AngleSpanStart","Lattice Array","starting angle for angular span")  
-        obj.AngleSpanStart = 0
-        obj.addProperty("App::PropertyFloat","AngleSpanEnd","Lattice Array","ending angle for angular span")  
-        obj.AngleSpanEnd = 360
-        obj.addProperty("App::PropertyBool","EndInclusive","Lattice Array","Determines if the last occurence is placed exactly at the ending angle of the span, or the ending angle is super-last.")  
-        obj.EndInclusive = False
-        
-        obj.addProperty("App::PropertyFloat","AngleStep","Lattice Array","")  
-        
-        obj.addProperty("App::PropertyInteger","NumberPolar","Lattice Array","Number of occurences.")  
-        obj.NumberPolar = 5
-        
-        obj.addProperty("App::PropertyFloat","Offset","Lattice Array","Offset of the first item, expressed as a fraction of angular step.")  
-        
-        
+                
         obj.addProperty("App::PropertyLength","Radius","Lattice Array","Radius of the array (set to zero for just rotation).")  
-        obj.Radius = 3 #temporary, to see the array (because marker display mode is not implemented yet)
+        obj.Radius = 3 
         
         obj.addProperty("App::PropertyVector","AxisDir","Lattice Array","Vector that defines axis direction")  
         obj.AxisDir = App.Vector(0,0,1)
@@ -78,50 +64,42 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         obj.AxisDirIsDriven = True
         obj.AxisPointIsDriven = True
         
-        obj.addProperty("App::PropertyLink","SpreadSheet","SpreadSheet mode","Link to spreadsheet")
-        obj.addProperty("App::PropertyString","CellStart","SpreadSheet mode","Starting cell of list of angles")
-        obj.CellStart = 'A1'
-        
         obj.addProperty("App::PropertyEnumeration","OrientMode","Lattice Array","Orientation of elements")
         obj.OrientMode = ['None','Against axis']
         obj.OrientMode = 'Against axis'
-
         
-    def updateReadOnlyness(self, obj):
+        self.assureGenerator(obj)
+
+        obj.ValuesSource = "Generator"
+        obj.SpanStart = 0
+        obj.SpanEnd = 360
+        obj.EndInclusive = False
+        obj.Count = 5
+
+    def assureGenerator(self, obj):
+        '''Adds an instance of value series generator, if one doesn't exist yet.'''
+        if hasattr(self,"generator"):
+            return
+        self.generator = ValueSeriesGenerator(obj)
+        self.generator.addProperties(groupname= "Lattice Array", 
+                                     groupname_gen= "Lattice Series Generator", 
+                                     valuesdoc= "List of angles, in degrees.",
+                                     valuestype= "App::PropertyFloat")
+        self.updateReadonlyness(obj)
+        
+    def updateReadonlyness(self, obj):
         m = obj.Mode
-        obj.setEditorMode("AngleStep", 1 if m == "SpanN" or m == "Spreadsheet" else 0)
-        obj.setEditorMode("AngleSpanEnd", 1 if m == "StepN" or m == "Spreadsheet" else 0)
-        obj.setEditorMode("NumberPolar", 1 if m == "SpanStep" or m == "Spreadsheet" else 0)
         obj.setEditorMode("AxisDir", 1 if (obj.AxisLink and obj.AxisDirIsDriven) else 0)
         obj.setEditorMode("AxisPoint", 1 if (obj.AxisLink and obj.AxisPointIsDriven) else 0)
         obj.setEditorMode("AxisDirIsDriven", 0 if obj.AxisLink else 1)
         obj.setEditorMode("AxisPointIsDriven", 0 if obj.AxisLink else 1)
-        obj.setEditorMode("SpreadSheet", 0 if m == "Spreadsheet" else 1)
-        obj.setEditorMode("CellStart", 0 if m == "Spreadsheet" else 1)
+        self.generator.updateReadonlyness()
         
 
     def derivedExecute(self,obj):
-        # Fill in (update read-only) properties that are driven by the mode.
-        self.updateReadOnlyness(obj)
-        if obj.Mode == 'SpanN':
-            n = obj.NumberPolar
-            if obj.EndInclusive:
-                n -= 1
-            if n == 0:
-                n = 1
-            obj.AngleStep = (obj.AngleSpanEnd - obj.AngleSpanStart)/n
-        elif obj.Mode == 'StepN':
-            n = obj.NumberPolar
-            if obj.EndInclusive:
-                n -= 1
-            obj.AngleSpanEnd = obj.AngleSpanStart + obj.AngleStep*n
-        elif obj.Mode == 'SpanStep':
-            nfloat = float((obj.AngleSpanEnd - obj.AngleSpanStart) / obj.AngleStep)
-            n = math.trunc(nfloat - ParaConfusion) + 1
-            if obj.EndInclusive and abs(nfloat-round(nfloat)) <= ParaConfusion:
-                n = n + 1
-            obj.NumberPolar = n
-            
+        self.assureGenerator(obj)
+        self.updateReadonlyness(obj)
+        
         # Apply links
         if obj.AxisLink:
             if lattice2BaseFeature.isObjectLattice(obj.AxisLink):
@@ -155,14 +133,11 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
             if obj.AxisPointIsDriven:
                 obj.AxisPoint = point
         
-        # Generate the actual array. We can use Step and N directly to 
-        # completely avoid mode logic, since we had updated them
+        self.generator.execute()
         
         # cache properties into variables
-        step = float(obj.AngleStep)
-        startAng = float(obj.AngleSpanStart) + step*float(obj.Offset)
-        n = int(obj.NumberPolar)
         radius = float(obj.Radius)
+        values = [float(strv) for strv in obj.Values]
         
         # compute initial vector. It is to be perpendicular to Axis
         rot_ini = lattice2GeomUtils.makeOrientationFromLocalAxes(ZAx= obj.AxisDir)
@@ -170,43 +145,16 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         
         # Make the array
         output = [] # list of placements
-        if obj.Mode != "Spreadsheet":
-            for i in range(0, n):
-                ang = startAng + step*i
-                p = Part.Vertex()
-                localrot = App.Rotation(App.Vector(0,0,1), ang)
-                localtransl = localrot.multVec(App.Vector(radius,0,0))
-                localplm = App.Placement(localtransl, localrot)
-                resultplm = overallPlacement.multiply(localplm)
-                if obj.OrientMode == 'None':
-                    resultplm.Rotation = App.Rotation()
-                output.append(resultplm)
-        else:
-            #parse address
-            addr = obj.CellStart
-            #assuming only two letter column
-            if addr[1].isalpha():
-                col = addr[0:2]
-                row = addr[2:]
-            else:
-                col = addr[0:1]
-                row = addr[1:]
-            row = int(row)
-            
-            #loop until the value an't be read out
-            while True:
-                try:
-                    ang = obj.SpreadSheet.get(col+str(row))
-                except ValueError:
-                    break
-                ang = float(ang)
-                p = Part.Vertex()
-                localrot = App.Rotation(App.Vector(0,0,1), ang)
-                localtransl = localrot.multVec(App.Vector(radius,0,0))
-                localplm = App.Placement(localtransl, localrot)
-                output.append( overallPlacement.multiply(localplm) )
-                row += 1
-            
+        for ang in values:
+            p = Part.Vertex()
+            localrot = App.Rotation(App.Vector(0,0,1), ang)
+            localtransl = localrot.multVec(App.Vector(radius,0,0))
+            localplm = App.Placement(localtransl, localrot)
+            resultplm = overallPlacement.multiply(localplm)
+            if obj.OrientMode == 'None':
+                resultplm.Rotation = App.Rotation()
+            output.append(resultplm)
+
         return output
 
 class ViewProviderPolarArray(lattice2BaseFeature.ViewProviderLatticeFeature):
