@@ -260,7 +260,14 @@ class _CommandLatticeParaSeries:
                 infoMessage("ParaSeries",
                     "ParaSeries command. Generates an array of shapes by varying a design parameter.\n\n"+
                     "Please select an object to generate array from. Then invoke the command. After that, set up the series in properties of ParaSeries feature created, and change Recomputing property to get a result.\n\n"+
-                    "Setting up the series involves: specifying the parameter to modify (ParameterRef property - set up an expression), and setting up the value list.")
+                    "Setting up the series involves: specifying the parameter to modify (ParameterRef property), and setting up the value list.\n"+
+                    "The reference is specified like an expression: ObjectName.Property. ObjectNane is the name of the object that has the parameter (name, not label - use Lattice Inspect to get the name).\n"+
+                    "Examples of references:\n"+
+                    "Box.Length\n"+
+                    "Sketch001.Constraints.myLength (where myLength is the name of the constraint)\n"+
+                    "Box.Placement.Base.y\n\n"+
+                    "To set up the series of values for the parameter, you can simply edit the Values property. Or, a standard sequence can be generated (set ValuesSource to Generator)."
+                    )
                 return
             cmdCreateSeries()
         except Exception as err:
