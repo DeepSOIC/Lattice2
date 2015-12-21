@@ -141,9 +141,16 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                             raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
                         obj_to_modify.setDatum(pieces[2],val)
                     else:
-                        if len(pieces) != 2:
+                        if len(pieces) < 2:
                             raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
-                        setattr(obj_to_modify, pieces[1], val)
+                        stack = [obj_to_modify]
+                        for piece in pieces[1:-1]:
+                            stack.append(getattr(stack[-1],piece))
+                        setattr(stack[-1], pieces[-1], val)
+                        for piece in pieces[1:-1:-1]:
+                            compval = stack.pop()
+                            setattr(stack[-1], piece, compval)
+                        
                     
                     #recompute
                     doc2.recompute()
