@@ -31,10 +31,10 @@ __url__ = ""
 
 
 try:
-    from lattice2BaseFeature import isObjectLattice2
+    from lattice2BaseFeature import isObjectLattice
 except Exception:
     # I want to keep the module easy to strip off Lattice2 wb, so:
-    def isObjectLattice2(obj):
+    def isObjectLattice(obj):
         return False
 
 # -------------------------- common stuff --------------------------------------------------
@@ -77,9 +77,9 @@ class _CompoundFilter:
 
     def execute(self,obj):
         #validity check
-        if isObjectLattice2(obj.Base):
+        if isObjectLattice(obj.Base):
             import lattice2Executer
-            lattice2Executer.warning(obj,"A generic shape is expected, but a lattice2 object was supplied. It will be treated as a generic shape.")
+            lattice2Executer.warning(obj,"A generic shape is expected, but an array of placements was supplied. It will be treated as a generic shape.")
 
         rst = [] #variable to receive the final list of shapes
         shps = obj.Base.Shape.childShapes()
