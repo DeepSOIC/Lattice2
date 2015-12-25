@@ -28,7 +28,7 @@ __doc__ = "Value Series generator module: utility module to attach value generat
 
 import math
 import lattice2Executer
-from latticeCommon import ParaConfusion
+from lattice2Common import ParaConfusion
 
 class ValueSeriesGenerator:
     def __init__(self, docObj):

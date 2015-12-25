@@ -22,7 +22,7 @@
 #***************************************************************************
 
 import FreeCAD, Part
-from latticeExecuter import CancelError
+from lattice2Executer import CancelError
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore, QtGui

@@ -61,7 +61,7 @@ def DereferenceArray(obj,placements, lnkFrom, refmode):
         elif len(placementsFrom) == len(placements):
             return [lattice2BaseFeature.makeMoveFromTo(placementsFrom[i], placements[i]) for i in range(0, len(placements))]
         else:
-            latticeExecuter.warning(obj,"Lengths of arrays linked as PlacementsTo and PlacementsFrom must equal, or PlacementsFrom can be one placement. Violation: lengths are "+str(len(placements))+ " and "+str(len(placementsFrom)))
+            lattice2Executer.warning(obj,"Lengths of arrays linked as PlacementsTo and PlacementsFrom must equal, or PlacementsFrom can be one placement. Violation: lengths are "+str(len(placements))+ " and "+str(len(placementsFrom)))
     else:
         raise ValueError("Referencing mode not implemented: "+refmode)
     

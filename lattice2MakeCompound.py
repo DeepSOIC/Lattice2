@@ -27,7 +27,7 @@ __url__ = ""
 __doc__ = "Mirror of Part MakeCompound command"
 
 from lattice2Common import *
-from latticeBaseFeature import isObjectLattice
+from lattice2BaseFeature import isObjectLattice
 import lattice2Executer
 
 class _CommandLatticeMakeCompound:
