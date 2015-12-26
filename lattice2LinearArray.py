@@ -71,6 +71,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         
         self.assureGenerator(obj)
         obj.ValuesSource = "Generator"
+        obj.GeneratorMode = "StepN"
         obj.EndInclusive = True
         obj.SpanStart = 0.0
         obj.SpanEnd = 12.0
@@ -135,8 +136,8 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
                 else:
                     propname = obj.DrivenProperty
                     setattr(obj, propname, dir.Length)
-                if obj.generator.isPropertyControlledByGenerator(propname):
-                    lattice2executer.warning(obj, "Property "+propname+" is driven by both generator and link. Generator has priority.")
+                if self.generator.isPropertyControlledByGenerator(propname):
+                    lattice2Executer.warning(obj, "Property "+propname+" is driven by both generator and link. Generator has priority.")
 
         
         # Generate series of values
