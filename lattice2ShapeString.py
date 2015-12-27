@@ -56,7 +56,7 @@ def findFont(font_file_name):
     dirlist.append(lattice_path + "/fonts")
     
     if len(App.ActiveDocument.FileName) > 0:
-        dirlist.append(os.path.dirname(App.ActiveDocument.FileName)+"/fonts")
+        dirlist.append(os.path.dirname(App.ActiveDocument.FileName))
         
     dirlist.append(os.path.abspath(os.curdir))
     
