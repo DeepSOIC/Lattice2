@@ -44,9 +44,6 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
     "The Lattice PolarArray object"
     def derivedInit(self,obj):
         self.Type = "LatticePolarArray"
-        obj.addProperty("App::PropertyEnumeration","Mode","Lattice Array","")
-        obj.Mode = ['SpanN','StepN','SpanStep','Spreadsheet']
-        obj.Mode = 'SpanN'
                 
         obj.addProperty("App::PropertyLength","Radius","Lattice Array","Radius of the array (set to zero for just rotation).")  
         obj.Radius = 3 
@@ -88,7 +85,6 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         self.updateReadonlyness(obj)
         
     def updateReadonlyness(self, obj):
-        m = obj.Mode
         obj.setEditorMode("AxisDir", 1 if (obj.AxisLink and obj.AxisDirIsDriven) else 0)
         obj.setEditorMode("AxisPoint", 1 if (obj.AxisLink and obj.AxisPointIsDriven) else 0)
         obj.setEditorMode("AxisDirIsDriven", 0 if obj.AxisLink else 1)
