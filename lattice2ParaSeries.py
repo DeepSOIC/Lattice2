@@ -113,6 +113,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                 import PySide
                 progress = PySide.QtGui.QProgressDialog(u"Recomputing "+selfobj.Label, u"Abort", 0, len(values)+1)
                 progress.setModal(True)
+                progress.show()
             
             doc1 = selfobj.Document
             doc2 = App.newDocument()
