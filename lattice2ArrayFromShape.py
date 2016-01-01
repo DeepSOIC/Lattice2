@@ -48,40 +48,36 @@ class LatticeArrayFromShape(lattice2BaseFeature.LatticeFeature):
     def derivedInit(self,obj):
         self.Type = "LatticeArrayFromShape"
                 
-        obj.addProperty("App::PropertyLink","Base","Lattice ArrayFromShape","Object to generate array of placements from. Should be a compound. If not, single placement will be created.")
+        obj.addProperty("App::PropertyLink","ShapeLink","Lattice ArrayFromShape","Object to generate array of placements from. Should be a compound. If not, single placement will be created.")
                 
-        obj.addProperty("App::PropertyBool","FlattenBaseHierarchy","Lattice ArrayFromShape","Unpack subcompounds, to use all shapes, not just direct children.")
-        obj.FlattenBaseHierarchy = True
-
-        obj.addProperty("App::PropertyBool","WholeObject","Lattice ArrayFromShape","Create the placement from the shape as a whole, ignore it being a compound or whatever.")
-        obj.FlattenBaseHierarchy = True
+        obj.addProperty("App::PropertyEnumeration","CompoundTraversal","Lattice ArrayFromShape","Sets whether first-level compound is traversed, or the whole compounding tree.")
+        obj.CompoundTraversal = ["Use as a whole","Direct children only","Recursive"]
+        obj.CompoundTraversal = "Direct children only"
         
         obj.addProperty("App::PropertyEnumeration","TranslateMode","Lattice ArrayFromShape","Method of deriving translation part of output placements")
-        obj.TranslateMode = ['(none)', 'base', 'child', 'child.CenterOfMass','child.CenterOfBoundBox','child.Vertex']
+        obj.TranslateMode = ['(none)', 'parent', 'child', 'child.CenterOfMass','child.CenterOfBoundBox','child.Vertex']
         obj.TranslateMode = 'child'
         
         obj.addProperty("App::PropertyInteger","TranslateElementIndex","Lattice ArrayFromShape","Index of vertex used for translation calculation.")
         
         obj.addProperty("App::PropertyEnumeration","OrientMode","Lattice ArrayFromShape","Method of deriving orientation part of output placements")
-        obj.OrientMode = ['(none)', 'base', 'child', 'child.InertiaAxes','child.Edge', 'child.FaceAxis']
+        obj.OrientMode = ['(none)', 'parent', 'child', 'child.InertiaAxes','child.Edge', 'child.FaceAxis']
         obj.OrientMode = 'child'
 
-        obj.addProperty("App::PropertyInteger","OrientElementIndex","Lattice ArrayFromShape","Index of subelement used for orientation calculation.")
+        obj.addProperty("App::PropertyInteger","OrientElementIndex","Lattice ArrayFromShape","Index of vertex or face used for orientation calculation. Vertex or face - depends on selected OrientMode")
 
     def derivedExecute(self,obj):
         # cache stuff
-        if lattice2BaseFeature.isObjectLattice(obj.Base):
-            lattice2Executer.warning(obj,"Base is a lattice object. Since a non-lattice object is required by arrayFromShape tool, the results may be unexpected.")
+        if lattice2BaseFeature.isObjectLattice(obj.ShapeLink):
+            lattice2Executer.warning(obj,"ShapeLink points to a placement/array of placements. The placement/array will be reinterpreted as a generic shape; the results may be unexpected.")
 
-        base = obj.Base.Shape
-        if obj.WholeObject:
+        base = obj.ShapeLink.Shape
+        if obj.CompoundTraversal == "Use as a whole":
             baseChildren = [base]
-            #if obj.FlattenBaseHierarchy:
-            #    lattice2Executer.warning(obj, "FlattenBaseHierarchy is ignored because WholeObject is set to True")
         else:
             if base.ShapeType != 'Compound':
                 base = Part.makeCompound([base])
-            if obj.FlattenBaseHierarchy:
+            if obj.CompoundTraversal == "Recursive":
                 baseChildren = LCE.AllLeaves(base)
             else:
                 baseChildren = base.childShapes()
@@ -89,14 +85,14 @@ class LatticeArrayFromShape(lattice2BaseFeature.LatticeFeature):
                         
         #cache mode comparisons, for speed
         posIsNone = obj.TranslateMode == '(none)'
-        posIsBase = obj.TranslateMode == 'base'
+        posIsParent = obj.TranslateMode == 'parent'
         posIsChild = obj.TranslateMode == 'child'
         posIsCenterM = obj.TranslateMode == 'child.CenterOfMass'
         posIsCenterBB = obj.TranslateMode == 'child.CenterOfBoundBox'
         posIsVertex = obj.TranslateMode == 'child.Vertex'
         
         oriIsNone = obj.OrientMode == '(none)'
-        oriIsBase = obj.OrientMode == 'base'
+        oriIsParent = obj.OrientMode == 'parent'
         oriIsChild = obj.OrientMode == 'child'
         oriIsInertial = obj.OrientMode == 'child.InertiaAxes'
         oriIsEdge = obj.OrientMode == 'child.Edge'
@@ -111,7 +107,7 @@ class LatticeArrayFromShape(lattice2BaseFeature.LatticeFeature):
             ori = App.Rotation()
             if posIsNone:
                 pass
-            elif posIsBase:
+            elif posIsParent:
                 pos = base.Placement.Base
             elif posIsChild:
                 pos = child.Placement.Base
@@ -146,18 +142,18 @@ class LatticeArrayFromShape(lattice2BaseFeature.LatticeFeature):
                 v = child.Vertexes[obj.TranslateElementIndex - 1]
                 pos = v.Point
             else:
-                raise ValueError("lattice2PolarArrayFromShape: translation mode not implemented: "+obj.TranslateMode)
+                raise ValueError(obj.Name + ": translation mode not implemented: "+obj.TranslateMode)
             
             if oriIsNone:
                 pass
-            elif oriIsBase:
+            elif oriIsParent:
                 ori = base.Placement.Rotation
             elif oriIsChild:
                 ori = child.Placement.Rotation
             elif oriIsInertial:
                 leaves = LCE.AllLeaves(child)
                 if len(leaves)>1:
-                    raise ValueError("lattice2PolarArrayFromShape: calculation of principal axes of compounds is not supported yet")
+                    raise ValueError(obj.Name + ": calculation of principal axes of compounds is not supported yet")
                 props = leaves[0].PrincipalProperties
                 XAx = props['FirstAxisOfInertia']
                 ZAx = props['ThirdAxisOfInertia']
@@ -172,7 +168,7 @@ class LatticeArrayFromShape(lattice2BaseFeature.LatticeFeature):
                 face = child.Faces[obj.OrientElementIndex - 1]
                 ZAx = face.Surface.Axis
             else:
-                raise ValueError("lattice2PolarArrayFromShape: rientation mode not implemented: "+obj.OrientMode)
+                raise ValueError(obj.Name + ": orientation mode not implemented: "+obj.OrientMode)
 
             plm = App.Placement(pos, ori)
             outputPlms.append(plm)
@@ -182,30 +178,35 @@ class LatticeArrayFromShape(lattice2BaseFeature.LatticeFeature):
 class ViewProviderArrayFromShape(lattice2BaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
-        return getIconPath('Lattice2_ArrayFromShape.svg') if self.Object.WholeObject == False else getIconPath('Lattice2_PlacementFromShape.svg')
+        return getIconPath('Lattice2_ArrayFromShape.svg') if self.Object.CompoundTraversal == "Use as a whole" == False else getIconPath('Lattice2_PlacementFromShape.svg')
 
 # -------------------------- /document object --------------------------------------------------
 
 # -------------------------- Gui command --------------------------------------------------
 
-def CreateLatticeArrayFromShape(name, nonArray = False):
+def CreateLatticeArrayFromShape(TranslateMode = 'child', OrientMode = 'child', WholeObject = False):
     sel = FreeCADGui.Selection.getSelectionEx()
+    if len(sel) != 1:
+        raise SelectionError(message= "Please select just one object, not "+str(len(sel)) +".", title= "Bad selection")
     FreeCAD.ActiveDocument.openTransaction("Create LatticeArrayFromShape")
     FreeCADGui.addModule("lattice2ArrayFromShape")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = lattice2ArrayFromShape.makeLatticeArrayFromShape(name='"+name+"')")
-    FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
-    if nonArray:
-        FreeCADGui.doCommand("f.WholeObject = True")
+    FreeCADGui.doCommand("f = lattice2ArrayFromShape.makeLatticeArrayFromShape(name='ArrayFromShape')")
+    FreeCADGui.doCommand("f.ShapeLink = App.ActiveDocument."+sel[0].ObjectName)
+    if WholeObject:
+        FreeCADGui.doCommand("f.CompoundTraversal = 'Use as a whole'")
         FreeCADGui.doCommand("f.ExposePlacement = True")
-        FreeCADGui.doCommand("f.Label = 'Placement of ' + f.Base.Label")
+        of_or_from = "of" if TranslateMode == 'child' and OrientMode == 'child' else "from"
+        FreeCADGui.doCommand("f.Label = 'Placement "+of_or_from+" ' + f.ShapeLink.Label")
     else:
-        FreeCADGui.doCommand("f.Label = 'Array from ' + f.Base.Label")
+        FreeCADGui.doCommand("f.Label = 'Array from ' + f.ShapeLink.Label")
         
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
+    FreeCADGui.doCommand("Gui.Selection.addSelection(f)")
     FreeCADGui.doCommand("f = None")
+    deselect(sel)
     FreeCAD.ActiveDocument.commitTransaction()
 
 
@@ -213,19 +214,20 @@ class _CommandLatticeArrayFromShape:
     "Command to create LatticeArrayFromShape feature"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_ArrayFromShape.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Make lattice from compound"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Array from compound"),
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Lattice ArrayFromShape: make placements array from shapes in a compound.")}
         
     def Activated(self):
-        if len(FreeCADGui.Selection.getSelection()) == 1 :
-            CreateLatticeArrayFromShape(name = "ArrayFromShape")
-        else:
-            mb = QtGui.QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice2_ArrayFromShape", "Please select one object, first.", None))
-            mb.setWindowTitle(translate("Lattice2_ArrayFromShape","Bad selection", None))
-            mb.exec_()
+        try:
+            if len(FreeCADGui.Selection.getSelection())==0:
+                infoMessage("ArrayFromShape command",
+                    "Array From Shape command. Creates an array of placements from shapes in a compound.\n\n"
+                    "Select the object that is a compound, first, then invoke this tool.")
+                return
+            CreateLatticeArrayFromShape(TranslateMode= 'child.CenterOfMass', OrientMode= 'child')
+        except Exception as err:
+            msgError(err)
             
     def IsActive(self):
         if FreeCAD.ActiveDocument:
@@ -244,14 +246,15 @@ class _CommandLatticePlacementFromShape:
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Lattice PlacementFromShape: make Placement linked to placement of selected object.")}
         
     def Activated(self):
-        if len(FreeCADGui.Selection.getSelection()) == 1 :
-            CreateLatticeArrayFromShape(name= "Placement", nonArray= True)
-        else:
-            mb = QtGui.QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice2_ArrayFromShape", "Please select one object, first.", None))
-            mb.setWindowTitle(translate("Lattice2_ArrayFromShape","Bad selection", None))
-            mb.exec_()
+        try:
+            if len(FreeCADGui.Selection.getSelection())==0:
+                infoMessage("Single Placement: linked to shape",
+                    "Single Placement: linked to shape command. Creates a placement linked to a placement of an object.\n\n"
+                    "Select the object first, then invoke this tool.")
+                return
+            CreateLatticeArrayFromShape(TranslateMode= 'child', OrientMode= 'child', WholeObject= True)
+        except Exception as err:
+            msgError(err)
             
     def IsActive(self):
         if FreeCAD.ActiveDocument:
