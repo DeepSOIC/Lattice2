@@ -50,9 +50,9 @@ class LatticeProjectArray(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyLink","Base","Lattice ProjectArray","Array to be altered")
         obj.addProperty("App::PropertyLink","Tool","Lattice ProjectArray","Shape to project onto")
         
-        obj.addProperty("App::PropertyEnumeration","PositionMode","Lattice ProjectArray","")
-        obj.PositionMode = ['keep','projected','mixed']
-        obj.PositionMode = 'projected'
+        obj.addProperty("App::PropertyEnumeration","TranslateMode","Lattice ProjectArray","")
+        obj.TranslateMode = ['keep','projected','mixed']
+        obj.TranslateMode = 'projected'
         
         obj.addProperty("App::PropertyFloat","PosMixFraction","Lattice ProjectArray","Value controls mixing of positioning between the shape and the placement. 0 is on shape, 1 is at placement.")
         
@@ -85,9 +85,9 @@ class LatticeProjectArray(lattice2BaseFeature.LatticeFeature):
         
         #cache settings
         elev = float(obj.PosElevation)
-        posIsKeep = obj.PositionMode == 'keep'
-        posIsProjected = obj.PositionMode == 'projected'
-        posIsMixed = obj.PositionMode == 'mixed'
+        posIsKeep = obj.TranslateMode == 'keep'
+        posIsProjected = obj.TranslateMode == 'projected'
+        posIsMixed = obj.TranslateMode == 'mixed'
         mixF = float(obj.PosMixFraction)
         oriIsKeep = obj.OrientMode == 'keep'
         oriIsAlongGap = obj.OrientMode == 'along gap'
@@ -132,7 +132,7 @@ class LatticeProjectArray(lattice2BaseFeature.LatticeFeature):
                 elif posIsMixed:
                     pos = posKeep*mixF + posPrj*(1-mixF)
                 else:
-                    raise ValueError("Positioning mode not implemented: " + obj.PositionMode )
+                    raise ValueError("Positioning mode not implemented: " + obj.TranslateMode )
                 
                 if abs(elev) > DistConfusion:
                     if normal is None:
