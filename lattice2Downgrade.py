@@ -23,6 +23,8 @@
 
 from lattice2Common import *
 import lattice2Markers as markers
+import lattice2CompoundExplorer as LCE
+
 import math
 
 __title__="latticeDowngrade module for FreeCAD"
@@ -45,7 +47,7 @@ def makeLatticeDowngrade(name):
 class _latticeDowngrade:
     "The latticeDowngrade object"
     
-    _DowngradeModeList = ['Compounds','CompSolids','Solids','Shells','OpenWires','Faces','Wires','Edges','Vertices']
+    _DowngradeModeList = ['Leaves','CompSolids','Solids','Shells','OpenWires','Faces','Wires','Edges','Vertices']
     
     def __init__(self,obj):
         self.Type = "latticeDowngrade"
@@ -63,8 +65,8 @@ class _latticeDowngrade:
         shp = obj.Base.Shape
         if obj.Mode == 'bypass':
             rst = [shp]
-        elif obj.Mode == 'Compounds':
-            rst = shp.Compounds
+        elif obj.Mode == 'Leaves':
+            rst = LCE.AllLeaves(shp)
         elif obj.Mode == 'CompSolids':
             rst = shp.CompSolids
         elif obj.Mode == 'Solids':
