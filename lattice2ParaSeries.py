@@ -108,7 +108,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                 selfobj.Shape = markers.getNullShapeShape(scale)
                 raise ValueError(selfobj.Name + ": list of values is empty.") 
             
-            bGui = bool(App.GuiUp)
+            bGui = False #bool(App.GuiUp) #disabled temporarily, because it causes a crash if property edits are approved by hitting Enter
             if bGui:
                 import PySide
                 progress = PySide.QtGui.QProgressDialog(u"Recomputing "+selfobj.Label, u"Abort", 0, len(values)+1)
