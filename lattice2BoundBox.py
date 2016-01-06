@@ -22,14 +22,17 @@
 #***************************************************************************
 
 
-from lattice2Common import *
-
-
 __title__="BoundingBox module for FreeCAD"
 __author__ = "DeepSOIC"
 __url__ = ""
 
 
+from lattice2Common import *
+import lattice2BaseFeature as LBF
+import lattice2Executer as Executer
+import lattice2CompoundExplorer as LCE
+
+import FreeCAD as App
 
 # -------------------------- common stuff --------------------------------------------------
 
@@ -94,7 +97,7 @@ def getPrecisionBoundBox(shape):
 
 def makeBoundBox(name):
     '''makeBoundBox(name): makes a BoundBox object.'''
-    obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
+    obj = App.ActiveDocument.addObject("Part::FeaturePython",name)
     _BoundBox(obj)
     _ViewProviderBoundBox(obj.ViewObject)
     return obj
@@ -103,10 +106,24 @@ class _BoundBox:
     "The BoundBox object"
     def __init__(self,obj):
         self.Type = "BoundBox"
-        obj.addProperty("App::PropertyLink","Base","BoundBox","Object to make boundingbox")
+        obj.addProperty("App::PropertyLink","ShapeLink","BoundBox","Object to make a bounding box for")
+        
+        obj.addProperty("App::PropertyEnumeration","CompoundTraversal","BoundBox","Choose whether to make boundboxes for each child, or use compound overall/")
+        obj.CompoundTraversal = ["Use as a whole","Direct children only","Recursive"]
+        obj.CompoundTraversal = "Use as a whole"
+
         obj.addProperty("App::PropertyBool","Precision","BoundBox","Use precise alorithm (slower).")
         obj.Precision = True
-        obj.addProperty("App::PropertyBool","InLocalSpace","BoundBox","Construct bounding box in local coordinate space of the object, not in global.")
+        
+        obj.addProperty("App::PropertyEnumeration","OrientMode","BoundBox","Choose the orientation of bounding boxes to be made.")
+        obj.OrientMode = ["global","local of compound","local of child","use OrientLink"]
+        
+        obj.addProperty("App::PropertyLink","OrientLink","BoundBox","Link to placement/array to take orientations for bounding boxes")
+        
+        obj.addProperty("App::PropertyFloat","ScaleFactor","BoundBox","After constructing the bounding box, enlarge/shrink it with respect to center by the scale factor.")
+        obj.ScaleFactor = 1.0
+        
+        obj.addProperty("App::PropertyDistance","Padding","BoundBox","After constructing the bounding box, enlarge/shrink it by specified amount (use negative for shrinking).")
         
         # read-only properties:
         prop = "Size"
@@ -121,33 +138,93 @@ class _BoundBox:
         
 
     def execute(self,obj):
-        shape = obj.Base.Shape
-        plm = obj.Base.Placement
-        
-        if obj.InLocalSpace:
-            shape = shape.copy()
-            shape.transformShape(plm.inverse().toMatrix())
-        
-        bb = None
-        if obj.Precision:
-            bb = getPrecisionBoundBox(shape)
+        base = obj.ShapeLink.Shape
+        if obj.CompoundTraversal == "Use as a whole":
+            baseChildren = [base]
         else:
-            bb = shape.BoundBox
-        rst = boundBox2RealBox(bb)
+            if base.ShapeType != 'Compound':
+                base = Part.makeCompound([base])
+            if obj.CompoundTraversal == "Recursive":
+                baseChildren = LCE.AllLeaves(base)
+            else:
+                baseChildren = base.childShapes()
         
-        if obj.InLocalSpace:
-            rst.transformShape(plm.toMatrix(), True) #True is for Copy argument
+        N = len(baseChildren)
+        
+        orients = []
+        if obj.OrientMode == "global":
+            orients = [App.Placement()]*N
+        elif obj.OrientMode == "local of compound":
+            orients = [obj.ShapeLink.Placement]*N
+        elif obj.OrientMode == "local of child":
+            orients = [child.Placement for child in baseChildren]
+        elif obj.OrientMode == "use OrientLink":
+            orients = LBF.getPlacementsList(obj.OrientLink, context= obj)
+            if len(orients) == N:
+                pass
+            elif len(orients)>N:
+                Executer.warning(obj, "Array of placements linked in OrientLink has more placements ("+str(len(orients))+") than bounding boxes to be constructed ("+str(len(baseChildren))+"). Extra placements will be dropped.")
+            elif len(orients)==1:
+                orients = [orients[0]]*N
+            else:
+                raise ValueError(obj.Name+": Array of placements linked in OrientLink has not enough placements ("+str(len(orients))+") than bounding boxes to be constructed ("+str(len(baseChildren))+").")
+        else:
+            raise ValueError(obj.Name+": OrientMode "+obj.OrientMode+" not implemented =(")
+        
+        # mark placements with no rotation
+        for i in range(N):
+            Q = orients[i].Rotation.Q
+            # Quaternions for zero rotation are either (0,0,0,1) or (0,0,0,-1). For non-zero
+            # rotations, some of first three values will be nonzero, and fourth value will 
+            # not be equal to 1. While it's enough to compare absolute value of fourth value
+            # to 1, precision is seriously lost in such comparison, so we are checking if 
+            # fisrt three values are zero instead.
+            if abs(Q[0])+abs(Q[1])+abs(Q[2]) < ParaConfusion:
+                orients[i] = None
+        
+        boxes_shapes = []
+        for i in range(N):
+            child = baseChildren[i]
+            if orients[i] is not None:
+                child = child.copy()
+                child.transformShape(orients[i].inverse().toMatrix())
+
+            if obj.Precision:
+                bb = getPrecisionBoundBox(child)
+            else:
+                bb = child.BoundBox
+                
+            bb = scaledBoundBox(bb, obj.ScaleFactor)
+            bb.enlarge(obj.Padding)
+
+            bb_shape = boundBox2RealBox(bb)
+            if orients[i] is not None:
+                bb_shape.transformShape(orients[i].toMatrix())
+            boxes_shapes.append(bb_shape)
             
         #Fill in read-only properties
-        obj.Size = FreeCAD.Vector(bb.XLength,bb.YLength,bb.ZLength)
+        if N == 1:
+            obj.Size = App.Vector(bb.XLength,bb.YLength,bb.ZLength)
         
-        cnt = bb.Center
-        if obj.InLocalSpace:
-            cnt = plm.multVec(cnt)
-        obj.Center = cnt
+            cnt = bb.Center
+            if orients[0] is not None:
+                cnt = orients[0].multVec(cnt)
+            obj.Center = cnt
+        else:
+            obj.Size = App.Vector()
+            obj.Center = App.Vector()
         
-        obj.Shape = rst
-        return
+        if obj.CompoundTraversal == "Use as a whole":
+            assert(N==1)
+            obj.Shape = boxes_shapes[0]
+        else:
+            obj.Shape = Part.makeCompound(boxes_shapes)
+
+    def __getstate__(self):
+        return None
+
+    def __setstate__(self,state):
+        return None
         
         
 class _ViewProviderBoundBox:
@@ -158,7 +235,10 @@ class _ViewProviderBoundBox:
         vobj.DisplayMode = "Wireframe"
        
     def getIcon(self):
-        return getIconPath("Lattice2_BoundBox.svg")
+        if self.Object.CompoundTraversal == "Use as a whole":
+            return getIconPath("Lattice2_BoundBox.svg")
+        else:
+            return getIconPath("Lattice2_BoundBox_Compound.svg")
 
     def attach(self, vobj):
         self.ViewObject = vobj
@@ -177,47 +257,152 @@ class _ViewProviderBoundBox:
     def __setstate__(self,state):
         return None
 
-def CreateBoundBox(name):
-    FreeCAD.ActiveDocument.openTransaction("Create BoundBox")
+def CreateBoundBox(ShapeLink, 
+                   CompoundTraversal = "Use as a whole", 
+                   Precision = True, 
+                   OrientMode = "global",
+                   OrientLink = None):
+    
     FreeCADGui.addModule("lattice2BoundBox")
     FreeCADGui.addModule("lattice2Executer")
-    FreeCADGui.doCommand("f = lattice2BoundBox.makeBoundBox(name='"+name+"')")
-    FreeCADGui.doCommand("f.Base = FreeCADGui.Selection.getSelection()[0]")
+
+    FreeCADGui.doCommand("f = lattice2BoundBox.makeBoundBox(name= 'BoundBox')")
+
+    FreeCADGui.doCommand("f.ShapeLink = App.ActiveDocument."+ShapeLink.Name)
+    if CompoundTraversal == "Use as a whole":
+        Label = u"BoundBox of "+ShapeLink.Label
+    else:
+        Label = u"BoundBoxes of "+ShapeLink.Label
+    FreeCADGui.doCommand("f.Label = "+repr(Label))    
+    FreeCADGui.doCommand("f.CompoundTraversal = "+repr(CompoundTraversal))    
+    FreeCADGui.doCommand("f.Precision = "+repr(Precision))    
+    FreeCADGui.doCommand("f.OrientMode = "+repr(OrientMode))    
+    if OrientLink is not None:
+        FreeCADGui.doCommand("f.OrientLink = App.ActiveDocument."+OrientLink.Name)
+
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
+    FreeCADGui.doCommand("Gui.Selection.addSelection(f)")
     FreeCADGui.doCommand("f = None")
-    FreeCAD.ActiveDocument.commitTransaction()
+
+def cmdSingleBoundBox():
+    sel = FreeCADGui.Selection.getSelectionEx()
+    (lattices, shapes) = LBF.splitSelection(sel)
+    if len(shapes) > 0 and len(lattices) == 0:
+        FreeCAD.ActiveDocument.openTransaction("Make BoundBox")
+        for shape in shapes:
+            CreateBoundBox(shape.Object)
+        FreeCAD.ActiveDocument.commitTransaction()
+    elif len(shapes) == 1 and len(lattices) == 1:
+        FreeCAD.ActiveDocument.openTransaction("Make BoundBox")
+        CreateBoundBox(shapes[0].Object, OrientMode= "use OrientLink", OrientLink= lattices[0].Object)
+        FreeCAD.ActiveDocument.commitTransaction()
+    else:
+        raise SelectionError("Bad selection",
+                             "Please select some shapes to make bounding boxes of, or a shape and a placement to make a rotated bounding box. You have selected %1 objects and %2 placements/arrays."
+                                 .replace("%1",len(shapes))
+                                 .replace("%2",len(lattices))
+                            )
+    deselect(sel)
+
+def cmdMultiBoundBox():
+    sel = FreeCADGui.Selection.getSelectionEx()
+    (lattices, shapes) = LBF.splitSelection(sel)
+    if len(shapes) > 0 and len(lattices) == 0:
+        FreeCAD.ActiveDocument.openTransaction("Make BoundBox")
+        for shape in shapes:
+            CreateBoundBox(shape.Object, CompoundTraversal= "Direct children only")
+        FreeCAD.ActiveDocument.commitTransaction()
+    elif len(shapes) == 1 and len(lattices) == 1:
+        FreeCAD.ActiveDocument.openTransaction("Make BoundBox")
+        CreateBoundBox(shapes[0].Object, 
+                       CompoundTraversal= "Direct children only",
+                       OrientMode= "use OrientLink", 
+                       OrientLink= lattices[0].Object)
+        FreeCAD.ActiveDocument.commitTransaction()
+    else:
+        raise SelectionError("Bad selection", 
+                             "Please select some shapes to make bounding boxes of, or a shape and a placement to make a rotated bounding box. You have selected %1 objects and %2 placements/arrays."
+                                 .replace("%1",len(shapes))
+                                 .replace("%2",len(lattices))
+                            )
+    deselect(sel)
 
 
 # -------------------------- /common stuff --------------------------------------------------
 
 # -------------------------- Gui command --------------------------------------------------
 
-class _CommandBoundBox:
+class _CommandBoundBoxSingle:
     "Command to create BoundBox feature"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_BoundBox.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_BoundBox","Parametric bounding box"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_BoundBox","Bounding Box: whole"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_BoundBox","Make a box that precisely fits the object")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_BoundBox","Bounding Box: whole: make a box that precisely fits the whole object")}
         
     def Activated(self):
-        if len(FreeCADGui.Selection.getSelection()) == 1 :
-            CreateBoundBox(name = "BoundBox")
-        else:
-            mb = QtGui.QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice2_BoundBox", "Select a shape to make a bounding box for, first!", None))
-            mb.setWindowTitle(translate("Lattice2_BoundBox","Bad selection", None))
-            mb.exec_()
+        try:
+            if len(FreeCADGui.Selection.getSelection())==0:
+                infoMessage("Bounding Box",
+                    "'Bounding Box: whole' command. Makes a box that precisely fits the whole object.\n\n"+
+                    "Please select an object, then invoke the command. If you also preselect a placement, the bounding box will be computed in local space of that placement.")
+                return
+            cmdSingleBoundBox()
+        except Exception as err:
+            msgError(err)
             
     def IsActive(self):
-        if FreeCAD.ActiveDocument:
+        if App.ActiveDocument:
             return True
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_BoundBox', _CommandBoundBox())
+FreeCADGui.addCommand('Lattice2_BoundBox_Single', _CommandBoundBoxSingle())
 
-exportedCommands = ['Lattice2_BoundBox']
+class _CommandBoundBoxMulti:
+    "Command to create BoundBox feature"
+    def GetResources(self):
+        return {'Pixmap'  : getIconPath("Lattice2_BoundBox_Compound.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_BoundBox","Bounding Box: children"),
+                'Accel': "",
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_BoundBox","Bounding Box: children: make bounding boxes around each child of a compound.")}
+        
+    def Activated(self):
+        try:
+            if len(FreeCADGui.Selection.getSelection())==0:
+                infoMessage("Bounding boxes of children",
+                    "'Bounding Box: children' command. Makes a box around each child of a compound.\n\n"+
+                    "Please select a compound, then invoke the command. If you also preselect a placement/array of placements, bounding boxes will be constructed in local spaces of corresponding placements.")
+                return
+            cmdMultiBoundBox()
+        except Exception as err:
+            msgError(err)
+            
+    def IsActive(self):
+        if App.ActiveDocument:
+            return True
+        else:
+            return False
+            
+FreeCADGui.addCommand('Lattice2_BoundBox_Compound', _CommandBoundBoxMulti())
+
+class _CommandBoundBoxGroup:
+    def GetCommands(self):
+        return ("Lattice2_BoundBox_Single","Lattice2_BoundBox_Compound") 
+
+    def GetDefaultCommand(self): # return the index of the tuple of the default command. 
+        return 0
+
+    def GetResources(self):
+        return { 'MenuText': 'Bounding Box:', 
+                 'ToolTip': 'Bounding Box: make a box that precisely fits a shape.'}
+        
+    def IsActive(self): # optional
+        return True
+
+FreeCADGui.addCommand('Lattice2_BoundBoxGroupCommand',_CommandBoundBoxGroup())
+
+
+exportedCommands = ['Lattice2_BoundBoxGroupCommand']
 
 # -------------------------- /Gui command --------------------------------------------------
