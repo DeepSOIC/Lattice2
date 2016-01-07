@@ -65,6 +65,7 @@ class Lattice2Workbench (Workbench):
         
         cmdsCompoundTools = ([]
             + Lattice2.CompoundFeatures.Downgrade.exportedCommands
+            + Lattice2.CompoundFeatures.SubLink.exportedCommands
             + Lattice2.CompoundFeatures.MakeCompound.exportedCommands
             + Lattice2.CompoundFeatures.CompoundFilter.exportedCommands
             + Lattice2.CompoundFeatures.FuseCompound.exportedCommands        

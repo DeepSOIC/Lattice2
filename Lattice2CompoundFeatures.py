@@ -1,3 +1,4 @@
+import lattice2SubLink      as SubLink
 import CompoundFilter2      as CompoundFilter
 import FuseCompound2        as FuseCompound    
 import lattice2Downgrade    as Downgrade 
