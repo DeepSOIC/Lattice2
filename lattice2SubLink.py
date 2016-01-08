@@ -1,6 +1,6 @@
 #***************************************************************************
 #*                                                                         *
-#*   Copyright (c) 2015 - Victor Titov (DeepSOIC)                          *
+#*   Copyright (c) 2016 - Victor Titov (DeepSOIC)                          *
 #*                                               <vv.titov@gmail.com>      *  
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
@@ -23,7 +23,7 @@
 
 __title__= "Lattice SubLink feature for FreeCAD"
 __author__ = "DeepSOIC"
-__url__ = "Lattice SubLink is like Draft Facebinder, but for edges and vertices too."
+__doc__ = "Lattice SubLink is like Draft Facebinder, but for edges and vertices too."
 
 from lattice2Common import *
 from lattice2BaseFeature import isObjectLattice
