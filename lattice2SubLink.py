@@ -280,7 +280,6 @@ def CreateSubLink(object, subnames):
                 pass #something unexpected, pass through unchanged
             subnames[i] = subname
     except Exception:
-        raise#fixme: remove!!
         pass
     FreeCADGui.addModule("lattice2SubLink")
     FreeCADGui.addModule("lattice2Executer")
