@@ -23,6 +23,7 @@
 
 from lattice2Common import *
 import lattice2Markers as markers
+import FreeCAD as App
 
 __title__= "Lattice SubLink feature for FreeCAD"
 __author__ = "DeepSOIC"
@@ -40,10 +41,11 @@ except Exception:
 
 def makeSubLink(name):
     '''makeSubLink(name): makes a SubLink object.'''
-    obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
+    obj = App.ActiveDocument.addObject("Part::FeaturePython",name)
     LatticeSubLink(obj)
     ViewProviderSubLink(obj.ViewObject)
     return obj
+    
 
 class LatticeSubLink:
     "The Lattice SubLink object"
@@ -86,7 +88,7 @@ class LatticeSubLink:
                 if selfobj.Object:
                     scale = selfobj.Object[0].Shape.BoundBox.DiagonalLength/math.sqrt(3)
             except Exception as err:
-                FreeCAD.Console.PrintError(selfobj.Name+": Failed to estimate size of marker shape")
+                App.Console.PrintError(selfobj.Name+": Failed to estimate size of marker shape")
             if scale < DistConfusion * 100:
                 scale = 1.0
             selfobj.Shape = markers.getNullShapeShape(scale)
@@ -99,7 +101,95 @@ class LatticeSubLink:
             sh.transformShape(sh.Placement.toMatrix(),True) #True = make copy
             sh.Placement = selfobj.Placement
             selfobj.Shape = sh
+        try:
+            self.analyzeShape(selfobj)
+        except Exception as err:
+            App.Console.PrintError(selfobj.Name+": analyzeShape: "+err.message+"\n")
         
+    def analyzeShape(self,selfobj):
+        sh = selfobj.Shape
+        
+        self.assignProp(selfobj,"App::PropertyString","ShapeType",sh.ShapeType)
+        if sh.ShapeType == "Compound":
+            self.assignProp(selfobj,"App::PropertyInteger","NumChildren",len(sh.childShapes(False,False)))
+        elif sh.ShapeType == "Face":
+            self.assignProp(selfobj,"App::PropertyFloat","Area",sh.Area)
+
+            typelist = ["BSplineSurface",
+                        "BezierSurface",
+                        "Cone",
+                        "Cylinder",
+                        "OffsetSurface",
+                        "Plane",
+                        "PlateSurface",
+                        "RectangularTrimmedSurface",
+                        "Sphere",
+                        "SurfaceOfExtrusion",
+                        "SurfaceOfRevolution",
+                        "Toroid",
+                        ]
+            surf = sh.Surface
+            for typename in typelist:
+                if type(surf) is getattr(Part, typename):
+                    break
+                typename = None
+            self.assignProp(selfobj,"App::PropertyString","FaceType",typename)
+            
+            self.transplant_all_attributes(selfobj,surf,"Face")
+        elif sh.ShapeType == "Edge":
+            self.assignProp(selfobj,"App::PropertyFloat","Length",sh.Length)
+
+            typelist = ["Arc",
+                        "ArcOfCircle",
+                        "ArcOfEllipse",
+                        "ArcOfHyperbola",
+                        "ArcOfParabola",
+                        "BSplineCurve",
+                        "BezierCurve",
+                        "Circle",
+                        "Ellipse",
+                        "Hyperbola",
+                        "Line",
+                        "OffsetCurve",
+                        "Parabola",
+                        ]
+            crv = sh.Curve
+            for typename in typelist:
+                if type(crv) is getattr(Part, typename):
+                    break
+                typename = None
+            self.assignProp(selfobj,"App::PropertyString","EdgeType",typename)
+            
+            self.transplant_all_attributes(selfobj,crv,"Edge")
+                
+        elif sh.ShapeType == "Vertex":
+            self.assignProp(selfobj,"App::PropertyVector","Position",sh.Point)
+        
+    def assignProp(self, selfobj, proptype, propname, propvalue):
+        if not hasattr(selfobj,propname):
+            selfobj.addProperty(proptype, propname,"info")
+            selfobj.setEditorMode(propname,1) #set read-only
+        setattr(selfobj,propname,propvalue)
+        
+    def transplant_all_attributes(self, selfobj, source, prefix):
+        for attrname in dir(source):
+            if attrname[0]=="_": continue
+            try:
+                attr = getattr(source,attrname)
+            except Exception:
+                continue
+            if callable(attr): continue
+            propname = prefix+attrname[0].upper()+attrname[1:]
+            if type(attr) is int:
+                self.assignProp(selfobj,"App::PropertyInteger",propname,attr)
+            if type(attr) is float:
+                self.assignProp(selfobj,"App::PropertyFloat",propname,attr) 
+            if type(attr) is str:
+                self.assignProp(selfobj,"App::PropertyString",propname,attr)
+            if type(attr) is App.Vector:
+                self.assignProp(selfobj,"App::PropertyVector",propname,attr)
+            if type(attr) is list:
+                self.assignProp(selfobj,"App::PropertyInteger",propname+"Count",len(attr))
         
 class ViewProviderSubLink:
     "A View Provider for the SubLink object"
@@ -205,10 +295,10 @@ def cmdSubLink():
         raise SelectionError("Bad selection", "You have selected subelements from more than one object. Not allowed. You can only select subelements of one object.")
     if len(sel[0].SubElementNames)==0:
         raise SelectionError("Bad selection", "Please select some subelements, not the whole object.")
-    FreeCAD.ActiveDocument.openTransaction("Create SubLink")
+    App.ActiveDocument.openTransaction("Create SubLink")
     CreateSubLink(sel[0].Object,sel[0].SubElementNames)
     deselect(sel)
-    FreeCAD.ActiveDocument.commitTransaction()
+    App.ActiveDocument.commitTransaction()
 
 # -------------------------- /common stuff --------------------------------------------------
 
@@ -234,7 +324,7 @@ class _CommandSubLink:
             msgError(err)
             
     def IsActive(self):
-        if FreeCAD.ActiveDocument:
+        if App.ActiveDocument:
             return True
         else:
             return False
