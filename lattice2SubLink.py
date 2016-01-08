@@ -288,6 +288,7 @@ def CreateSubLink(object, subnames):
     FreeCADGui.doCommand("f.Object.ViewObject.hide()")
     FreeCADGui.doCommand("Gui.Selection.addSelection(f)")    
     FreeCADGui.doCommand("f = None")
+    return App.ActiveDocument.ActiveObject
 
 def cmdSubLink():
     sel = FreeCADGui.Selection.getSelectionEx()

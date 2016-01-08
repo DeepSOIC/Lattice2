@@ -49,26 +49,28 @@ def executeFeature(obj):
         globalIsCreatingLatticeFeature = False
         
         
-def warning(obj,message):
+def warning(obj,message,forceMessage = None):
     '''
-    warning(obj,message): smart warning message function. If feature is being 
+    warning(obj,message, forceMessage = None): smart warning message function. If feature is being 
     created, a warning message pops up. If otherwise, the warning is printed 
     to the console/report view.
+    If forceMessage is True, the message is shown regardless; if False, the message is suppressed).
     '''
-    _showMsg(obj, message, _type= u'Warning')
+    _showMsg(obj, message, forceMessage, _type= u'Warning')
 
-def error(obj,message):
+def error(obj,message, forceMessage = None):
     '''
-    error(obj, message): smart error message function. If feature is being 
+    error(obj, message, forceMessage = None): smart error message function. If feature is being 
     created, an error message pops up. If otherwise, the error is printed 
     to the console/report view.
+    If forceMessage is True, the message is shown regardless; if False, the message is suppressed).
     '''
-    _showMsg(obj, message, _type= u'Error')
+    _showMsg(obj, message, forceMessage, _type= u'Error')
     
-def _showMsg(obj, message, _type):
+def _showMsg(obj, message, forceMessage, _type):
     '''showMsg(obj, message, _type): convenience function, contains the shared code of error() and warning()'''
     global globalIsCreatingLatticeFeature
-    if globalIsCreatingLatticeFeature:
+    if (globalIsCreatingLatticeFeature or forceMessage == True) and not forceMessage == False:
         mb = QtGui.QMessageBox()
         mb.setIcon(mb.Icon.Warning)
         mb.setText(_type + u": \n" + message)
@@ -87,9 +89,9 @@ def _showMsg(obj, message, _type):
             printfunc = FreeCAD.Console.PrintError
             
         if obj is not None:
-            printfunc(obj.Name + ": " + message)
+            printfunc(obj.Name + ": " + message+"\n")
         else:
-            printfunc(message)
+            printfunc(message+"\n")
     
 
 class CancelError(Exception):
