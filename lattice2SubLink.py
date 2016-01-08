@@ -107,69 +107,79 @@ class LatticeSubLink:
             App.Console.PrintError(selfobj.Name+": analyzeShape: "+err.message+"\n")
         
     def analyzeShape(self,selfobj):
-        sh = selfobj.Shape
         
-        self.assignProp(selfobj,"App::PropertyString","ShapeType",sh.ShapeType)
-        if sh.ShapeType == "Compound":
-            self.assignProp(selfobj,"App::PropertyInteger","NumChildren",len(sh.childShapes(False,False)))
-        elif sh.ShapeType == "Face":
-            self.assignProp(selfobj,"App::PropertyFloat","Area",sh.Area)
-
-            typelist = ["BSplineSurface",
-                        "BezierSurface",
-                        "Cone",
-                        "Cylinder",
-                        "OffsetSurface",
-                        "Plane",
-                        "PlateSurface",
-                        "RectangularTrimmedSurface",
-                        "Sphere",
-                        "SurfaceOfExtrusion",
-                        "SurfaceOfRevolution",
-                        "Toroid",
-                        ]
-            surf = sh.Surface
-            for typename in typelist:
-                if type(surf) is getattr(Part, typename):
-                    break
-                typename = None
-            self.assignProp(selfobj,"App::PropertyString","FaceType",typename)
+        self.updatedProperties = set()
+        try:
+            sh = selfobj.Shape
             
-            self.transplant_all_attributes(selfobj,surf,"Face")
-        elif sh.ShapeType == "Edge":
-            self.assignProp(selfobj,"App::PropertyFloat","Length",sh.Length)
+            self.assignProp(selfobj,"App::PropertyString","ShapeType",sh.ShapeType)
+            if sh.ShapeType == "Compound":
+                self.assignProp(selfobj,"App::PropertyInteger","NumChildren",len(sh.childShapes(False,False)))
+            elif sh.ShapeType == "Face":
+                self.assignProp(selfobj,"App::PropertyFloat","Area",sh.Area)
 
-            typelist = ["Arc",
-                        "ArcOfCircle",
-                        "ArcOfEllipse",
-                        "ArcOfHyperbola",
-                        "ArcOfParabola",
-                        "BSplineCurve",
-                        "BezierCurve",
-                        "Circle",
-                        "Ellipse",
-                        "Hyperbola",
-                        "Line",
-                        "OffsetCurve",
-                        "Parabola",
-                        ]
-            crv = sh.Curve
-            for typename in typelist:
-                if type(crv) is getattr(Part, typename):
-                    break
-                typename = None
-            self.assignProp(selfobj,"App::PropertyString","EdgeType",typename)
-            
-            self.transplant_all_attributes(selfobj,crv,"Edge")
+                typelist = ["BSplineSurface",
+                            "BezierSurface",
+                            "Cone",
+                            "Cylinder",
+                            "OffsetSurface",
+                            "Plane",
+                            "PlateSurface",
+                            "RectangularTrimmedSurface",
+                            "Sphere",
+                            "SurfaceOfExtrusion",
+                            "SurfaceOfRevolution",
+                            "Toroid",
+                            ]
+                surf = sh.Surface
+                for typename in typelist:
+                    if type(surf) is getattr(Part, typename):
+                        break
+                    typename = None
+                self.assignProp(selfobj,"App::PropertyString","FaceType",typename)
                 
-        elif sh.ShapeType == "Vertex":
-            self.assignProp(selfobj,"App::PropertyVector","Position",sh.Point)
+                self.transplant_all_attributes(selfobj,surf,"Face")
+            elif sh.ShapeType == "Edge":
+                self.assignProp(selfobj,"App::PropertyFloat","Length",sh.Length)
+
+                typelist = ["Arc",
+                            "ArcOfCircle",
+                            "ArcOfEllipse",
+                            "ArcOfHyperbola",
+                            "ArcOfParabola",
+                            "BSplineCurve",
+                            "BezierCurve",
+                            "Circle",
+                            "Ellipse",
+                            "Hyperbola",
+                            "Line",
+                            "OffsetCurve",
+                            "Parabola",
+                            ]
+                crv = sh.Curve
+                for typename in typelist:
+                    if type(crv) is getattr(Part, typename):
+                        break
+                    typename = None
+                self.assignProp(selfobj,"App::PropertyString","EdgeType",typename)
+                
+                self.transplant_all_attributes(selfobj,crv,"Edge")
+                    
+            elif sh.ShapeType == "Vertex":
+                self.assignProp(selfobj,"App::PropertyVector","Position",sh.Point)
+        finally:
+            #remove properties that haven't been updated
+            for propname in selfobj.PropertiesList:
+                if selfobj.getGroupOfProperty(propname) == "info":
+                    if not (propname in self.updatedProperties):
+                        selfobj.removeProperty(propname)
         
     def assignProp(self, selfobj, proptype, propname, propvalue):
         if not hasattr(selfobj,propname):
             selfobj.addProperty(proptype, propname,"info")
             selfobj.setEditorMode(propname,1) #set read-only
         setattr(selfobj,propname,propvalue)
+        self.updatedProperties.add(propname)
         
     def transplant_all_attributes(self, selfobj, source, prefix):
         for attrname in dir(source):
