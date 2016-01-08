@@ -21,21 +21,14 @@
 #*                                                                         *
 #***************************************************************************
 
-from lattice2Common import *
-import lattice2Markers as markers
-import FreeCAD as App
-
 __title__= "Lattice SubLink feature for FreeCAD"
 __author__ = "DeepSOIC"
 __url__ = "Lattice SubLink is like Draft Facebinder, but for edges and vertices too."
 
-
-try:
-    from lattice2BaseFeature import isObjectLattice
-except Exception:
-    # I want to keep the module easy to strip off Lattice2 wb, so:
-    def isObjectLattice(obj):
-        return False
+from lattice2Common import *
+from lattice2BaseFeature import isObjectLattice
+import lattice2Markers as markers
+import FreeCAD as App
 
 # -------------------------- feature --------------------------------------------------
 
@@ -317,9 +310,9 @@ class _CommandSubLink:
     "Command to create SubLink feature"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_SubLink.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_SubLink","Compound Filter"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_SubLink","SubLink"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_SubLink","Compound Filter: remove some childs from a compound")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_SubLink","SubLink: extract and analyse individual vertices, edges and faces from shapes")}
         
     def Activated(self):
         try:
