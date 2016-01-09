@@ -119,7 +119,8 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
             doc2 = App.newDocument()
             object_in_doc2 = None # define the variable, to prevent del() in finally block from raising another error
             try:
-                object_in_doc2 = doc2.copyObject(selfobj.Object, True)
+                doc2.copyObject(selfobj.Object, True)
+                object_in_doc2 = doc2.getObject(selfobj.Object.Name)
                 if bGui:
                     progress.setValue(1)
                 refstr = selfobj.ParameterRef #dict(selfobj.ExpressionEngine)["ParameterRef"]
