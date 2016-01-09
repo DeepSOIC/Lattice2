@@ -193,7 +193,13 @@ class LatticeSubLink:
                 self.assignProp(selfobj,"App::PropertyVector",propname,attr)
             if type(attr) is list:
                 self.assignProp(selfobj,"App::PropertyInteger",propname+"Count",len(attr))
-        
+
+    def __getstate__(self):
+        return None
+
+    def __setstate__(self,state):
+        return None
+
 class ViewProviderSubLink:
     "A View Provider for the SubLink object"
 
