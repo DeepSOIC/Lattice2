@@ -120,6 +120,16 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
             object_in_doc2 = None # define the variable, to prevent del() in finally block from raising another error
             try:
                 doc2.copyObject(selfobj.Object, True)
+                
+                #if there are nested paraseries in the dependencies, make sure to enable them
+                for objd2 in doc2.Objects:
+                    if hasattr(objd2,"Recomputing"):
+                        try:
+                            objd2.Recomputing = "Enabled"
+                            objd2.purgeTouched()
+                        except exception:
+                            lattice2Executer.warning(selfobj,"Failed to enable recomputing of "+objd2.Name)
+                
                 object_in_doc2 = doc2.getObject(selfobj.Object.Name)
                 if bGui:
                     progress.setValue(1)
