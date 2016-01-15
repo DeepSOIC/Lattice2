@@ -37,6 +37,59 @@ import lattice2Executer
 import lattice2Markers as markers
 from lattice2ValueSeriesGenerator import ValueSeriesGenerator
 
+# --------------------------- general routines ------------------------------------------------
+
+def getParameter(doc, strParameter):
+    return setParameter(doc, strParameter, value= None, get_not_set= True)
+
+def setParameter(doc, strParameter, value, get_not_set = False):
+    '''Sets parameter in the model. strParameter should be like "Box.Height"'''
+    pieces = strParameter.split(".")
+    objname = pieces[0]
+    obj_to_modify = doc.getObject(objname)
+    if obj_to_modify is None:
+        raise ValueError(selfobj.Name+": failed to get the object named '"+objname+"'. Maybe you had put in its label instead?..")
+    
+    if obj_to_modify.isDerivedFrom("Spreadsheet::Sheet"):
+        # SPECIAL CASE: spreadsheet cell
+        if len(pieces) != 2:
+            raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
+        oldval = obj_to_modify.get(pieces[1])
+        if get_not_set:
+            return oldval
+        if value != oldval:
+            obj_to_modify.set(pieces[1], str(value))
+    elif obj_to_modify.isDerivedFrom("Sketcher::SketchObject") and pieces[1] == "Constraints":
+        # SPECIAL CASE: sketcher constraint
+        if len(pieces) != 3:
+            raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
+        oldval = obj_to_modify.getDatum(pieces[2])
+        if get_not_set:
+            return oldval
+        if value != oldval:
+            try:
+                obj_to_modify.setDatum(pieces[2],value)
+            except ValueError as err:
+                # strangely. n setDatum, sketch attempts to solve itself, and if fails, throws. However, the constraint datum is actually modified... funny, isn't it?
+                App.Console.PrintWarning("Setting sketch constraint {constr} failed with a ValueError. This could have been caused by sketch failing to be solved.\n"
+                                         .format(constr= pieces[2]))
+    else:
+        # All other non-special cases: properties or subproperties of objects
+        if len(pieces) < 2:
+            raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
+        # Extract property, subproperty, subsub... FreeCAD doesn't track mutating returned objects, so we need to mutate them and write back explicitly.
+        stack = [obj_to_modify]
+        for piece in pieces[1:-1]:
+            stack.append(getattr(stack[-1],piece))
+        oldval = getattr(stack[-1], pieces[-1])
+        if get_not_set:
+            return oldval
+        if value != oldval:
+            setattr(stack[-1], pieces[-1], value)
+            for piece in pieces[1:-1:-1]:
+                compval = stack.pop()
+                setattr(stack[-1], piece, compval)
+
 # -------------------------- document object --------------------------------------------------
 
 def makeLatticeParaSeries(name):
@@ -81,20 +134,52 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
         if selfobj.Recomputing == "Disabled":
             raise ValueError(selfobj.Name+": recomputing of this object is currently disabled. Modify 'Recomputing' property to enable it.")
         try:            
-            #convert values to type
+            #test parameter references and read out their current values
+            refstr = selfobj.ParameterRef #dict(selfobj.ExpressionEngine)["ParameterRef"]
+            refstrs = refstr.replace(";","\t").split("\t")
+            defvalues = []
+            for refstr in refstrs:
+                refstr = refstr.strip();
+                val = None;
+                try:
+                    val = getParameter(selfobj.Document,refstr)
+                except Exception as err:
+                    App.Console.PrintError("{obj}: failed to read out parameter '{param}': {err}\n"
+                                            .format(obj= selfobj.Name,
+                                                    param= refstr,
+                                                    err= err.message))
+                defvalues.append(val)
+            N_params = len(defvalues)
+            if N_params == 0:
+                raise ValueError(selfobj.Name+": ParameterRef is not set. It is required.")
+            
+            #parse values
             values = []
-            for strv in selfobj.Values:
-                if len(strv) == 0: continue
-                if selfobj.ParameterType == 'float' or selfobj.ParameterType == 'int':
-                    if len(strv.strip()) == 0: continue
-                    v = float(strv.replace(",","."))
-                    if selfobj.ParameterType == 'int':
-                        v = int(round(v))
-                elif selfobj.ParameterType == 'string':
-                    v = strv.strip()
-                else:
-                    raise ValueError(selfobj.Name + ": ParameterType option not implemented: "+selfobj.ParameterType)
-                values.append(v)
+            for strrow in selfobj.Values:
+                if len(strrow) == 0:
+                    break;
+                row = strrow.split(";")
+                row = [(strv.strip() if len(strv.strip())>0 else None) for strv in row] # clean out spaces and replace empty strings with None
+                if len(row) < N_params:
+                    row += [None]*(N_params - len(row))
+                values.append(row)
+            
+            # convert values to type, filling in defaults where values are missing
+            for row in values:
+                for icol in range(N_params):
+                    strv = row[icol]
+                    val = None
+                    if strv is None:
+                        val = defvalues[icol]
+                    elif selfobj.ParameterType == 'float' or selfobj.ParameterType == 'int':
+                        val = float(strv.replace(",","."))
+                        if selfobj.ParameterType == 'int':
+                            val = int(round(val))
+                    elif selfobj.ParameterType == 'string':
+                        val = strv.strip()
+                    else:
+                        raise ValueError(selfobj.Name + ": ParameterType option not implemented: "+selfobj.ParameterType)
+                    row[icol] = val
             
             if len(values) == 0:
                 scale = 1.0
@@ -133,36 +218,10 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                 object_in_doc2 = doc2.getObject(selfobj.Object.Name)
                 if bGui:
                     progress.setValue(1)
-                refstr = selfobj.ParameterRef #dict(selfobj.ExpressionEngine)["ParameterRef"]
-                if len(refstr) == 0:
-                    raise ValueError(selfobj.Name+": ParameterRef is not set. It is required.")
-                pieces = refstr.split(".")
-                objname = pieces[0]
-                obj_to_modify = doc2.getObject(objname)
-                if obj_to_modify is None:
-                    raise ValueError(selfobj.Name+": failed to get the object named '"+objname+"'. Maybe you had put in its label instead?..")
                 output_shapes = []
-                for val in values:
-                    #set parameter
-                    if obj_to_modify.isDerivedFrom("Spreadsheet::Sheet"):
-                        if len(pieces) != 2:
-                            raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
-                        obj_to_modify.set(pieces[1], str(val))
-                    elif obj_to_modify.isDerivedFrom("Sketcher::SketchObject") and pieces[1] == "Constraints":
-                        if len(pieces) != 3:
-                            raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
-                        obj_to_modify.setDatum(pieces[2],val)
-                    else:
-                        if len(pieces) < 2:
-                            raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
-                        stack = [obj_to_modify]
-                        for piece in pieces[1:-1]:
-                            stack.append(getattr(stack[-1],piece))
-                        setattr(stack[-1], pieces[-1], val)
-                        for piece in pieces[1:-1:-1]:
-                            compval = stack.pop()
-                            setattr(stack[-1], piece, compval)
-                        
+                for row in values:
+                    for icol in range(len(row)):
+                        setParameter(doc2, refstrs[icol].strip(), row[icol])
                     
                     #recompute
                     doc2.recompute()
@@ -191,7 +250,6 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                         progress.setValue(progress.value()+1)
                         if progress.wasCanceled():
                             raise lattice2Executer.CancelError()
-
                     
             finally:
                 #delete all references, before destroying the document. Probably not required, but to be sure...
