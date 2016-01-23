@@ -124,7 +124,7 @@ class _CommandPlacement:
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Placement","Lattice Placement: Create lattice object with single item")}
         
     def Activated(self):
-        CreateLatticePlacement(name= "Placement", mode= self.mode)
+        CreateLatticePlacement(name= "Placment", mode= self.mode)
             
     def IsActive(self):
         if FreeCAD.ActiveDocument:
