@@ -91,109 +91,12 @@ class LatticeSubLink:
             selfobj.Shape = Part.makeCompound(rst)
         else: # don't make compound of one shape, output it directly
             sh = rst[0]
+            # absorb placement of original shape
             sh.transformShape(sh.Placement.toMatrix(),True) #True = make copy
+            # apply Placement that is filled into feature's Placement property (not necessary)
             sh.Placement = selfobj.Placement
             selfobj.Shape = sh
-        try:
-            self.analyzeShape(selfobj)
-        except Exception as err:
-            App.Console.PrintError(selfobj.Name+": analyzeShape: "+err.message+"\n")
         
-    def analyzeShape(self,selfobj):
-        
-        self.updatedProperties = set()
-        try:
-            sh = selfobj.Shape
-            
-            self.assignProp(selfobj,"App::PropertyString","ShapeType",sh.ShapeType)
-            if sh.ShapeType == "Compound":
-                self.assignProp(selfobj,"App::PropertyInteger","NumChildren",len(sh.childShapes(False,False)))
-            elif sh.ShapeType == "Face":
-                self.assignProp(selfobj,"App::PropertyFloat","Area",sh.Area)
-
-                typelist = ["BSplineSurface",
-                            "BezierSurface",
-                            "Cone",
-                            "Cylinder",
-                            "OffsetSurface",
-                            "Plane",
-                            "PlateSurface",
-                            "RectangularTrimmedSurface",
-                            "Sphere",
-                            "SurfaceOfExtrusion",
-                            "SurfaceOfRevolution",
-                            "Toroid",
-                            ]
-                surf = sh.Surface
-                for typename in typelist:
-                    if type(surf) is getattr(Part, typename):
-                        break
-                    typename = None
-                self.assignProp(selfobj,"App::PropertyString","FaceType",typename)
-                
-                self.transplant_all_attributes(selfobj,surf,"Face")
-            elif sh.ShapeType == "Edge":
-                self.assignProp(selfobj,"App::PropertyFloat","Length",sh.Length)
-
-                typelist = ["Arc",
-                            "ArcOfCircle",
-                            "ArcOfEllipse",
-                            "ArcOfHyperbola",
-                            "ArcOfParabola",
-                            "BSplineCurve",
-                            "BezierCurve",
-                            "Circle",
-                            "Ellipse",
-                            "Hyperbola",
-                            "Line",
-                            "OffsetCurve",
-                            "Parabola",
-                            ]
-                crv = sh.Curve
-                for typename in typelist:
-                    if type(crv) is getattr(Part, typename):
-                        break
-                    typename = None
-                self.assignProp(selfobj,"App::PropertyString","EdgeType",typename)
-                
-                self.transplant_all_attributes(selfobj,crv,"Edge")
-                    
-            elif sh.ShapeType == "Vertex":
-                self.assignProp(selfobj,"App::PropertyVector","Position",sh.Point)
-        finally:
-            #remove properties that haven't been updated
-            for propname in selfobj.PropertiesList:
-                if selfobj.getGroupOfProperty(propname) == "info":
-                    if not (propname in self.updatedProperties):
-                        selfobj.removeProperty(propname)
-        
-    def assignProp(self, selfobj, proptype, propname, propvalue):
-        if not hasattr(selfobj,propname):
-            selfobj.addProperty(proptype, propname,"info")
-            selfobj.setEditorMode(propname,1) #set read-only
-        setattr(selfobj,propname,propvalue)
-        self.updatedProperties.add(propname)
-        
-    def transplant_all_attributes(self, selfobj, source, prefix):
-        for attrname in dir(source):
-            if attrname[0]=="_": continue
-            try:
-                attr = getattr(source,attrname)
-            except Exception:
-                continue
-            if callable(attr): continue
-            propname = prefix+attrname[0].upper()+attrname[1:]
-            if type(attr) is int:
-                self.assignProp(selfobj,"App::PropertyInteger",propname,attr)
-            if type(attr) is float:
-                self.assignProp(selfobj,"App::PropertyFloat",propname,attr) 
-            if type(attr) is str:
-                self.assignProp(selfobj,"App::PropertyString",propname,attr)
-            if type(attr) is App.Vector:
-                self.assignProp(selfobj,"App::PropertyVector",propname,attr)
-            if type(attr) is list:
-                self.assignProp(selfobj,"App::PropertyInteger",propname+"Count",len(attr))
-
     def __getstate__(self):
         return None
 
@@ -319,7 +222,7 @@ class _CommandSubLink:
         return {'Pixmap'  : getIconPath("Lattice2_SubLink.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_SubLink","SubLink"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_SubLink","SubLink: extract and analyse individual vertices, edges and faces from shapes")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_SubLink","SubLink: extract individual vertices, edges and faces from shapes")}
         
     def Activated(self):
         try:
