@@ -25,6 +25,8 @@ from lattice2Common import *
 import lattice2Markers as markers
 import math
 
+import FreeCAD as App
+
 __title__="CompoundFilter module for FreeCAD"
 __author__ = "DeepSOIC"
 __url__ = ""
@@ -41,7 +43,7 @@ except Exception:
 
 def makeCompoundFilter(name):
     '''makeCompoundFilter(name): makes a CompoundFilter object.'''
-    obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
+    obj = App.ActiveDocument.addObject("Part::FeaturePython",name)
     _CompoundFilter(obj)
     _ViewProviderCompoundFilter(obj.ViewObject)
     return obj
@@ -162,7 +164,7 @@ class _CompoundFilter:
         else: # don't make compound of one shape, output it directly
             sh = rst[0]
             sh.transformShape(sh.Placement.toMatrix(),True) #True = make copy
-            sh.Placement = FreeCAD.Placement()
+            sh.Placement = App.Placement()
             obj.Shape = sh
             
         return
@@ -209,12 +211,12 @@ class _ViewProviderCompoundFilter:
                 if self.Object.Stencil:
                     self.Object.Stencil.ViewObject.show()
             except Exception as err:
-                FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
+                App.Console.PrintError("Error in onDelete: " + err.message)
         return True
 
 def CreateCompoundFilter(name):
     sel = FreeCADGui.Selection.getSelection()
-    FreeCAD.ActiveDocument.openTransaction("Create CompoundFilter")
+    App.ActiveDocument.openTransaction("Create CompoundFilter")
     FreeCADGui.addModule("CompoundFilter2")
     FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("f = CompoundFilter2.makeCompoundFilter(name = '"+name+"')")
@@ -228,7 +230,7 @@ def CreateCompoundFilter(name):
         FreeCADGui.doCommand("f.FilterType = 'window-volume'")    
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
-    FreeCAD.ActiveDocument.commitTransaction()
+    App.ActiveDocument.commitTransaction()
 
 
 # -------------------------- /common stuff --------------------------------------------------
@@ -254,12 +256,55 @@ class _CommandCompoundFilter:
             mb.exec_()
             
     def IsActive(self):
-        if FreeCAD.ActiveDocument:
+        if App.ActiveDocument:
             return True
         else:
             return False
             
 FreeCADGui.addCommand('Lattice2_CompoundFilter', _CommandCompoundFilter())
+
+def ExplodeCompound(feature):
+    sh = feature.Shape
+    features_created = []
+    for i in range(0, len(sh.childShapes(False,False))):
+        cf = makeCompoundFilter(name = 'child')
+        cf.Label = u'Child' + unicode(i)
+        cf.Base = feature
+        cf.FilterType = 'specific items'
+        cf.items = str(i)
+        cf.ViewObject.DontUnhideOnDelete = True
+        features_created.append(cf)
+    return features_created
+
+
+def cmdExplode():
+    App.ActiveDocument.openTransaction("Explode")
+    try:
+        sel = FreeCADGui.Selection.getSelectionEx()
+        if len(sel) != 1:
+            raise SelectionError("Bad selection","One object to be downgraded must be selected. You have selected {num} objects.".format(num= len(sel)))
+        obj = sel[0].Object
+        FreeCADGui.addModule("CompoundFilter2")
+        FreeCADGui.addModule("lattice2Executer")
+        FreeCADGui.doCommand("input_obj = App.ActiveDocument."+obj.Name)
+        FreeCADGui.doCommand("output_objs = CompoundFilter2.ExplodeCompound(input_obj)")
+        FreeCADGui.doCommand("\n".join([
+                             "if len(output_objs) > 1:",
+                             "    group = App.ActiveDocument.addObject('App::DocumentObjectGroup','GrExplode_'+input_obj.Name)",
+                             "    group.Group = output_objs",
+                             "    group.Label = 'Children of '+input_obj.Label",
+                             "    App.ActiveDocument.recompute()",
+                             "else:",
+                             "    lattice2Executer.executeFeature(output_objs[0])",
+                             "",
+                             ])                             )
+        FreeCADGui.doCommand("input_obj.ViewObject.hide()")
+    except Exception:
+        App.ActiveDocument.abortTransaction()
+        raise
+        
+    App.ActiveDocument.commitTransaction()
+
 
 class _CommandExplode:
     "Command to explode compound with parametric links to its children"
@@ -270,36 +315,18 @@ class _CommandExplode:
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_CompoundFilter","Explode compound: each member of compound as a separate object")}
         
     def Activated(self):
-        if len(FreeCADGui.Selection.getSelection()) == 1 :
-            FreeCAD.ActiveDocument.openTransaction("Explode")
-            
-            try:
-                obj = FreeCADGui.Selection.getSelection()[0]
-                sh = obj.Shape
-                obj.ViewObject.hide()
-                for i in range(0, len(sh.childShapes(False,False))):
-                    cf = makeCompoundFilter(name = 'child')
-                    cf.Label = u'Child' + unicode(i)
-                    cf.Base = obj
-                    cf.FilterType = 'specific items'
-                    cf.items = str(i)
-                    cf.ViewObject.DontUnhideOnDelete = True
-                FreeCAD.ActiveDocument.recompute()
-            except Exception:
-                FreeCAD.ActiveDocument.abortTransaction()
-                raise
-                
-            FreeCAD.ActiveDocument.commitTransaction()
-
-        else:
-            mb = QtGui.QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice2_CompoundFilter", "Select a shape that is a compound, first!", None))
-            mb.setWindowTitle(translate("Lattice2_CompoundFilter","Bad selection", None))
-            mb.exec_()
+        try:
+            if len(FreeCADGui.Selection.getSelection())  > 0  :
+                cmdExplode()
+            else:
+                infoMessage("Explode compound", 
+                            "'Explode Compound' command. Makes children of compound available as separate document objects.\n\n"+
+                            "Select an object that is a compound, then invoke this command.")
+        except Exception as err:
+            msgError(err)
             
     def IsActive(self):
-        if FreeCAD.ActiveDocument:
+        if App.ActiveDocument:
             return True
         else:
             return False
