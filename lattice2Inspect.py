@@ -134,5 +134,22 @@ class _CommandInspect:
 
 FreeCADGui.addCommand('Lattice2_Inspect',_CommandInspect())
 
-exportedCommands = ['Lattice2_Inspect']
+import lattice2ShapeInfoFeature
+
+class GroupCommandInspect:
+    def GetCommands(self):
+        return ('Lattice2_Inspect', lattice2ShapeInfoFeature.exportedCommands[0]) # a tuple of command names that you want to group
+
+    def GetDefaultCommand(self): # return the index of the tuple of the default command. This method is optional and when not implemented '0' is used  
+        return 0
+
+    def GetResources(self):
+        return { 'MenuText': 'Inspect:', 'ToolTip': 'Inspect: tools to analyze shape structure.'}
+        
+    def IsActive(self): # optional
+        return True
+
+FreeCADGui.addCommand('Lattice2_Inspect_GroupCommand',GroupCommandInspect())
+
+exportedCommands = ['Lattice2_Inspect_GroupCommand']
 
