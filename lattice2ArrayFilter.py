@@ -305,6 +305,53 @@ class GroupCommandLatticeArrayFilter:
 FreeCADGui.addCommand('Lattice2_ArrayFilter_GroupCommand',GroupCommandLatticeArrayFilter())
 
 
+def ExplodeArray(feature):
+    plms = lattice2BaseFeature.getPlacementsList(feature)
+    features_created = []
+    for i in range(len(plms)):
+        af = makeArrayFilter(name = 'Placment')
+        af.Label = u'Placement' + unicode(i)
+        af.Base = feature
+        af.FilterType = 'specific items'
+        af.items = str(i)
+        af.ExposePlacement = True
+        af.ViewObject.DontUnhideOnDelete = True
+        features_created.append(af)
+    return features_created
+
+def cmdExplodeArray():
+    App.ActiveDocument.openTransaction("Explode array")
+    try:
+        sel = FreeCADGui.Selection.getSelectionEx()
+        if len(sel) != 1:
+            raise SelectionError("Bad selection","One array to be exploded must be selected. You have selected {num} objects.".format(num= len(sel)))
+        obj = sel[0].Object
+        FreeCADGui.addModule("lattice2ArrayFilter")
+        FreeCADGui.addModule("lattice2Executer")
+        FreeCADGui.doCommand("input_obj = App.ActiveDocument."+obj.Name)
+        old_state = lattice2Executer.globalIsCreatingLatticeFeature
+        lattice2Executer.globalIsCreatingLatticeFeature = True #for warnings to pop up
+        FreeCADGui.doCommand("output_objs = lattice2ArrayFilter.ExplodeArray(input_obj)")
+        lattice2Executer.globalIsCreatingLatticeFeature = old_state
+        FreeCADGui.doCommand("\n".join([
+                             "if len(output_objs) > 1:",
+                             "    group = App.ActiveDocument.addObject('App::DocumentObjectGroup','GrExplode_'+input_obj.Name)",
+                             "    group.Group = output_objs",
+                             "    group.Label = 'Placements of '+input_obj.Label",
+                             "    App.ActiveDocument.recompute()",
+                             "else:",
+                             "    lattice2Executer.executeFeature(output_objs[0])",
+                             "",
+                             ])                             )
+        FreeCADGui.doCommand("input_obj.ViewObject.hide()")
+    except Exception:
+        App.ActiveDocument.abortTransaction()
+        lattice2Executer.globalIsCreatingLatticeFeature = False
+        raise
+        
+    App.ActiveDocument.commitTransaction()
+
+
 class _CommandExplodeArray:
     "Command to explode array with parametric links to its elements"
     def GetResources(self):
@@ -314,39 +361,15 @@ class _CommandExplodeArray:
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFilter","Explode array: get each element of array as a separate object")}
         
     def Activated(self):
-        if len(FreeCADGui.Selection.getSelection()) == 1 :
-            FreeCAD.ActiveDocument.openTransaction("Explode Array")
-            lattice2Executer.globalIsCreatingLatticeFeature = True
-            try:
-                obj = FreeCADGui.Selection.getSelection()[0]
-                if not lattice2BaseFeature.isObjectLattice(obj):
-                    lattice2Executer.warning(None,"ExplodeArray expects a lattice object; a generic shape was provided instead. Results may be unexpected.")
-                sh = obj.Shape
-                n_elem = len(LCE.AllLeaves(sh))
-                lattice2Executer.globalIsCreatingLatticeFeature = False
-                for i in range(0, n_elem):
-                    af = makeArrayFilter(name = 'Element')
-                    af.Label = u'Element' + unicode(i)
-                    af.Base = obj
-                    af.FilterType = 'specific items'
-                    af.items = str(i)
-                    af.ExposePlacement = True
-                    af.ViewObject.DontUnhideOnDelete = True
-                FreeCAD.ActiveDocument.recompute()
-                obj.ViewObject.hide()
-            except Exception:
-                FreeCAD.ActiveDocument.abortTransaction()
-                raise
-            finally:
-                lattice2Executer.globalIsCreatingLatticeFeature = False
-            FreeCAD.ActiveDocument.commitTransaction()
-
-        else:
-            mb = QtGui.QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice2_ArrayFilter", "Select a lattice object, first!", None))
-            mb.setWindowTitle(translate("Lattice2_ArrayFilter","Bad selection", None))
-            mb.exec_()
+        try:
+            if len(FreeCADGui.Selection.getSelection())  > 0  :
+                cmdExplodeArray()
+            else:
+                infoMessage("Explode array", 
+                            "'Explode Array' command. Makes placements of array available as separate document objects.\n\n"+
+                            "Select an object that is a Lattice array of placements, then invoke this command.")
+        except Exception as err:
+            msgError(err)
             
     def IsActive(self):
         if FreeCAD.ActiveDocument:
