@@ -84,8 +84,6 @@ class ShapeInfoFeature:
                 self.transplant_all_attributes(selfobj,sh,"Shape", withdraw_set= set(["ShapeType", "Content", "Module", "TypeId"]))
                         
                 if sh.ShapeType == "Face":
-                    self.assignProp(selfobj,"App::PropertyFloat","Area",sh.Area)
-
                     typelist = ["BSplineSurface",
                                 "BezierSurface",
                                 "Cone",
@@ -108,8 +106,6 @@ class ShapeInfoFeature:
                     
                     self.transplant_all_attributes(selfobj,surf,"Face")
                 elif sh.ShapeType == "Edge":
-                    self.assignProp(selfobj,"App::PropertyFloat","Length",sh.Length)
-
                     typelist = ["Arc",
                                 "ArcOfCircle",
                                 "ArcOfEllipse",
