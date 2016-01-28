@@ -98,6 +98,8 @@ class _CompoundFilter:
                     rst.append(shps[i])
                     flags[i] = True
                 elif len(r_v) == 2 or len(r_v) == 3:
+                    if len(r_v) == 2:
+                        r_v.append("") # fix issue #1: instead of checking length here and there, simply add the missing field =)
                     ifrom = None   if len(r_v[0].strip()) == 0 else   int(r_v[0])                    
                     ito = None     if len(r_v[1].strip()) == 0 else   int(r_v[1])
                     istep = None   if len(r_v[2].strip()) == 0 else   int(r_v[2])
