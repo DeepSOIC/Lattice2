@@ -43,6 +43,10 @@
         <file>icons/Lattice2_RecomputeLocker_UnlockRecomputes.svg</file>
         <file>icons/Lattice2_Resample.svg</file>
         <file>icons/Lattice2_ShapeString.svg</file>
+		<file>icons/Lattice2_SubLink.svg</file>
+		<file>icons/Lattice2_SubLink_Edge.svg</file>
+		<file>icons/Lattice2_SubLink_Face.svg</file>
+		<file>icons/Lattice2_SubLink_Vertex.svg</file>
 		<file>icons/Lattice2_SubstituteObject.svg</file>
     </qresource>
 </RCC> 
