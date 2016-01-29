@@ -53,6 +53,7 @@ class ValueSeriesGenerator:
         self._addProperty("App::PropertyBool"       ,"EndInclusive"   , True, groupname_gen, "If True, the last value in series will equal SpanEnd. If False, the value equal to SpanEnd will be dropped.")
         self._addProperty("App::PropertyFloat"      ,"Step"           , 1.0, groupname_gen, "Step for value generator. For exponential law, it is a natural logarithm of change ratio.") # using float for Step, because step's unit depends n selected distribution law
         self._addProperty("App::PropertyFloat"      ,"Count"          , 7.0, groupname_gen, "Number of values to generate")
+        self._addProperty("App::PropertyFloat"      ,"Offset"         , 0.0, groupname_gen, "Extra offset for the series, expressed as fraction of step.")
     
     def _addProperty(self, proptype, propname, defvalue, group, tooltip):
         if hasattr(self.documentObject, propname):
@@ -79,6 +80,7 @@ class ValueSeriesGenerator:
         self._setPropertyWritable("EndInclusive"    , not self.isPropertyControlledByGenerator("EndInclusive"   )  )
         self._setPropertyWritable("Step"            , not self.isPropertyControlledByGenerator("Step"           )  )
         self._setPropertyWritable("Count"           , not self.isPropertyControlledByGenerator("Count"          )  )
+        self._setPropertyWritable("Offset"          , not self.isPropertyControlledByGenerator("Offset"         )  )
     
     def isPropertyControlledByGenerator(self, propname):
         obj = self.documentObject
@@ -170,14 +172,15 @@ class ValueSeriesGenerator:
             # cache properties into variables
             # vStart,vEnd are already in sync
             vStep = float(obj.Step)
+            vOffset = float(obj.Offset)
             n = int(obj.Count)
             
             # Generate the values
             if obj.GeneratorMode == 'Random':
                 import random
-                list_evenDistrib = [vStart + (vEnd-vStart)*random.random() for i in range(0, n)]
+                list_evenDistrib = [vStart + vOffset*vStep + (vEnd-vStart)*random.random() for i in range(0, n)]
             else:
-                list_evenDistrib = [vStart + vStep*i for i in range(0, n)]
+                list_evenDistrib = [vStart + vOffset*vStep + vStep*i for i in range(0, n)]
                 
             if obj.DistributionLaw == 'Linear':
                 values = list_evenDistrib
