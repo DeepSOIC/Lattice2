@@ -98,7 +98,7 @@ class LatticePlacementAx(lattice2BaseFeature.LatticeFeature):
     "The Lattice Placement object, defined by axes directions"
         
     def derivedInit(self,obj):
-        self.Type = "LatticePlacement"
+        self.Type = "LatticePlacementAx"
         
         obj.addProperty("App::PropertyEnumeration","Priority","Lattice Placement","Example: ZXY = ZDir followed strictly, XDir is a hint, YDir is ignored and computed from others.")
         obj.Priority = ["XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX"]
@@ -133,6 +133,35 @@ class LatticePlacementAx(lattice2BaseFeature.LatticeFeature):
         obj.XDir_actual = ori.multVec(App.Vector(1,0,0))
         obj.YDir_actual = ori.multVec(App.Vector(0,1,0))
         obj.ZDir_actual = ori.multVec(App.Vector(0,0,1))
+        
+        return [plm]
+
+def makeLatticePlacementEuler(name):
+    '''makePlacement(name): makes a Placement object.'''
+    return lattice2BaseFeature.makeLatticeFeature(name, LatticePlacementEuler, ViewProviderLatticePlacement)
+
+class LatticePlacementEuler(lattice2BaseFeature.LatticeFeature):
+    "The Lattice Placement object, defined by axes directions"
+        
+    def derivedInit(self,obj):
+        self.Type = "LatticePlacementEuler"
+                
+        obj.addProperty("App::PropertyAngle","Yaw","Lattice Placement","Rotation around Z axis")
+        obj.addProperty("App::PropertyAngle","Pitch","Lattice Placement","Rotation around Y axis")
+        obj.addProperty("App::PropertyAngle","Roll","Lattice Placement","Rotation around X axis")
+
+        obj.ExposePlacement = True
+        
+    def derivedExecute(self,obj):
+        old_pos = App.Vector()
+        try:
+            old_pos = lattice2BaseFeature.getPlacementsList(obj, suppressWarning= True)[0].Base
+        except Exception:
+            pass #retrieving position may fail if the object is recomputed for the very first time
+        
+        ori = App.Rotation(obj.Yaw, obj.Pitch, obj.Roll)
+        
+        plm =  App.Placement(old_pos, ori)
         
         return [plm]
 
@@ -173,6 +202,17 @@ def CreateLatticePlacementAx(label, priority, XDir, YDir, ZDir):
     if ZDir is not None and ZDir.Length > DistConfusion:
         FreeCADGui.doCommand("f.ZDir_wanted = App.Vector"+repr(tuple(ZDir)))
     FreeCADGui.doCommand("f.Label = "+repr(label))        
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
+    FreeCADGui.doCommand("Gui.Selection.addSelection(f)")
+    FreeCADGui.doCommand("f = None")
+    FreeCAD.ActiveDocument.commitTransaction()
+
+def CreateLatticePlacementEuler(name):
+    sel = FreeCADGui.Selection.getSelectionEx()
+    FreeCAD.ActiveDocument.openTransaction("Create Lattice Placement")
+    FreeCADGui.addModule("lattice2Placement")
+    FreeCADGui.addModule("lattice2Executer")
+    FreeCADGui.doCommand("f = lattice2Placement.makeLatticePlacementEuler(name='"+name+"')")    
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("Gui.Selection.addSelection(f)")
     FreeCADGui.doCommand("f = None")
@@ -248,6 +288,32 @@ _listOfSubCommands.append(cmdName)
 cmdName = "Lattice2_PlacementAx_AlongZ"
 FreeCADGui.addCommand(cmdName, _CommandPlacementAx("along Z","Single Placement with local X aligned along global Z","Plm along Z","XZY", XDir= App.Vector(0,0,1)))
 _listOfSubCommands.append(cmdName)
+
+class _CommandPlacementEuler:
+    "Command to create Lattice Placement feature"
+    
+    def GetResources(self):
+        return {'Pixmap'  : getIconPath("Lattice2_Placement_New.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_Placement","Single Placement: Euler angles"),
+                'Accel': "",
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Placement","Lattice Placement: driven by Euler angles (yaw, pitch, roll)")}
+        
+    def Activated(self):
+        try:
+            CreateLatticePlacementEuler(name= "PlacementEu")
+        except Exception as err:
+            msgError(err)
+            
+    def IsActive(self):
+        if FreeCAD.ActiveDocument:
+            return True
+        else:
+            return False
+
+cmdName = "Lattice2_PlacementEuler"
+FreeCADGui.addCommand(cmdName, _CommandPlacementEuler())
+_listOfSubCommands.append(cmdName)
+
 
 import lattice2ArrayFromShape
 _listOfSubCommands.append('Lattice2_PlacementFromShape')    
