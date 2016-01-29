@@ -233,6 +233,8 @@ class _CommandPlacement:
         
     def Activated(self):
         CreateLatticePlacement(name= "Placment", mode= self.mode)
+        if self.mode == "Custom":
+            FreeCADGui.runCommand("Std_Placement")
             
     def IsActive(self):
         if FreeCAD.ActiveDocument:
