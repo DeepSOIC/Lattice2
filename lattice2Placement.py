@@ -90,6 +90,52 @@ class LatticePlacement(lattice2BaseFeature.LatticeFeature):
         
         return [obj.Placement]
 
+def makeLatticePlacementAx(name):
+    '''makePlacement(name): makes a Placement object.'''
+    return lattice2BaseFeature.makeLatticeFeature(name, LatticePlacementAx, ViewProviderLatticePlacement)
+
+class LatticePlacementAx(lattice2BaseFeature.LatticeFeature):
+    "The Lattice Placement object, defined by axes directions"
+        
+    def derivedInit(self,obj):
+        self.Type = "LatticePlacement"
+        
+        obj.addProperty("App::PropertyEnumeration","Priority","Lattice Placement","Example: ZXY = ZDir followed strictly, XDir is a hint, YDir is ignored and computed from others.")
+        obj.Priority = ["XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX"]
+        
+        obj.addProperty("App::PropertyVector","XDir_wanted","Lattice Placement","Align X axis of placement with this direction.")
+        obj.addProperty("App::PropertyVector","YDir_wanted","Lattice Placement","Align Y axis of placement with this direction.")
+        obj.addProperty("App::PropertyVector","ZDir_wanted","Lattice Placement","Align Z axis of placement with this direction.")
+
+        obj.addProperty("App::PropertyVector","XDir_actual","Lattice Placement","Actual resulting direction of X axis of the placement.")
+        obj.addProperty("App::PropertyVector","YDir_actual","Lattice Placement","Actual resulting direction of Y axis of the placement.")
+        obj.addProperty("App::PropertyVector","ZDir_actual","Lattice Placement","Actual resulting direction of Z axis of the placement.")
+
+        obj.setEditorMode("XDir_actual", 1) #read-only
+        obj.setEditorMode("YDir_actual", 1) #read-only
+        obj.setEditorMode("ZDir_actual", 1) #read-only
+        
+        obj.ExposePlacement = True
+        
+    def derivedExecute(self,obj):
+        old_pos = App.Vector()
+        try:
+            old_pos = lattice2BaseFeature.getPlacementsList(obj, suppressWarning= True)[0].Base
+        except Exception:
+            pass #retrieving position may fail if the object is recomputed for the very first time
+        
+        import lattice2GeomUtils
+        
+        ori = lattice2GeomUtils.makeOrientationFromLocalAxesUni(obj.Priority, obj.XDir_wanted * 1.0, obj.YDir_wanted * 1.0, obj.ZDir_wanted * 1.0) # multiply vectors by 1.0 to copy them, to block mutation
+        
+        plm =  App.Placement(old_pos, ori)
+        
+        obj.XDir_actual = ori.multVec(App.Vector(1,0,0))
+        obj.YDir_actual = ori.multVec(App.Vector(0,1,0))
+        obj.ZDir_actual = ori.multVec(App.Vector(0,0,1))
+        
+        return [plm]
+
 class ViewProviderLatticePlacement(lattice2BaseFeature.ViewProviderLatticeFeature):
         
     def getIcon(self):
@@ -106,7 +152,29 @@ def CreateLatticePlacement(name,mode = 'Custom'):
     FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("f = lattice2Placement.makeLatticePlacement(name='"+name+"')")    
     FreeCADGui.doCommand("f.PlacementChoice = '"+mode+"'")
+    FreeCADGui.doCommand("f.Label = '"+mode+"'")
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
+    FreeCADGui.doCommand("Gui.Selection.addSelection(f)")
+    FreeCADGui.doCommand("f = None")
+    FreeCAD.ActiveDocument.commitTransaction()
+
+def CreateLatticePlacementAx(label, priority, XDir, YDir, ZDir):
+    sel = FreeCADGui.Selection.getSelectionEx()
+    FreeCAD.ActiveDocument.openTransaction("Create Lattice Placement")
+    FreeCADGui.addModule("lattice2Placement")
+    FreeCADGui.addModule("lattice2Executer")
+    name = "PlacementAx"
+    FreeCADGui.doCommand("f = lattice2Placement.makeLatticePlacementAx(name='"+name+"')")    
+    FreeCADGui.doCommand("f.Priority = "+repr(priority))
+    if XDir is not None and XDir.Length > DistConfusion:
+        FreeCADGui.doCommand("f.XDir_wanted = App.Vector"+repr(tuple(XDir)))
+    if YDir is not None and YDir.Length > DistConfusion:
+        FreeCADGui.doCommand("f.YDir_wanted = App.Vector"+repr(tuple(YDir)))
+    if ZDir is not None and ZDir.Length > DistConfusion:
+        FreeCADGui.doCommand("f.ZDir_wanted = App.Vector"+repr(tuple(ZDir)))
+    FreeCADGui.doCommand("f.Label = "+repr(label))        
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
+    FreeCADGui.doCommand("Gui.Selection.addSelection(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
 
@@ -137,6 +205,50 @@ for mode in LatticePlacement._PlacementChoiceList:
     cmdName = 'Lattice2_Placement' + mode
     FreeCADGui.addCommand(cmdName, _CommandPlacement(mode))
     _listOfSubCommands.append(cmdName)
+    
+class _CommandPlacementAx:
+    "Command to create Lattice Placement by axes feature"
+        
+    def __init__(self, menu_text, tooltip, label, priority, XDir = None, YDir = None, ZDir = None):
+        self.menu_text = menu_text
+        self.tooltip = tooltip
+        self.label = label
+        self.priority = priority
+        self.XDir = XDir
+        self.YDir = YDir
+        self.ZDir = ZDir
+        
+    
+    def GetResources(self):
+        return {'Pixmap'  : getIconPath("Lattice2_Placement_New.svg"),
+                'MenuText': "Single Placement: " + self.menu_text, # FIXME: not translation-friendly!
+                'Accel': "",
+                'ToolTip': self.tooltip}
+        
+    def Activated(self):
+        try:
+            CreateLatticePlacementAx(self.label, self.priority, self.XDir, self.YDir, self.ZDir)
+        except Exception as err:
+            msgError(err)
+            
+    def IsActive(self):
+        if FreeCAD.ActiveDocument:
+            return True
+        else:
+            return False
+
+cmdName = "Lattice2_PlacementAx_AlongX"
+FreeCADGui.addCommand(cmdName, _CommandPlacementAx("along X","Single Placement with local X aligned along global X","Plm along X","XZY", XDir= App.Vector(1,0,0)))
+_listOfSubCommands.append(cmdName)
+
+cmdName = "Lattice2_PlacementAx_AlongY"
+FreeCADGui.addCommand(cmdName, _CommandPlacementAx("along Y","Single Placement with local X aligned along global Y","Plm along Y","XZY", XDir= App.Vector(0,1,0)))
+_listOfSubCommands.append(cmdName)
+
+cmdName = "Lattice2_PlacementAx_AlongZ"
+FreeCADGui.addCommand(cmdName, _CommandPlacementAx("along Z","Single Placement with local X aligned along global Z","Plm along Z","XZY", XDir= App.Vector(0,0,1)))
+_listOfSubCommands.append(cmdName)
+
 import lattice2ArrayFromShape
 _listOfSubCommands.append('Lattice2_PlacementFromShape')    
 

@@ -288,12 +288,13 @@ def makeMoveFromTo(plmFrom, plmTo):
     from one placement to another placement'''
     return plmTo.multiply(plmFrom.inverse())
 
-def getPlacementsList(documentObject, context = None):
+def getPlacementsList(documentObject, context = None, suppressWarning = False):
     '''getPlacementsList(documentObject, context = None): extract list of placements 
     from an array object. Context is an object to report as context, when displaying 
     a warning if the documentObject happens to be a non-lattice.'''
     if not isObjectLattice(documentObject):
-        lattice2Executer.warning(context, documentObject.Name + " is not a placement or an array of placements. Results may be unexpected.")
+        if not suppressWarning:
+            lattice2Executer.warning(context, documentObject.Name + " is not a placement or an array of placements. Results may be unexpected.")
     leaves = LCE.AllLeaves(documentObject.Shape)
     return [leaf.Placement for leaf in leaves]
 
