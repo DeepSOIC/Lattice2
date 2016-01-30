@@ -318,7 +318,7 @@ _listOfSubCommands.append(cmdName)
 
 
 import lattice2ArrayFromShape
-_listOfSubCommands.append('Lattice2_PlacementFromShape')    
+_listOfSubCommands.extend(lattice2ArrayFromShape.exportedCommands_forSinglePlacement)
 
 class GroupCommandPlacement:
     def GetCommands(self):

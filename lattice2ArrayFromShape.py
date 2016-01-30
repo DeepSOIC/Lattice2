@@ -184,7 +184,7 @@ class ViewProviderArrayFromShape(lattice2BaseFeature.ViewProviderLatticeFeature)
 
 # -------------------------- Gui command --------------------------------------------------
 
-def CreateLatticeArrayFromShape(TranslateMode = 'child', OrientMode = 'child', WholeObject = False):
+def CreateLatticeArrayFromShape(TranslateMode = 'child', OrientMode = 'child', WholeObject = False, TranslateElementIndex = None, OrientElementIndex = None):
     sel = FreeCADGui.Selection.getSelectionEx()
     if len(sel) != 1:
         raise SelectionError(message= "Please select just one object, not "+str(len(sel)) +".", title= "Bad selection")
@@ -200,6 +200,12 @@ def CreateLatticeArrayFromShape(TranslateMode = 'child', OrientMode = 'child', W
         FreeCADGui.doCommand("f.Label = 'Placement "+of_or_from+" ' + f.ShapeLink.Label")
     else:
         FreeCADGui.doCommand("f.Label = 'Array from ' + f.ShapeLink.Label")
+    if TranslateElementIndex:
+        FreeCADGui.doCommand("f.TranslateElementIndex = "+repr(TranslateElementIndex))
+    if OrientElementIndex:
+        FreeCADGui.doCommand("f.OrientElementIndex = "+repr(OrientElementIndex))
+    FreeCADGui.doCommand("f.TranslateMode = "+repr(TranslateMode))
+    FreeCADGui.doCommand("f.OrientMode = "+repr(OrientMode))
         
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
@@ -209,14 +215,21 @@ def CreateLatticeArrayFromShape(TranslateMode = 'child', OrientMode = 'child', W
     deselect(sel)
     FreeCAD.ActiveDocument.commitTransaction()
 
-
 class _CommandLatticeArrayFromShape:
     "Command to create LatticeArrayFromShape feature"
+    
+    def __init__(self, menu_text, tooltip, Label, TranslateMode, OrientMode):
+        self.menu_text = menu_text
+        self.tooltip = tooltip
+        self.Label = Label
+        self.TranslateMode = TranslateMode
+        self.OrientMode = OrientMode
+    
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_ArrayFromShape.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Array from compound"),
+                'MenuText': "Array from shape: "+self.menu_text,
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Lattice ArrayFromShape: make placements array from shapes in a compound.")}
+                'ToolTip': self.tooltip}
         
     def Activated(self):
         try:
@@ -225,7 +238,7 @@ class _CommandLatticeArrayFromShape:
                     "Array From Shape command. Creates an array of placements from shapes in a compound.\n\n"
                     "Select the object that is a compound, first, then invoke this tool.")
                 return
-            CreateLatticeArrayFromShape(TranslateMode= 'child.CenterOfMass', OrientMode= 'child')
+            CreateLatticeArrayFromShape(self.TranslateMode, self.OrientMode, WholeObject= False)
         except Exception as err:
             msgError(err)
             
@@ -235,24 +248,69 @@ class _CommandLatticeArrayFromShape:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_ArrayFromShape', _CommandLatticeArrayFromShape())
+list_of_commands = []
+
+cmdName = 'Lattice2_ArrayFromShape_Internal'
+FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("internal placements", "Read out placements of children inside the compound", "Array from %1", 'child', 'child'))
+list_of_commands.append(cmdName)
+
+cmdName = 'Lattice2_ArrayFromShape_CenterBB'
+FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("center of bounding box", "Align placement's origin to center of shape's bounding box", "Array from %1", 'child.CenterOfBoundBox', 'parent'))
+list_of_commands.append(cmdName)
+
+cmdName = 'Lattice2_ArrayFromShape_CenterMass'
+FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("center of mass", "Align placement's origin to shape's center of mass", "Array from %1", 'child.CenterOfMass', 'parent'))
+list_of_commands.append(cmdName)
+
+cmdName = 'Lattice2_ArrayFromShape_Inertial'
+FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("inertial axis system", "Make placements from inertial axes of children", "Array from %1", 'child.CenterOfMass', 'child.InertiaAxes'))
+list_of_commands.append(cmdName)
+
+class GroupCommandArrayFromShape:
+    def __init__(self, list_of_commands):
+        self.list_of_commands = list_of_commands
+        
+    def GetCommands(self):
+        return tuple(self.list_of_commands) # a tuple of command names that you want to group
+
+    def GetDefaultCommand(self): # return the index of the tuple of the default command. This method is optional and when not implemented '0' is used  
+        return 0
+
+    def GetResources(self):
+        return { 'MenuText': 'Array from shape:', 'ToolTip': 'Array from shape: make array of placements from children of a compound'}
+        
+    def IsActive(self): # optional
+        return True
+
+FreeCADGui.addCommand('Lattice2_ArrayFromShapeGroup', GroupCommandArrayFromShape(list_of_commands))
+
+
+
 
 class _CommandLatticePlacementFromShape:
-    "Command to create LatticeArrayFromShape feature linking to placement of one shape"
+    "Command to create LatticePlacementFromShape feature"
+    
+    def __init__(self, menu_text, tooltip, Label, TranslateMode, OrientMode):
+        self.menu_text = menu_text
+        self.tooltip = tooltip
+        self.Label = Label
+        self.TranslateMode = TranslateMode
+        self.OrientMode = OrientMode
+    
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_PlacementFromShape.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Single Placement: linked to shape"),
+                'MenuText': "Placement of shape: "+self.menu_text,
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ArrayFromShape","Lattice PlacementFromShape: make Placement linked to placement of selected object.")}
+                'ToolTip': self.tooltip}
         
     def Activated(self):
         try:
             if len(FreeCADGui.Selection.getSelection())==0:
-                infoMessage("Single Placement: linked to shape",
-                    "Single Placement: linked to shape command. Creates a placement linked to a placement of an object.\n\n"
+                infoMessage("PlacementFromShape command",
+                    "Placement From Shape command. Creates a placements from shape.\n\n"
                     "Select the object first, then invoke this tool.")
                 return
-            CreateLatticeArrayFromShape(TranslateMode= 'child', OrientMode= 'child', WholeObject= True)
+            CreateLatticeArrayFromShape(self.TranslateMode, self.OrientMode, WholeObject= True)
         except Exception as err:
             msgError(err)
             
@@ -262,9 +320,27 @@ class _CommandLatticePlacementFromShape:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_PlacementFromShape', _CommandLatticePlacementFromShape())
+list_of_commands = []
 
-exportedCommands = ['Lattice2_ArrayFromShape'] #Lattice2_PlacementFromShape will be included in lattice2Placement set of commands. I know, it's ugly....
+cmdName = 'Lattice2_PlacementFromShape_Internal'
+FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("copy object.Placement", "Create a placement linked to Placement property of selected object", "Placement of %1", 'child', 'child'))
+list_of_commands.append(cmdName)
+
+cmdName = 'Lattice2_PlacementFromShape_CenterBB'
+FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("center of bounding box", "Align placement's origin to center of shape's bounding box", "Placement of %1", 'child.CenterOfBoundBox', '(none)'))
+list_of_commands.append(cmdName)
+
+cmdName = 'Lattice2_PlacementFromShape_CenterMass'
+FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("center of mass", "Align placement's origin to shape's center of mass", "Placement of %1", 'child.CenterOfMass', 'parent'))
+list_of_commands.append(cmdName)
+
+cmdName = 'Lattice2_PlacementFromShape_Inertial'
+FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("inertial axis system", "Make placement on inertial axes of shape", "Placement of %1", 'child.CenterOfMass', 'child.InertiaAxes'))
+list_of_commands.append(cmdName)
+
+
+exportedCommands = ['Lattice2_ArrayFromShapeGroup'] #Lattice2_PlacementFromShape will be included in lattice2Placement set of commands. I know, it's ugly....
+exportedCommands_forSinglePlacement = list(list_of_commands)
 
 # -------------------------- /Gui command --------------------------------------------------
 
