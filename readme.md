@@ -66,7 +66,5 @@ If you have found a bug, report it [here, in Github's issue tracker for Lattice2
 If you have fixed a bug, or implemented a new feature you think suits the workbench, or whatever - feel free to make a pull-request here on github.
 
 # Status
-This version is in devlopment. Breaking changes can be introduced at any point. If you want to make a project with use of Lattice workbench, it is recommended to stick with Lattice v1.
-
-Lattice v1 is available here: https://github.com/DeepSOIC/Lattice
+This version can be considered a release candidate. I will take care to not make breaking changes, but new functionality may keep coming.
 
