@@ -230,7 +230,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                     shape = None
                     for obj in doc2.Objects:
                         if 'Invalid' in obj.State:
-                            lattice2Executer.error(obj,"Recomputing shape for parameter value of "+val+" failed.")
+                            lattice2Executer.error(obj,"Recomputing shape for parameter value of "+repr(row)+" failed.")
                             
                             scale = 1.0
                             try:
