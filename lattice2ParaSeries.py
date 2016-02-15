@@ -85,10 +85,110 @@ def setParameter(doc, strParameter, value, get_not_set = False):
         if get_not_set:
             return oldval
         if value != oldval:
-            setattr(stack[-1], pieces[-1], value)
+            try:
+                setattr(stack[-1], pieces[-1], value)
+            except TypeError as err:
+                # setting int properties to float value inconveniently fails. 
+                # we'll try to set int instead, and if it fails - then the error 
+                # is raised
+                try:
+                    setattr(stack[-1], pieces[-1], int(value))
+                except Exception:
+                    raise err
             for piece in pieces[1:-1:-1]:
                 compval = stack.pop()
                 setattr(stack[-1], piece, compval)
+                
+def spshRCfromA1(A1_style_link):
+    '''given a string like "A1", returns a tuple of two ints (row, col). Row and col are zero-based; address row index is one-based'''
+    
+    #assuming only two letter column
+    if A1_style_link[1].isalpha():
+        colstr = A1_style_link[0:2]
+        rowstr = A1_style_link[2:]
+    else:
+        colstr = A1_style_link[0:1]
+        rowstr = A1_style_link[1:]
+    
+    row = int(rowstr)-1
+    
+    colstr = colstr.upper()
+    NUM_LETTERS = ord("Z")-ord("A")+1
+    A = ord("A")
+    mult = 1
+    col = -1
+    for ch in colstr[::-1]:
+        col += mult * (ord(ch) - A + 1)
+        mult *= NUM_LETTERS
+        
+    return (row,col)
+
+def spshA1fromRC(row, col):
+    '''outputs an address of A1-style, given row and column indexes (zero-based)'''
+    NUM_LETTERS = ord("Z")-ord("A")+1
+    A = ord("A")
+    colstr = chr(A + col % NUM_LETTERS)
+    col -= col % NUM_LETTERS
+    col /= NUM_LETTERS
+    if col > 0:
+        colstr = chr(A + col % (NUM_LETTERS+1) - 1) + colstr
+    
+    rowstr = str(row+1)
+    
+    return colstr + rowstr
+
+def read_refs_value_table(spreadsheet):
+    '''returns tuple of two. First is list of parameter refs (strings). Second is a table of values (list of rows)'''
+    
+    # read out list of parameters
+    r = 0
+    c = 0
+    params = []
+    for c in range(spshRCfromA1("ZZ0")[1]):
+        try:
+            tmp = spreadsheet.get(spshA1fromRC(r,c))
+            if not( type(tmp) is str or type(tmp) is unicode ):
+                raise TypeError("Parameter reference must be a string; it is {type}".format(type= type(tmp).__name__))
+            params.append(tmp)
+        except ValueError: # ValueError is thrown in attempt to read empty cell
+            break
+    num_params = len(params)
+    if num_params == 0:
+        raise ValueError("Reading out parameter references from spreadsheet failed: no parameter reference found on A1 cell.")
+    
+    # read out values
+    values = []
+    num_nonempty_rows = 0
+    num_empty_rows_in_a_row = 0
+    while True:
+        n_vals_got = 0
+        r += 1
+        val_row = [None]*num_params
+        for c in range(num_params):
+            try:
+                val_row[c] = spreadsheet.get(spshA1fromRC(r,c))
+                n_vals_got += 1
+            except ValueError: # ValueError is thrown in attempt to read empty cell
+                pass
+        values.append(val_row)
+        if n_vals_got == 0:
+            num_empty_rows_in_a_row += 1
+            if num_empty_rows_in_a_row > 1000:
+                break
+        else:
+            num_empty_rows_in_a_row = 0
+            num_nonempty_rows += 1
+        
+    # trim off the last train of empty rows
+    if num_empty_rows_in_a_row > 0: #always true...
+        values = values[0:-num_empty_rows_in_a_row]
+    
+    if num_nonempty_rows == 0:
+        raise ValueError("Value table is empty. Please fill the spreadsheet with values, not just references to parameters.")
+    return (params, values)
+
+    
+    
 
 # -------------------------- document object --------------------------------------------------
 
@@ -129,14 +229,19 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
         # values generator should be functional even if recomputing is disabled, so do it first
         self.assureGenerator(selfobj)
         self.generator.updateReadonlyness()
-        self.generator.execute()
+        b_auto_spreadsheet = selfobj.ValuesSource == "Spreadsheet" and selfobj.CellStart == ""
+        if b_auto_spreadsheet:
+            refstrs, values = read_refs_value_table(selfobj.SpreadsheetLink)
+        else:
+            self.generator.execute()
         
         if selfobj.Recomputing == "Disabled":
             raise ValueError(selfobj.Name+": recomputing of this object is currently disabled. Modify 'Recomputing' property to enable it.")
         try:            
             #test parameter references and read out their current values
-            refstr = selfobj.ParameterRef #dict(selfobj.ExpressionEngine)["ParameterRef"]
-            refstrs = refstr.replace(";","\t").split("\t")
+            if not b_auto_spreadsheet:
+                refstr = selfobj.ParameterRef #dict(selfobj.ExpressionEngine)["ParameterRef"]
+                refstrs = refstr.replace(";","\t").split("\t")
             defvalues = []
             for refstr in refstrs:
                 refstr = refstr.strip();
@@ -154,32 +259,39 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                 raise ValueError(selfobj.Name+": ParameterRef is not set. It is required.")
             
             #parse values
-            values = []
-            for strrow in selfobj.Values:
-                if len(strrow) == 0:
-                    break;
-                row = strrow.split(";")
-                row = [(strv.strip() if len(strv.strip())>0 else None) for strv in row] # clean out spaces and replace empty strings with None
-                if len(row) < N_params:
-                    row += [None]*(N_params - len(row))
-                values.append(row)
+            if not b_auto_spreadsheet:
+                values = []
+                for strrow in selfobj.Values:
+                    if len(strrow) == 0:
+                        break;
+                    row = strrow.split(";")
+                    row = [(strv.strip() if len(strv.strip())>0 else None) for strv in row] # clean out spaces and replace empty strings with None
+                    if len(row) < N_params:
+                        row += [None]*(N_params - len(row))
+                    values.append(row)
             
-            # convert values to type, filling in defaults where values are missing
-            for row in values:
-                for icol in range(N_params):
-                    strv = row[icol]
-                    val = None
-                    if strv is None:
-                        val = defvalues[icol]
-                    elif selfobj.ParameterType == 'float' or selfobj.ParameterType == 'int':
-                        val = float(strv.replace(",","."))
-                        if selfobj.ParameterType == 'int':
-                            val = int(round(val))
-                    elif selfobj.ParameterType == 'string':
-                        val = strv.strip()
-                    else:
-                        raise ValueError(selfobj.Name + ": ParameterType option not implemented: "+selfobj.ParameterType)
-                    row[icol] = val
+                # convert values to type, filling in defaults where values are missing
+                for row in values:
+                    for icol in range(N_params):
+                        strv = row[icol]
+                        val = None
+                        if strv is None:
+                            val = defvalues[icol]
+                        elif selfobj.ParameterType == 'float' or selfobj.ParameterType == 'int':
+                            val = float(strv.replace(",","."))
+                            if selfobj.ParameterType == 'int':
+                                val = int(round(val))
+                        elif selfobj.ParameterType == 'string':
+                            val = strv.strip()
+                        else:
+                            raise ValueError(selfobj.Name + ": ParameterType option not implemented: "+selfobj.ParameterType)
+                        row[icol] = val
+            else: #b_auto_spreadsheet == True
+                # only replace Nones with default values
+                for row in values:
+                    for icol in range(N_params):
+                        if row[icol] is None:
+                            row[icol] = defvalues[icol]
             
             if len(values) == 0:
                 scale = 1.0
@@ -192,6 +304,9 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                     scale = 1.0
                 selfobj.Shape = markers.getNullShapeShape(scale)
                 raise ValueError(selfobj.Name + ": list of values is empty.") 
+            
+            # list of values and parameters have been read out, and prepared in variables 'refstrs' and 'values'.
+            # prepare for computations
             
             bGui = False #bool(App.GuiUp) #disabled temporarily, because it causes a crash if property edits are approved by hitting Enter
             if bGui:
@@ -287,14 +402,27 @@ class ViewProviderLatticeParaSeries(lattice2BaseFeature.ViewProviderLatticeFeatu
 
 
 
-def CreateLatticeParaSeries(name, shapeObj):
-    '''utility function; sharing common code for all populate-copies commands'''
+def CreateLatticeParaSeries(name, shapeObj, SpreadsheetLink = None, bAskRecompute = True):
+    '''utility function; sharing common code for all paraseries creation commands'''
     FreeCADGui.addModule("lattice2ParaSeries")
     FreeCADGui.addModule("lattice2Executer")
     
     #fill in properties
     FreeCADGui.doCommand("f = lattice2ParaSeries.makeLatticeParaSeries(name='"+name+"')")
     FreeCADGui.doCommand("f.Object = App.ActiveDocument."+shapeObj.Name)
+    
+    if SpreadsheetLink is not None:
+        FreeCADGui.doCommand("f.SpreadsheetLink = App.ActiveDocument."+SpreadsheetLink.Name)
+        FreeCADGui.doCommand("f.ValuesSource = 'Spreadsheet'")
+        FreeCADGui.doCommand("f.CellStart = ''")
+        try:
+            read_refs_value_table(SpreadsheetLink)
+            # if we got here, parameter-value table was read out successfully
+            if 
+        except:
+            lattice2Executer.warning(App.ActiveDocument.ActiveObject, "Failed to read out parameters and values from spreadsheet {spsh}. {err}"
+                                                                      .format(spsh= SpreadsheetLink.))
+            pass
     
     #execute
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
