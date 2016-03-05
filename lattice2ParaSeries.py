@@ -36,6 +36,7 @@ import lattice2BaseFeature
 import lattice2Executer
 import lattice2Markers as markers
 from lattice2ValueSeriesGenerator import ValueSeriesGenerator
+import lattice2ParaSpreadsheet as spsh
 
 # --------------------------- general routines ------------------------------------------------
 
@@ -99,94 +100,6 @@ def setParameter(doc, strParameter, value, get_not_set = False):
                 compval = stack.pop()
                 setattr(stack[-1], piece, compval)
                 
-def spshRCfromA1(A1_style_link):
-    '''given a string like "A1", returns a tuple of two ints (row, col). Row and col are zero-based; address row index is one-based'''
-    
-    #assuming only two letter column
-    if A1_style_link[1].isalpha():
-        colstr = A1_style_link[0:2]
-        rowstr = A1_style_link[2:]
-    else:
-        colstr = A1_style_link[0:1]
-        rowstr = A1_style_link[1:]
-    
-    row = int(rowstr)-1
-    
-    colstr = colstr.upper()
-    NUM_LETTERS = ord("Z")-ord("A")+1
-    A = ord("A")
-    mult = 1
-    col = -1
-    for ch in colstr[::-1]:
-        col += mult * (ord(ch) - A + 1)
-        mult *= NUM_LETTERS
-        
-    return (row,col)
-
-def spshA1fromRC(row, col):
-    '''outputs an address of A1-style, given row and column indexes (zero-based)'''
-    NUM_LETTERS = ord("Z")-ord("A")+1
-    A = ord("A")
-    colstr = chr(A + col % NUM_LETTERS)
-    col -= col % NUM_LETTERS
-    col /= NUM_LETTERS
-    if col > 0:
-        colstr = chr(A + col % (NUM_LETTERS+1) - 1) + colstr
-    
-    rowstr = str(row+1)
-    
-    return colstr + rowstr
-
-def read_refs_value_table(spreadsheet):
-    '''returns tuple of two. First is list of parameter refs (strings). Second is a table of values (list of rows)'''
-    
-    # read out list of parameters
-    r = 0
-    c = 0
-    params = []
-    for c in range(spshRCfromA1("ZZ0")[1]):
-        try:
-            tmp = spreadsheet.get(spshA1fromRC(r,c))
-            if not( type(tmp) is str or type(tmp) is unicode ):
-                raise TypeError("Parameter reference must be a string; it is {type}".format(type= type(tmp).__name__))
-            params.append(tmp)
-        except ValueError: # ValueError is thrown in attempt to read empty cell
-            break
-    num_params = len(params)
-    if num_params == 0:
-        raise ValueError("Reading out parameter references from spreadsheet failed: no parameter reference found on A1 cell.")
-    
-    # read out values
-    values = []
-    num_nonempty_rows = 0
-    num_empty_rows_in_a_row = 0
-    while True:
-        n_vals_got = 0
-        r += 1
-        val_row = [None]*num_params
-        for c in range(num_params):
-            try:
-                val_row[c] = spreadsheet.get(spshA1fromRC(r,c))
-                n_vals_got += 1
-            except ValueError: # ValueError is thrown in attempt to read empty cell
-                pass
-        values.append(val_row)
-        if n_vals_got == 0:
-            num_empty_rows_in_a_row += 1
-            if num_empty_rows_in_a_row > 1000:
-                break
-        else:
-            num_empty_rows_in_a_row = 0
-            num_nonempty_rows += 1
-        
-    # trim off the last train of empty rows
-    if num_empty_rows_in_a_row > 0: #always true...
-        values = values[0:-num_empty_rows_in_a_row]
-    
-    if num_nonempty_rows == 0:
-        raise ValueError("Value table is empty. Please fill the spreadsheet with values, not just references to parameters.")
-    return (params, values)
-
     
     
 
@@ -231,7 +144,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
         self.generator.updateReadonlyness()
         b_auto_spreadsheet = selfobj.ValuesSource == "Spreadsheet" and selfobj.CellStart == ""
         if b_auto_spreadsheet:
-            refstrs, values = read_refs_value_table(selfobj.SpreadsheetLink)
+            refstrs, values = spsh.read_refs_value_table(selfobj.SpreadsheetLink)
         else:
             self.generator.execute()
         
@@ -416,12 +329,13 @@ def CreateLatticeParaSeries(name, shapeObj, SpreadsheetLink = None, bAskRecomput
         FreeCADGui.doCommand("f.ValuesSource = 'Spreadsheet'")
         FreeCADGui.doCommand("f.CellStart = ''")
         try:
-            read_refs_value_table(SpreadsheetLink)
+            spsh.read_refs_value_table(SpreadsheetLink)
             # if we got here, parameter-value table was read out successfully
             if 
-        except:
+        except Exception as err:
             lattice2Executer.warning(App.ActiveDocument.ActiveObject, "Failed to read out parameters and values from spreadsheet {spsh}. {err}"
-                                                                      .format(spsh= SpreadsheetLink.))
+                                                                      .format(spsh= SpreadsheetLink,
+                                                                              err= err.message))
             pass
     
     #execute
