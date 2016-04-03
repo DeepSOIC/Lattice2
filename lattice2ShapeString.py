@@ -30,7 +30,6 @@ from lattice2BoundBox import getPrecisionBoundBox #needed for alignment
 
 import FreeCAD as App
 import Part
-from Draft import _ShapeString
 
 
 __title__="BoundingBox module for FreeCAD"
@@ -134,6 +133,7 @@ class LatticeShapeString:
         if hasattr(self, "foolObj"):
             return
         foolObj = FoolFeatureDocumentObject()
+        from Draft import _ShapeString
         self.draft_shape_string = _ShapeString(foolObj) 
         self.foolObj = foolObj
 
