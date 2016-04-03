@@ -297,10 +297,10 @@ def cmdSingleBoundBox():
         CreateBoundBox(shapes[0].Object, OrientMode= "use OrientLink", OrientLink= lattices[0].Object)
         FreeCAD.ActiveDocument.commitTransaction()
     else:
-        raise SelectionError("Bad selection",
-                             "Please select some shapes to make bounding boxes of, or a shape and a placement to make a rotated bounding box. You have selected %1 objects and %2 placements/arrays."
-                                 .replace("%1",len(shapes))
-                                 .replace("%2",len(lattices))
+        raise SelectionError("Bad selection", 
+                             "Please select some shapes to make bounding boxes of, or a shape and a placement to make a rotated bounding box. You have selected {shapescount} objects and {latticescount} placements/arrays."
+                                 .format(  shapescount= str(len(shapes)), 
+                                           latticescount= str(len(lattices))  )
                             )
     deselect(sel)
 
@@ -321,9 +321,9 @@ def cmdMultiBoundBox():
         FreeCAD.ActiveDocument.commitTransaction()
     else:
         raise SelectionError("Bad selection", 
-                             "Please select some shapes to make bounding boxes of, or a shape and a placement to make a rotated bounding box. You have selected %1 objects and %2 placements/arrays."
-                                 .replace("%1",len(shapes))
-                                 .replace("%2",len(lattices))
+                             "Please select some shapes to make bounding boxes of, or a shape and a placement to make a rotated bounding box. You have selected {shapescount} objects and {latticescount} placements/arrays."
+                                 .format(  shapescount= str(len(shapes)), 
+                                           latticescount= str(len(lattices))  )
                             )
     deselect(sel)
 
