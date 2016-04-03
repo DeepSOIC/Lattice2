@@ -89,9 +89,21 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyLink","PlacementsTo","Lattice PopulateCopies", "Placement or array of placements, containing target locations.")
         obj.addProperty("App::PropertyLink","PlacementsFrom", "Lattice PopulateCopies","Placement or array of placements to be treated as origins for PlacementsTo.")
+        
+        self.assureProperties(obj)
+        obj.OutputCompounding = "(autosettle)" # this is default value for new features.
 
+    def assureProperties(self, obj):
+        '''Adds properties that might be missing, because of loaded project made with older version. Handles version compatibility.'''
+        propname = 'OutputCompounding'
+        if not hasattr(obj,propname):
+            obj.addProperty("App::PropertyEnumeration", propname, "Lattice PopulateCopies","In case single object copy is made, this property controls, if it's packed into compoud or not.")
+            setattr(obj,propname,["(autosettle)","always", "only if many"])
+            setattr(obj,propname,"always") # this is to match the old behavior. This is not the default setting for new features.
 
     def derivedExecute(self,obj):
+        self.assureProperties(obj)
+        
         # cache stuff
         objectShape = obj.Object.Shape
         placements = lattice2BaseFeature.getPlacementsList(obj.PlacementsTo, obj)
@@ -122,7 +134,21 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         if outputIsLattice:
             return outputPlms
         else:
-            obj.Shape = Part.makeCompound(outputShapes)
+            # Output shape or compound (complex logic involving OutputCompounding property)
+            #first, autosettle the OutputCompounding.
+            if obj.OutputCompounding == "(autosettle)":
+                if hasattr(obj.PlacementsTo,"ExposePlacement") and obj.PlacementsTo.ExposePlacement == False:
+                    obj.OutputCompounding = "always"
+                else:
+                    obj.OutputCompounding = "only if many"
+            #now, set the result shape
+            if len(outputShapes) == 1 and obj.OutputCompounding == "only if many":
+                sh = outputShapes[0]
+                sh.transformShape(sh.Placement.toMatrix(),True) #True = make copy
+                sh.Placement = App.Placement()
+                obj.Shape = sh
+            else:
+                obj.Shape = Part.makeCompound(outputShapes)
             return None
 
 class ViewProviderLatticePopulateCopies(lattice2BaseFeature.ViewProviderLatticeFeature):
