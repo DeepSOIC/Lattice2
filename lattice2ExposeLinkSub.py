@@ -123,7 +123,7 @@ def askYesNo(title, message):
 class _CommandExposeLinkSub:
     "Command to expose ..LinkSub.. properties of other features"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice2_ExposeLinkSub.svg"),
+        return {
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_ExposeLinkSub","Expose links to subelements"),
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_ExposeLinkSub","Expose links to subelements: create SubLink features as proxies for subelement dependencies of selected object")}
