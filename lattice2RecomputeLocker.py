@@ -389,6 +389,23 @@ exportedCommands = [
     "Lattice2_RecomputeLocker_RecomputeDocument",
     ]
     
+class CommandRecomputeGroup:
+    def GetCommands(self):
+        global exportedCommands
+        return tuple(exportedCommands)
+
+    def GetDefaultCommand(self): # return the index of the tuple of the default command. 
+        return 0
+
+    def GetResources(self):
+        return { 'MenuText': 'Lattice recompute control:', 
+                 'ToolTip': 'Document recompute controlling tools from Lattice2 workbench'}
+        
+    def IsActive(self): # optional
+        return App.ActiveDocument is not None
+FreeCADGui.addCommand('Lattice2_RecomputeLockerGroup', CommandRecomputeGroup())
+
+    
     
 def msgbox(strmsg):
     mb = QtGui.QMessageBox()
