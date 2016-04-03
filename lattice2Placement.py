@@ -232,6 +232,7 @@ class _CommandPlacement:
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Placement","Lattice Placement: Create lattice object with single item")}
         
     def Activated(self):
+        FreeCADGui.Selection.clearSelection() 
         CreateLatticePlacement(name= "Placment", mode= self.mode)
         if self.mode == "Custom":
             FreeCADGui.runCommand("Std_Placement")
@@ -269,6 +270,7 @@ class _CommandPlacementAx:
         
     def Activated(self):
         try:
+            FreeCADGui.Selection.clearSelection() 
             CreateLatticePlacementAx(self.label, self.priority, self.XDir, self.YDir, self.ZDir)
         except Exception as err:
             msgError(err)
@@ -302,6 +304,7 @@ class _CommandPlacementEuler:
         
     def Activated(self):
         try:
+            FreeCADGui.Selection.clearSelection() 
             CreateLatticePlacementEuler(name= "PlacementEu")
         except Exception as err:
             msgError(err)
