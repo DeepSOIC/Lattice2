@@ -34,11 +34,13 @@
         <file>icons/Lattice2_PopulateCopies_Plms_Normal.svg</file>
         <file>icons/Lattice2_PopulateCopies_Plms_Move.svg</file>
         <file>icons/Lattice2_ProjectArray.svg</file>
+        <file>icons/Lattice2_RecomputeLocker_ForceRecompute.svg</file>
         <file>icons/Lattice2_RecomputeLocker_Locked.svg</file>
         <file>icons/Lattice2_RecomputeLocker_LockRecomputes.svg</file>
         <file>icons/Lattice2_RecomputeLocker_MakeFeature.svg</file>
         <file>icons/Lattice2_RecomputeLocker_RecomputeDocument.svg</file>
         <file>icons/Lattice2_RecomputeLocker_RecomputeFeature.svg</file>
+        <file>icons/Lattice2_RecomputeLocker_Touch.svg</file>
         <file>icons/Lattice2_RecomputeLocker_Unlocked.svg</file>
         <file>icons/Lattice2_RecomputeLocker_UnlockRecomputes.svg</file>
         <file>icons/Lattice2_Resample.svg</file>
