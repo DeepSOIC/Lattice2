@@ -425,7 +425,23 @@ class _CommandTouch:
     def Activated(self):
         FreeCADGui.addModule("lattice2RecomputeLocker")
         try:
-            FreeCADGui.doCommand("for so in Gui.Selection.getSelectionEx(): lattice2RecomputeLocker.touch(so.Object)")
+            sel = FreeCADGui.Selection.getSelectionEx()
+            if len(sel) == 0:
+                infoMessage("Touch command",
+                            "'Touch selected features' command. Touches selected objects. 'Touched' means the object was changed and should be recomputed; if nothing is touched, recomputing the document does nothing.\n\n"
+                            "Please select objects to be marked as touched first, then invoke this command. If all selected objects are touched already, the 'Touched' state is undone (purged).")
+                return
+            n_touched = 0
+            for so in sel:
+                if 'Touched' in so.Object.State:
+                    n_touched += 1
+            if n_touched < len(sel):
+                # not all selected objects are currently touched. Touch the remaining...
+                FreeCADGui.doCommand("for so in Gui.Selection.getSelectionEx(): lattice2RecomputeLocker.touch(so.Object)")
+            else:
+                #all selected objects are already touched. 
+                FreeCADGui.doCommand("for so in Gui.Selection.getSelectionEx(): so.Object.purgeTouched()")
+                
         except Exception as err:
             msgError(err)
             
