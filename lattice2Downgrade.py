@@ -31,6 +31,18 @@ __title__="latticeDowngrade module for FreeCAD"
 __author__ = "DeepSOIC"
 __url__ = ""
 
+def getAllSeams(shape):
+    '''getAllSeams(shape): extract all seam edges of a shape. Returns list of edges.'''
+    # this is a hack.
+    # Seam edges were found to be in wires that contain the seam edge twice.
+    # See http://forum.freecadweb.org/viewtopic.php?f=3&t=15470#p122993 (post #7 in topic "Extra Line in Models")
+    import itertools
+    seams = []
+    for w in shape.Wires:
+        for (e1,e2) in itertools.combinations(w.childShapes(),2):
+            if e1.isSame(e2):
+                seams.append(e1)
+    return seams
 
 
 # -------------------------- common stuff --------------------------------------------------
@@ -47,7 +59,7 @@ def makeLatticeDowngrade(name):
 class _latticeDowngrade:
     "The latticeDowngrade object"
     
-    _DowngradeModeList = ['Leaves','CompSolids','Solids','Shells','OpenWires','Faces','Wires','Edges','Vertices']
+    _DowngradeModeList = ['Leaves','CompSolids','Solids','Shells','OpenWires','Faces','Wires','Edges','Seam edges','Non-seam edges','Vertices']
     
     def __init__(self,obj):
         self.Type = "latticeDowngrade"
@@ -94,6 +106,20 @@ class _latticeDowngrade:
             rst = shp.Wires
         elif obj.Mode == 'Edges':
             rst = shp.Edges
+        elif obj.Mode == 'Seam edges':
+            rst = getAllSeams(shp)
+        elif obj.Mode == 'Non-seam edges':
+            seams = getAllSeams(shp)
+            edges = shp.Edges
+            rst = []
+            for e in edges:
+                bIsSeam = False
+                for s in seams:
+                    if e.isSame(s):
+                        bIsSeam = True
+                        break
+                if not bIsSeam:
+                    rst.append(e)
         elif obj.Mode == 'Vertices':
             rst = shp.Vertexes
         else:
