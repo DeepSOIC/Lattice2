@@ -270,7 +270,8 @@ class _CommandMakeLockerObj:
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_MakeFeature.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Make recompute locker object"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Make recompute locker object. Doing this is necessary to enable recompute locking hacktionality.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Make recompute locker object. Doing this is necessary to enable recompute locking hacktionality."),
+                'CmdType':"ForEdit"}
         
     def Activated(self):
         if getLocker() is None:
@@ -295,7 +296,8 @@ class _CommandLockRecomputes:
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_LockRecomputes.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Lock recomputes"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Lock recomputes: prevent FreeCAD's automatic recomputes.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Lock recomputes: prevent FreeCAD's automatic recomputes."),
+                'CmdType':"ForEdit"}
         
     def Activated(self):
         if getLocker() is not None:
@@ -320,7 +322,8 @@ class _CommandUnlockRecomputes:
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_UnlockRecomputes.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Unlock recomputes"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Unlock recomputes: switch on FreeCAD's automatic recomputes.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Unlock recomputes: switch on FreeCAD's automatic recomputes."),
+                'CmdType':"ForEdit"}
         
     def Activated(self):
         if getLocker() is not None:
@@ -345,7 +348,8 @@ class _CommandRecomputeFeature:
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_RecomputeFeature.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Recompute feature"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","RecomputeFeature: recompute selected objects.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","RecomputeFeature: recompute selected objects."),
+                'CmdType':"ForEdit"}
         
     def Activated(self):
         sel = FreeCADGui.Selection.getSelectionEx()
@@ -372,7 +376,8 @@ class _CommandRecomputeDocument:
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_RecomputeDocument.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Recompute document"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Recompute document: recompute the document, ignoring that recomputes are locked.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Recompute document: recompute the document, ignoring that recomputes are locked."),
+                'CmdType':"ForEdit"}
         
     def Activated(self):
         try:
@@ -395,7 +400,8 @@ class _CommandForceRecompute:
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_ForceRecompute.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Force recompute"),
                 'Accel': "Shift+F5",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Force recompute: recompute all features in the document.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Force recompute: recompute all features in the document."),
+                'CmdType':"ForEdit"}
         
     def Activated(self):
         try:
@@ -420,7 +426,8 @@ class _CommandTouch:
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_Touch.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Touch selected features"),
                 'Accel': "Shift+F5",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Touch selected features: mark selected features as needing recomputing.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Touch selected features: mark selected features as needing recomputing."),
+                'CmdType':"ForEdit"}
         
     def Activated(self):
         FreeCADGui.addModule("lattice2RecomputeLocker")
@@ -470,7 +477,8 @@ class CommandRecomputeGroup:
 
     def GetResources(self):
         return { 'MenuText': 'Lattice recompute control:', 
-                 'ToolTip': 'Document recompute controlling tools from Lattice2 workbench'}
+                 'ToolTip': 'Document recompute controlling tools from Lattice2 workbench',
+                 'CmdType':"ForEdit"}
         
     def IsActive(self): # optional
         return App.ActiveDocument is not None
