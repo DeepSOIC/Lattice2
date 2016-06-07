@@ -103,7 +103,7 @@ class ViewProviderLatticeSlice:
         vobj.Proxy = self
        
     def getIcon(self):
-        return getIconPath("Lattice2Slice.svg")
+        return getIconPath("Lattice2_Slice.svg")
 
     def attach(self, vobj):
         self.ViewObject = vobj
@@ -153,7 +153,7 @@ def CreateLatticeSlice(name):
 class CommandLatticeSlice:
     "Command to create LatticeSlice feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice2Slice.svg"),
+        return {'Pixmap'  : getIconPath("Lattice2_Slice.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2Slice","Slice"),
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2Slice","Lattice Slice: Split object by cutting it with another object, and pack resulting pieces as compound.")}
