@@ -69,6 +69,7 @@ class Lattice2Workbench (Workbench):
             + Lattice2.CompoundFeatures.MakeCompound.exportedCommands
             + Lattice2.CompoundFeatures.CompoundFilter.exportedCommands
             + Lattice2.CompoundFeatures.FuseCompound.exportedCommands        
+            + Lattice2.CompoundFeatures.Slice.exportedCommands        
             + Lattice2.CompoundFeatures.BoundBox.exportedCommands
             + Lattice2.CompoundFeatures.ShapeString.exportedCommands
             + Lattice2.CompoundFeatures.ParaSeries.exportedCommands
