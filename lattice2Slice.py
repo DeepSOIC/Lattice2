@@ -55,6 +55,7 @@ class LatticeSlice:
         rst = []
         pieces = LCE.AllLeaves(obj.Base.Shape)
         cutters = LCE.AllLeaves(obj.Tool.Shape)
+        # prepare cutter shapes by converting them to solids
         cutters_solids = []
         for cutter in cutters:
             if cutter.ShapeType == "Face":
@@ -66,13 +67,14 @@ class LatticeSlice:
                 cutters_solids.append(cutter)
             else:
                 raise TypeError("Cannot slice with shape of type '{typ}'".format(typ= cutter.ShapeType))
+        # cut everything successively with one cutter at a time
         for cutter in cutters_solids:
             pieces_old = pieces
             pieces = []
             for piece in pieces_old:
                 pieces_1 = LCE.AllLeaves(piece.cut(cutter))
                 pieces_2 = LCE.AllLeaves(piece.common(cutter))
-                # when curring with shells, and object doesn't intersect cutter, duplicates are sometimes produced. This is probably as occ bug. 
+                # when cutting with shells, and object doesn't intersect cutter, duplicates are sometimes produced. This is probably as occ bug. 
                 # But we can filter the duplicates out. The trick is to test, if the result of a cut is the same as the original, which can be done by simply comparing masses.
                 pieces_12 = pieces_1+pieces_2
                 all_same = True
