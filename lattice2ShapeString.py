@@ -89,6 +89,9 @@ class FoolFeatureDocumentObject:
         setattr(self,propname,None)
         self.properties.append((proptype, propname, group, hint))
     
+    def positionBySupport(self):
+        return False
+    
 
 class LatticeShapeString:
     "The LatticeShapeString object"
