@@ -62,7 +62,10 @@ class ViewProviderAttachablePlacement(lattice2BaseFeature.ViewProviderLatticeFea
 
     def setEdit(self,vobj,mode):
         import PartGui
-        PartGui.AttachmentEditor.editAttachment(self.Object)
+        import FreeCADGui as Gui
+        PartGui.AttachmentEditor.editAttachment(self.Object, 
+                                                callback_OK= lambda: Gui.ActiveDocument.resetEdit(),
+                                                callback_Cancel= lambda: Gui.ActiveDocument.resetEdit())
         return True
     
     def unsetEdit(self,vobj,mode):
