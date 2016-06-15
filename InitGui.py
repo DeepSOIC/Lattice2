@@ -49,6 +49,7 @@ class Lattice2Workbench (Workbench):
         import Lattice2
         cmdsArrayTools = ([]
             + Lattice2.ArrayFeatures.Placement.exportedCommands
+            + Lattice2.ArrayFeatures.AttachablePlacement.exportedCommands
             + Lattice2.ArrayFeatures.LinearArray.exportedCommands
             + Lattice2.ArrayFeatures.PolarArray.exportedCommands
             + Lattice2.ArrayFeatures.ArrayFromShape.exportedCommands
