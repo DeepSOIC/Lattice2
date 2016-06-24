@@ -36,20 +36,20 @@ def touch(obj):
     if hasattr(obj,"Proxy"):
         #fixes mystery crash when touching recomputeLocker when it's locked
         return
-    
+        
     # the workaround is to reassign some properties...
     for propname in obj.PropertiesList:
         typ = obj.getTypeIdOfProperty(propname)
         val = getattr(obj,propname)
         if typ == 'App::PropertyLink': 
             setattr(obj,propname,val)
-        elif typ == 'App::PropertyLinkSub':
+        elif typ == 'App::PropertyLinkSub': 
             #val is (feature,["Edge1","Face2"])
             setattr(obj,propname,val)
         elif typ == 'App::PropertyLinkList':
             setattr(obj,propname,val)
-        elif typ == 'App::PropertyLinkSubList':
-            setattr(obj,propname,val)
+        #elif typ == 'App::PropertyLinkSubList': #disabled due to FreeCAD bug #2602
+        #    setattr(obj,propname,val)
 
 def touchEverything(doc):
     touch_count = 0
