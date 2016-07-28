@@ -141,17 +141,17 @@ class LatticeFeature():
                     obj.Placement = App.Placement()
             
             if bExposing:
-                obj.Shape = marker.copy()
+                obj.Shape = shallow_copy(marker)
                 obj.Placement = plms[0]
             else:
                 for plm in plms:
-                    sh = marker.copy()
+                    sh = shallow_copy(marker)
                     sh.Placement = plm
                     shapes.append(sh)
                     
                 if len(shapes) == 0:
                     obj.Shape = lattice2Markers.getNullShapeShape(markerSize)
-                    raise ValueError('Lattice object is null') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
+                    raise ValueError('Lattice object is null') 
                 
                 sh = Part.makeCompound(shapes)
                 obj.Shape = sh

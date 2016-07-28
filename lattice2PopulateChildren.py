@@ -106,7 +106,7 @@ class LatticePopulateChildren(lattice2BaseFeature.LatticeFeature):
                 objectPlm = objectPlms[iChild]
                 outputPlms.append(plm.multiply(objectPlm))
             else:
-                outputShape = objectShapes[iChild].copy()
+                outputShape = shallow_copy(objectShapes[iChild])
                 outputShape.Placement = plm.multiply(outputShape.Placement)
                 outputShapes.append(outputShape)
             

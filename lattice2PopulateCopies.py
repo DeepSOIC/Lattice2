@@ -127,7 +127,7 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
                 for objectPlm in objectPlms:
                     outputPlms.append(plm.multiply(objectPlm))
             else:
-                outputShape = objectShape.copy()
+                outputShape = shallow_copy(objectShape)
                 outputShape.Placement = plm.multiply(outputShape.Placement)
                 outputShapes.append(outputShape)
             
