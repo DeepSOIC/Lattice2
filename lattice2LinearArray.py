@@ -80,7 +80,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
 
     def updateReadonlyness(self, obj):
         obj.setEditorMode("Dir", 1 if (obj.Link and obj.DirIsDriven) else 0)
-        obj.setEditorMode("Point", 1 if (obj.Link and not obj.PointIsDriven) else 0)
+        obj.setEditorMode("Point", 1 if (obj.Link and obj.PointIsDriven) else 0)
         obj.setEditorMode("DirIsDriven", 0 if obj.Link else 1)
         obj.setEditorMode("PointIsDriven", 0 if obj.Link else 1)
         obj.setEditorMode("DrivenProperty", 0 if obj.Link else 1)
