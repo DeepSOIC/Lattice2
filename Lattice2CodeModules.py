@@ -6,3 +6,4 @@ import lattice2GeomUtils as GeomUtils
 import lattice2InterpolatorUtil as InterpolatorUtil
 import lattice2Markers as Markers
 import lattice2ValueSeriesGenerator as ValueSeriesGenerator
+import lattice2ShapeCopy as ShapeCopy

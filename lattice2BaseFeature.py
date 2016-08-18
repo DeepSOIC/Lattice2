@@ -32,6 +32,7 @@ from lattice2Common import *
 import lattice2CompoundExplorer as LCE
 import lattice2Markers
 import lattice2Executer
+from lattice2ShapeCopy import shallowCopy
 
 
 def getDefLatticeFaceColor():
@@ -111,6 +112,21 @@ class LatticeFeature():
         self.derivedInit(obj)
         
         obj.Proxy = self
+        
+    def assureProperty(self, selfobj, proptype, propname, defvalue, group, tooltip):
+        """assureProperty(selfobj, proptype, propname, defvalue, group, tooltip): adds
+        a property if one is missing, and sets its value to default. Does nothing if property 
+        already exists. Returns True if property was created, or False if not."""
+        
+        if hasattr(selfobj, propname):
+            #todo: check type match
+            return False
+            
+        selfobj.addProperty(proptype, propname, group, tooltip)
+        if defvalue is not None:
+            setattr(selfobj, propname, defvalue)
+        return True
+
 
         
     def derivedInit(self, obj):
@@ -141,11 +157,11 @@ class LatticeFeature():
                     obj.Placement = App.Placement()
             
             if bExposing:
-                obj.Shape = shallow_copy(marker)
+                obj.Shape = shallowCopy(marker)
                 obj.Placement = plms[0]
             else:
                 for plm in plms:
-                    sh = shallow_copy(marker)
+                    sh = shallowCopy(marker)
                     sh.Placement = plm
                     shapes.append(sh)
                     

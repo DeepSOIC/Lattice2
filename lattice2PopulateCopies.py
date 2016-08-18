@@ -34,6 +34,7 @@ from lattice2Common import *
 import lattice2BaseFeature
 import lattice2CompoundExplorer as LCE
 import lattice2Executer
+import lattice2ShapeCopy as ShapeCopy
 
 # ---------------------------shared code--------------------------------------
 def DereferenceArray(obj,placements, lnkFrom, refmode):
@@ -100,6 +101,9 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
             obj.addProperty("App::PropertyEnumeration", propname, "Lattice PopulateCopies","In case single object copy is made, this property controls, if it's packed into compoud or not.")
             setattr(obj,propname,["(autosettle)","always", "only if many"])
             setattr(obj,propname,"always") # this is to match the old behavior. This is not the default setting for new features.
+        if self.assureProperty(obj, "App::PropertyEnumeration","Copying", ShapeCopy.copy_types, "Lattice PopulateChildren", "Sets, what method to use for copying shapes."):
+            self.Copying = ShapeCopy.copy_types[0]
+
 
     def derivedExecute(self,obj):
         self.assureProperties(obj)
@@ -119,6 +123,8 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         # initialize output containers and loop variables
         outputShapes = [] #output list of shapes
         outputPlms = [] #list of placements
+        copy_method_index = ShapeCopy.getCopyTypeIndex(obj.Copying)
+
         
         # the essence
         for plm in placements:
@@ -127,8 +133,8 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
                 for objectPlm in objectPlms:
                     outputPlms.append(plm.multiply(objectPlm))
             else:
-                outputShape = shallow_copy(objectShape)
-                outputShape.Placement = plm.multiply(outputShape.Placement)
+                outputShape = ShapeCopy.copyShape(objectShape, copy_method_index, plm)
+                #outputShape.Placement = plm.multiply(outputShape.Placement) # now handled by copyShape
                 outputShapes.append(outputShape)
             
         if outputIsLattice:
@@ -144,8 +150,7 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
             #now, set the result shape
             if len(outputShapes) == 1 and obj.OutputCompounding == "only if many":
                 sh = outputShapes[0]
-                sh.transformShape(sh.Placement.toMatrix(),True) #True = make copy
-                sh.Placement = App.Placement()
+                sh = ShapeCopy.transformCopy(sh)
                 obj.Shape = sh
             else:
                 obj.Shape = Part.makeCompound(outputShapes)
