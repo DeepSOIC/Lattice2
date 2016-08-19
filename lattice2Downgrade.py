@@ -91,11 +91,8 @@ class _latticeDowngrade:
             for shell in shells:
                 openEdges = shell.getFreeEdges().childShapes()
                 if len(openEdges) > 1: # edges need to be fused into wires
-                    wires = openEdges[0].multiFuse(openEdges[1:])
-                    if wires.ShapeType == 'Compound':
-                        wires = wires.childShapes()
-                    else:
-                        wires = [wires]
+                    clusters = Part.getSortedClusters(openEdges)
+                    wires = [Part.Wire(cluster) for cluster in clusters]
                 else: 
                     wires = openEdges
                 openWires.extend(wires)
