@@ -67,7 +67,7 @@ def transformCopy(shape, extra_placement = None):
     if extra_placement is None:
         extra_placement = FreeCAD.Placement()
     ret = shape.copy()
-    ret.transformShape(extra_placement.multiply(ret.Placement).toMatrix())
+    ret.transformShape(extra_placement.multiply(ret.Placement).toMatrix(), True)
     ret.Placement = FreeCAD.Placement() #reset placement
     return ret
 
