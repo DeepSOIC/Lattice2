@@ -63,7 +63,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
 
         obj.addProperty("App::PropertyEnumeration","DrivenProperty","Lattice Array","Select, which property is to be driven by length of axis link.")
         obj.DrivenProperty = ['None','Span','SpanStart','SpanEnd','Step']
-        obj.DrivenProperty = 'Step'
+        obj.DrivenProperty = 'Span'
                         
         obj.addProperty("App::PropertyEnumeration","OrientMode","Lattice Array","Orientation of elements")
         obj.OrientMode = ['None','Along axis']
@@ -176,7 +176,7 @@ class ViewProviderLinearArray(lattice2BaseFeature.ViewProviderLatticeFeature):
 
 # -------------------------- Gui command --------------------------------------------------
 
-def CreateLinearArray(name):
+def CreateLinearArray(name, mode):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create LinearArray")
     FreeCADGui.addModule("lattice2LinearArray")
@@ -186,38 +186,70 @@ def CreateLinearArray(name):
         FreeCADGui.doCommand("f.Link = App.ActiveDocument."+sel[0].ObjectName)
         if sel[0].HasSubObjects:
             FreeCADGui.doCommand("f.LinkSubelement = '"+sel[0].SubElementNames[0]+"'")
+    FreeCADGui.doCommand("f.GeneratorMode = {mode}".format(mode= repr(mode)))
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
-    FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()
+    
+    FreeCADGui.doCommand("Gui.Selection.clearSelection()")
+    FreeCADGui.doCommand("Gui.Selection.addSelection(f)")
 
-
-class _CommandLinearArray:
+class CommandLinearArray:
     "Command to create LinearArray feature"
+    def __init__(self, mode):
+        self.mode = mode
+    
     def GetResources(self):
+        mode_tooltips = {
+            'SpanN': "fit N placements into Span",
+            'StepN': "make N placements spaced by Step",
+            'SpanStep': "fill Span with placements spaced by Step",
+            'Random': "put N placements into Span randomly",
+        }
         return {'Pixmap'  : getIconPath("Lattice2_LinearArray_New.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_LinearArray","Generate linear array"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_LinearArray","Linear array: {mode}")
+                              .format(mode= ValueSeriesGenerator.mode_userfriendly_names[self.mode]),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_LinearArray","Make a linear array lattice object (array of placements)")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_LinearArray","Make a linear array of placements ({mode_tooltip})")
+                              .format(mode_tooltip= mode_tooltips[self.mode])}
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) < 2 :
-            CreateLinearArray(name = "LinearArray")
+            try:
+                CreateLinearArray(name= "LinearArray", mode= self.mode)
+            except Exception as err:
+                msgError(err)
         else:
-            mb = QtGui.QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice2_LinearArray", "Either don't select anything, or select a linear edge to serve an axis. More than one object was selected, not supported.", None))
-            mb.setWindowTitle(translate("Lattice2_LinearArray","Bad selection", None))
-            mb.exec_()
-            
+            infoMessage(translate("Lattice2_LinearArray","Bad selection", None),
+                        translate("Lattice2_LinearArray", "Either don't select anything, or select a linear edge to serve an axis. More than one object was selected, not supported.", None))
+
     def IsActive(self):
         if FreeCAD.ActiveDocument:
             return True
         else:
             return False
-            
-FreeCADGui.addCommand('Lattice2_LinearArray', _CommandLinearArray())
 
-exportedCommands = ['Lattice2_LinearArray']
+_listOfSubCommands = []
+for m in ValueSeriesGenerator.gen_modes:
+    cmd_name = 'Lattice2_LinearArray_'+m
+    _listOfSubCommands.append(cmd_name)
+    FreeCADGui.addCommand(cmd_name, CommandLinearArray(m))
+
+class GroupCommandLinearArray:
+    def GetCommands(self):
+        global _listOfSubCommands
+        return tuple(_listOfSubCommands) # a tuple of command names that you want to group
+
+    def GetDefaultCommand(self): # return the index of the tuple of the default command. This method is optional and when not implemented '0' is used  
+        return 0
+
+    def GetResources(self):
+        return { 'MenuText': 'Linear Array', 'ToolTip': 'Linear Array: array of placements on a line.'}
+        
+    def IsActive(self): # optional
+        return FreeCAD.ActiveDocument is not None
+
+FreeCADGui.addCommand('Lattice2_LinearArray_GroupCommand',GroupCommandLinearArray())
+exportedCommands = ['Lattice2_LinearArray_GroupCommand']
 
 # -------------------------- /Gui command --------------------------------------------------
 

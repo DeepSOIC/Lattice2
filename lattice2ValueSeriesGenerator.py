@@ -31,13 +31,20 @@ import lattice2Executer
 from lattice2Common import ParaConfusion
 
 class ValueSeriesGenerator:
+    mode_userfriendly_names = {
+        'SpanN': "Span / N",
+        'StepN': "N * Step",
+        'SpanStep': "Span / Step",
+        'Random': "random",
+    }
+    gen_modes = ['SpanN','StepN','SpanStep', 'Random']
     def __init__(self, docObj):
         self.documentObject = docObj
         self.source_modes = ["Values Property","Spreadsheet", "Generator"]
-        self.gen_modes = ['SpanN','StepN','SpanStep', 'Random']
         self.gen_laws = ['Linear','Exponential']
         self.alignment_modes = ['Low', 'Center', 'High', 'Justify', 'Mirrored']
         self.readonlynessDict = {} # key = property name (string). Value = boolean (True == writable, non-readonly). Stores property read-only status requested by external code.
+        
         
     def addProperties(self, groupname, groupname_gen, valuesdoc, valuestype = 'App::PropertyFloat'):
         #    _addProperty(proptype                  , propname        , defvalue, group, tooltip)
