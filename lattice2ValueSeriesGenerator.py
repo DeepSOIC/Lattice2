@@ -36,7 +36,8 @@ class ValueSeriesGenerator:
         self.source_modes = ["Values Property","Spreadsheet", "Generator"]
         self.gen_modes = ['SpanN','StepN','SpanStep', 'Random']
         self.gen_laws = ['Linear','Exponential']
-        self.readonlynessDict = {}
+        self.alignment_modes = ['Low', 'Center', 'High', 'Justify', 'Mirrored']
+        self.readonlynessDict = {} # key = property name (string). Value = boolean (True == writable, non-readonly). Stores property read-only status requested by external code.
         
     def addProperties(self, groupname, groupname_gen, valuesdoc, valuestype = 'App::PropertyFloat'):
         #    _addProperty(proptype                  , propname        , defvalue, group, tooltip)
@@ -51,6 +52,7 @@ class ValueSeriesGenerator:
         self._addProperty(valuestype                ,"SpanStart"      , 1.0, groupname_gen, "Starting value for value series generator")
         self._addProperty(valuestype                ,"SpanEnd"        , 7.0, groupname_gen, "Ending value for value series generator")
         self._addProperty("App::PropertyBool"       ,"EndInclusive"   , True, groupname_gen, "If True, the last value in series will equal SpanEnd. If False, the value equal to SpanEnd will be dropped.")
+        self._addProperty("App::PropertyEnumeration","Alignment"      , self.alignment_modes,groupname_gen, "Sets how to align the values within span.")
         self._addProperty("App::PropertyFloat"      ,"Step"           , 1.0, groupname_gen, "Step for value generator. For exponential law, it is a natural logarithm of change ratio.") # using float for Step, because step's unit depends n selected distribution law
         self._addProperty("App::PropertyFloat"      ,"Count"          , 7.0, groupname_gen, "Number of values to generate")
         self._addProperty("App::PropertyFloat"      ,"Offset"         , 0.0, groupname_gen, "Extra offset for the series, expressed as fraction of step.")
@@ -78,6 +80,7 @@ class ValueSeriesGenerator:
         self._setPropertyWritable("SpanStart"       , not self.isPropertyControlledByGenerator("SpanStart"      )  )
         self._setPropertyWritable("SpanEnd"         , not self.isPropertyControlledByGenerator("SpanEnd"        )  )
         self._setPropertyWritable("EndInclusive"    , not self.isPropertyControlledByGenerator("EndInclusive"   )  )
+        self._setPropertyWritable("Alignment"       , not self.isPropertyControlledByGenerator("Alignment"      ) and m != "Random" )
         self._setPropertyWritable("Step"            , not self.isPropertyControlledByGenerator("Step"           )  )
         self._setPropertyWritable("Count"           , not self.isPropertyControlledByGenerator("Count"          )  )
         self._setPropertyWritable("Offset"          , not self.isPropertyControlledByGenerator("Offset"         )  )
@@ -180,7 +183,35 @@ class ValueSeriesGenerator:
                 import random
                 list_evenDistrib = [vStart + vOffset*vStep + (vEnd-vStart)*random.random() for i in range(0, n)]
             else:
-                list_evenDistrib = [vStart + vOffset*vStep + vStep*i for i in range(0, n)]
+                # preprocess for alignment
+                alignment_offset = 0.0
+                vStep_justified = vStep
+                if obj.Alignment != "Low" and n>0:
+                    v_first = vStart
+                    v_last = vStep*(n)   if obj.Alignment == "Justify" and obj.EndInclusive == False else    vStep*(n-1)
+                    if obj.Alignment == "High":
+                        alignment_offset = (vEnd-v_last)
+                    elif obj.Alignment == "Center":
+                        alignment_offset = (vEnd-v_last)*0.5
+                    elif obj.Alignment == "Justify":
+                        #replica of SpanN logic
+                        n_tmp = n
+                        if obj.EndInclusive:
+                            n_tmp -= 1
+                        if n_tmp == 0:
+                            n_tmp = 1 #justify failed!
+                        vStep_justified = (vEnd - vStart)/n_tmp
+                        
+                list_evenDistrib = [vStart + vOffset*vStep + alignment_offset + vStep_justified*i for i in range(0, n)]
+                
+                #post-process alignment
+                if obj.Alignment == "Mirrored":
+                    new_list = []
+                    for v in list_evenDistrib:
+                        new_list.append(v)
+                        if v > 1e-12:
+                            new_list.append(-v)
+                    list_evenDistrib = new_list
                 
             if obj.DistributionLaw == 'Linear':
                 values = list_evenDistrib
