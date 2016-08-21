@@ -41,6 +41,14 @@ class ValueSeriesGenerator:
         
     def addProperties(self, groupname, groupname_gen, valuesdoc, valuestype = 'App::PropertyFloat'):
         #    _addProperty(proptype                  , propname        , defvalue, group, tooltip)
+        
+        # first, try to guess interface version. If we are re-adding properties to old feature, 
+        # it already has some other properties, but not Version. So we should default to 0 
+        # in this case. Therwise the Version property already exists, so default desn't matter; 
+        # or we are creating a new generator, so default to 1.
+        self._addProperty("App::PropertyInteger"    ,"VSGVersion"     , 0 if hasattr(self.documentObject, "Values") else 1 , groupname_gen, "Interface version")
+        self.documentObject.setEditorMode("VSGVersion", 2) #hide this property
+        
         self._addProperty("App::PropertyStringList" ,"Values"         , None, groupname, valuesdoc)
         self._addProperty("App::PropertyEnumeration","ValuesSource"   , self.source_modes, groupname, "Select where to take the value series from.")
         self._addProperty("App::PropertyLink"       ,"SpreadsheetLink", None, groupname, "Link to spreadsheet to take values from.")
@@ -56,7 +64,7 @@ class ValueSeriesGenerator:
         self._addProperty("App::PropertyFloat"      ,"Step"           , 1.0, groupname_gen, "Step for value generator. For exponential law, it is a natural logarithm of change ratio.") # using float for Step, because step's unit depends n selected distribution law
         self._addProperty("App::PropertyFloat"      ,"Count"          , 7.0, groupname_gen, "Number of values to generate")
         self._addProperty("App::PropertyFloat"      ,"Offset"         , 0.0, groupname_gen, "Extra offset for the series, expressed as fraction of step.")
-    
+            
     def _addProperty(self, proptype, propname, defvalue, group, tooltip):
         if hasattr(self.documentObject, propname):
             return
@@ -99,7 +107,7 @@ class ValueSeriesGenerator:
         if propname == "SpanStart": 
             return False
         elif propname == "SpanEnd":
-            return m == "StepN"
+            return False
         elif propname == "Step":
             return m == "SpanN"
         elif propname == "Count":
@@ -148,16 +156,21 @@ class ValueSeriesGenerator:
                 vStep = (vEnd - vStart)/n
                 obj.Step = vStep
             elif obj.GeneratorMode == 'StepN':
-                n = obj.Count
-                if obj.EndInclusive:
-                    n -= 1
-                vEnd = vStart + float(vStep)*n
-                if obj.DistributionLaw == 'Linear':
-                    obj.SpanEnd = vEnd
-                elif obj.DistributionLaw == 'Exponential':
-                    obj.SpanEnd = math.exp(vEnd)*vSign
+                if obj.VSGVersion < 1:
+                    #old behavior: update span to match the end of array
+                    n = obj.Count
+                    if obj.EndInclusive:
+                        n -= 1
+                    vEnd = vStart + float(vStep)*n
+                    if obj.DistributionLaw == 'Linear':
+                        obj.SpanEnd = vEnd
+                    elif obj.DistributionLaw == 'Exponential':
+                        obj.SpanEnd = math.exp(vEnd)*vSign
+                    else:
+                        raise ValueError(obj.Name+": distribution law not implemented: "+obj.DistributionLaw)
                 else:
-                    raise ValueError(obj.Name+": distribution law not implemented: "+obj.DistributionLaw)
+                    # new behavior: keep span intact, as it can be used for alignment
+                    pass
             elif obj.GeneratorMode == 'SpanStep':
                 nfloat = float((vEnd - vStart) / vStep)
                 n = math.trunc(nfloat - ParaConfusion) + 1
