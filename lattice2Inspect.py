@@ -72,21 +72,24 @@ class _CommandInspect:
         if not hasattr(sel.Object,"Shape"):
             strStructure = ["<object has no shape!>"]
         else:
-            for (child, msg, it) in LCE.CompoundExplorer(sel.Object.Shape):
-                #child is a shape. 
-                #msg is int equal to one of three constants:
-                #    CompoundExplorer.MSG_LEAF  - child is a leaf (non-compound)
-                #    CompoundExplorer.MSG_DIVEDOWN  - child is a compound that is about to be traversed
-                #    CompoundExplorer.MSG_BUBBLEUP  - child is a compound that was just finished traversing        
-                #it is reference to iterator class (can be useful to extract current depth, or index stack)
-                if msg == LCE.CompoundExplorer.MSG_LEAF or msg == LCE.CompoundExplorer.MSG_DIVEDOWN:
-                    try:
-                        strMsg =  '    ' * it.curDepth() + shapeInfoString(child)
-                        if msg == LCE.CompoundExplorer.MSG_DIVEDOWN:
-                            strMsg += ":"
-                    except Exception as err:
-                        strMsg = "ERROR: " + err.message
-                    strStructure.append(unicode(strMsg))
+            if sel.Object.Shape.isNull():
+                strStructure.append(unicode("<NULL SHAPE!>"))
+            else:
+                for (child, msg, it) in LCE.CompoundExplorer(sel.Object.Shape):
+                    #child is a shape. 
+                    #msg is int equal to one of three constants:
+                    #    CompoundExplorer.MSG_LEAF  - child is a leaf (non-compound)
+                    #    CompoundExplorer.MSG_DIVEDOWN  - child is a compound that is about to be traversed
+                    #    CompoundExplorer.MSG_BUBBLEUP  - child is a compound that was just finished traversing        
+                    #it is reference to iterator class (can be useful to extract current depth, or index stack)
+                    if msg == LCE.CompoundExplorer.MSG_LEAF or msg == LCE.CompoundExplorer.MSG_DIVEDOWN:
+                        try:
+                            strMsg =  '    ' * it.curDepth() + shapeInfoString(child)
+                            if msg == LCE.CompoundExplorer.MSG_DIVEDOWN:
+                                strMsg += ":"
+                        except Exception as err:
+                            strMsg = "ERROR: " + err.message
+                        strStructure.append(unicode(strMsg))
             
         strSubInfo = []
         if sel.HasSubObjects:
@@ -115,7 +118,11 @@ class _CommandInspect:
         allText += u'\n'.join(strStructure)
         mb = QtGui.QMessageBox()
         mb.setIcon(mb.Icon.Information)
-        mb.setText(allText)
+        lines = allText.split(u"\n") 
+        if len(lines)>30:
+            lines = lines[0:30]
+            lines.append(u"...")
+        mb.setText(u"\n".join(lines))
         mb.setWindowTitle(translate("Lattice2_Inspect","Selection info", None))
         
         btnClose = mb.addButton(QtGui.QMessageBox.StandardButton.Close)
