@@ -35,6 +35,7 @@ import lattice2BaseFeature
 import lattice2CompoundExplorer as LCE
 import lattice2Executer
 from lattice2PopulateCopies import DereferenceArray
+import lattice2ShapeCopy as ShapeCopy
 
 # -------------------------- document object --------------------------------------------------
 
@@ -62,9 +63,17 @@ class LatticePopulateChildren(lattice2BaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyLink","PlacementsTo","Lattice PopulateChildren", "Placement or array of placements, containing target locations.")
         obj.addProperty("App::PropertyLink","PlacementsFrom", "Lattice PopulateChildren","Placement or array of placements to be treated as origins for PlacementsTo.")
+        
+        self.initNewProperties(obj)
 
+    def initNewProperties(self, obj):
+        # properties that can be missing on objects made with earlier version of Lattice2
+        if self.assureProperty(obj, "App::PropertyEnumeration","Copying", ShapeCopy.copy_types, "Lattice PopulateChildren", "Sets, what method to use for copying shapes."):
+            self.Copying = ShapeCopy.copy_types[0]
 
     def derivedExecute(self,obj):
+        
+        self.initNewProperties(obj)
         
         outputIsLattice = lattice2BaseFeature.isObjectLattice(obj.Object)
         
@@ -84,13 +93,13 @@ class LatticePopulateChildren(lattice2BaseFeature.LatticeFeature):
         
         # Precompute referencing
         placements = DereferenceArray(obj, placements, obj.PlacementsFrom, obj.Referencing)
-        
-        
+                
         # initialize output containers and loop variables
         outputShapes = [] #output list of shapes
         outputPlms = [] #list of placements
         iChild = 0
         numChildren = len(objectPlms) if outputIsLattice else len(objectShapes) 
+        copy_method_index = ShapeCopy.getCopyTypeIndex(obj.Copying)
         
         # the essence
         for iPlm in range(len(placements)):
@@ -106,8 +115,8 @@ class LatticePopulateChildren(lattice2BaseFeature.LatticeFeature):
                 objectPlm = objectPlms[iChild]
                 outputPlms.append(plm.multiply(objectPlm))
             else:
-                outputShape = objectShapes[iChild].copy()
-                outputShape.Placement = plm.multiply(outputShape.Placement)
+                outputShape = ShapeCopy.copyShape(objectShapes[iChild], copy_method_index, plm)
+                # outputShape.Placement = plm.multiply(outputShape.Placement) #now done by shape copy routine
                 outputShapes.append(outputShape)
             
             iChild += 1

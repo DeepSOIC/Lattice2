@@ -80,7 +80,7 @@ def deselect(sel):
     '''deselect(sel): remove objects in sel from selection'''
     for selobj in sel:
         FreeCADGui.Selection.removeSelection(selobj.Object)
-
+        
 # OCC's Precision::Confusion; should have taken this from FreeCAD but haven't found; unlikely to ever change.
 DistConfusion = 1e-7
 ParaConfusion = 1e-8
