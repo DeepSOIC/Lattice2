@@ -220,7 +220,7 @@ class CommandLinearArray:
                 msgError(err)
         else:
             infoMessage(translate("Lattice2_LinearArray","Bad selection", None),
-                        translate("Lattice2_LinearArray", "Either don't select anything, or select a linear edge to serve an axis. More than one object was selected, not supported.", None))
+                        translate("Lattice2_LinearArray", "Either don't select anything, or select a linear edge to serve an axis. You have selected more than one object - too much.", None))
 
     def IsActive(self):
         if FreeCAD.ActiveDocument:
