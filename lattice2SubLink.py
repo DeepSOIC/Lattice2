@@ -29,6 +29,7 @@ from lattice2Common import *
 from lattice2BaseFeature import isObjectLattice
 import lattice2Markers as markers
 import FreeCAD as App
+import lattice2ShapeCopy as ShapeCopy
 
 # -------------------------- feature --------------------------------------------------
 
@@ -92,7 +93,7 @@ class LatticeSubLink:
         else: # don't make compound of one shape, output it directly
             sh = rst[0]
             # absorb placement of original shape
-            sh.transformShape(sh.Placement.toMatrix(),True) #True = make copy
+            sh = ShapeCopy.transformCopy(sh)
             # apply Placement that is filled into feature's Placement property (not necessary)
             sh.Placement = selfobj.Placement
             selfobj.Shape = sh

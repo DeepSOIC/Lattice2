@@ -27,6 +27,7 @@ __url__ = ""
 __doc__ = "Utility methods to copy shapes"
 
 import FreeCAD
+import Part
 
 def shallowCopy(shape, extra_placement = None):
     """shallowCopy(shape, extra_placement = None): creates a shallow copy of a shape. The 
@@ -67,8 +68,12 @@ def transformCopy(shape, extra_placement = None):
     if extra_placement is None:
         extra_placement = FreeCAD.Placement()
     ret = shape.copy()
-    ret.transformShape(extra_placement.multiply(ret.Placement).toMatrix(), True)
-    ret.Placement = FreeCAD.Placement() #reset placement
+    if ret.ShapeType == "Vertex":
+        # oddly, on Vertex, transformShape behaves strangely. So we'll create a new vertex instead.
+        ret = Part.Vertex(extra_placement.multVec(ret.Point))
+    else:
+        ret.transformShape(extra_placement.multiply(ret.Placement).toMatrix(), True)
+        ret.Placement = FreeCAD.Placement() #reset placement
     return ret
 
     

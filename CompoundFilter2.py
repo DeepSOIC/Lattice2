@@ -23,6 +23,8 @@
 
 from lattice2Common import *
 import lattice2Markers as markers
+import lattice2ShapeCopy as ShapeCopy
+
 import math
 
 import FreeCAD as App
@@ -165,8 +167,8 @@ class _CompoundFilter:
             obj.Shape = Part.makeCompound(rst)
         else: # don't make compound of one shape, output it directly
             sh = rst[0]
-            sh.transformShape(sh.Placement.toMatrix(),True) #True = make copy
-            sh.Placement = App.Placement()
+            sh = ShapeCopy.transformCopy(sh)
+            sh.Placement = obj.Placement
             obj.Shape = sh
             
         return
