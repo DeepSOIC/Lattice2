@@ -34,8 +34,14 @@ from lattice2Common import *
 import lattice2BaseFeature
 
 def makeAttachablePlacement(name):
-    '''makePlacement(name): makes a Placement object.'''
-    obj = FreeCAD.ActiveDocument.addObject("Part::AttachableObjectPython",name)
+    '''makeAttachablePlacement(name): makes an attachable Placement object.'''
+    rev_number = int(App.Version()[2].split(" ")[0])
+    if rev_number < 9177:
+        #obsolete!
+        obj = FreeCAD.ActiveDocument.addObject("Part::AttachableObjectPython",name)
+    else:
+        obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
+        obj.addExtension("Part::AttachExtensionPython", None)
     AttachablePlacement(obj)
     ViewProviderAttachablePlacement(obj.ViewObject)        
     return obj
