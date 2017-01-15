@@ -32,9 +32,11 @@ import Part
 
 from lattice2Common import *
 import lattice2BaseFeature
+from lattice2BaseFeature import assureProperty
 import lattice2Executer
 import lattice2GeomUtils
 from lattice2ValueSeriesGenerator import ValueSeriesGenerator
+from lattice2Utils import sublinkFromApart, syncSublinkApart
 
 def makeLinearArray(name):
     '''makeLinearArray(name): makes a LinearArray object.'''
@@ -77,6 +79,8 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         obj.SpanEnd = 12.0
         obj.Step = 3.0
         obj.Count = 5.0
+        
+        self.assureProperties(obj)
 
     def updateReadonlyness(self, obj):
         obj.setEditorMode("Dir", 1 if (obj.Link and obj.DirIsDriven) else 0)
@@ -98,10 +102,12 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
                                      valuestype= "App::PropertyDistance")
         self.updateReadonlyness(obj)
         
-        
+    def assureProperties(self, selfobj):
+        assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(selfobj.Link, selfobj.LinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
 
     def derivedExecute(self,obj):
         self.assureGenerator(obj)
+        self.assureProperties(obj)
         self.updateReadonlyness(obj)
 
         # Apply links
@@ -166,6 +172,12 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
             output.append( App.Placement(obj.Point + obj.Dir*v, ori) )
             
         return output
+        
+    def onChanged(self, selfobj, prop): #prop is a string - name of the property
+        # synchronize SubLink and Object+SubNames properties
+        syncSublinkApart(selfobj, prop, 'SubLink', 'Link', 'LinkSubelement')
+        return lattice2BaseFeature.LatticeFeature.onChanged(self, selfobj, prop)
+
 
 class ViewProviderLinearArray(lattice2BaseFeature.ViewProviderLatticeFeature):
         

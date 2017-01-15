@@ -7,3 +7,5 @@ import lattice2InterpolatorUtil as InterpolatorUtil
 import lattice2Markers as Markers
 import lattice2ValueSeriesGenerator as ValueSeriesGenerator
 import lattice2ShapeCopy as ShapeCopy
+import lattice2Subsequencer as Subsequencer
+import lattice2Utils as Utils

@@ -32,9 +32,11 @@ import Part
 
 from lattice2Common import *
 import lattice2BaseFeature
+from lattice2BaseFeature import assureProperty
 import lattice2Executer
 import lattice2GeomUtils
 from lattice2ValueSeriesGenerator import ValueSeriesGenerator
+from lattice2Utils import sublinkFromApart, syncSublinkApart
 
 def makePolarArray(name):
     '''makePolarArray(name): makes a PolarArray object.'''
@@ -72,6 +74,8 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         obj.SpanEnd = 360
         obj.EndInclusive = False
         obj.Count = 5
+        
+        self.assureProperties(obj)
 
     def assureGenerator(self, obj):
         '''Adds an instance of value series generator, if one doesn't exist yet.'''
@@ -90,10 +94,14 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         obj.setEditorMode("AxisDirIsDriven", 0 if obj.AxisLink else 1)
         obj.setEditorMode("AxisPointIsDriven", 0 if obj.AxisLink else 1)
         self.generator.updateReadonlyness()
-        
+    
+    def assureProperties(self, selfobj):
+        assureProperty(selfobj, "App::PropertyLinkSub", "AxisSubLink", sublinkFromApart(selfobj.AxisLink, selfobj.AxisLinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
+
 
     def derivedExecute(self,obj):
         self.assureGenerator(obj)
+        self.assureProperties(obj)
         self.updateReadonlyness(obj)
         
         # Apply links
@@ -152,6 +160,11 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
             output.append(resultplm)
 
         return output
+
+    def onChanged(self, selfobj, prop): #prop is a string - name of the property
+        # synchronize SubLink and Object+SubNames properties
+        syncSublinkApart(selfobj, prop, 'AxisSubLink', 'AxisLink', 'AxisLinkSubelement')
+        return lattice2BaseFeature.LatticeFeature.onChanged(self, selfobj, prop)
 
 class ViewProviderPolarArray(lattice2BaseFeature.ViewProviderLatticeFeature):
         

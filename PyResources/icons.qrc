@@ -3,6 +3,7 @@
         <file>icons/Lattice2_ArrayFilter.svg</file>
         <file>icons/Lattice2_ArrayFromShape.svg</file>
         <file>icons/Lattice2_AttachablePlacement.svg</file>
+        <file>icons/Lattice2_AttachedPlacementSubsequence.svg</file>
         <file>icons/Lattice2_BoundBox.svg</file>
         <file>icons/Lattice2_BoundBox_Compound.svg</file>
         <file>icons/Lattice2_CompoundFilter.svg</file>
@@ -52,6 +53,11 @@
 		<file>icons/Lattice2_SubLink_Edge.svg</file>
 		<file>icons/Lattice2_SubLink_Face.svg</file>
 		<file>icons/Lattice2_SubLink_Vertex.svg</file>
+		<file>icons/Lattice2_SubLinkSubsequence.svg</file>
+		<file>icons/Lattice2_SubLinkSubsequence_Edge.svg</file>
+		<file>icons/Lattice2_SubLinkSubsequence_Face.svg</file>
+		<file>icons/Lattice2_SubLinkSubsequence_Vertex.svg</file>        
 		<file>icons/Lattice2_SubstituteObject.svg</file>
+        <file>icons/Lattice2_TopoSeries.svg</file>
     </qresource>
 </RCC> 

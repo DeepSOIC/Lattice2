@@ -118,16 +118,7 @@ class LatticeFeature():
         a property if one is missing, and sets its value to default. Does nothing if property 
         already exists. Returns True if property was created, or False if not."""
         
-        if hasattr(selfobj, propname):
-            #todo: check type match
-            return False
-            
-        selfobj.addProperty(proptype, propname, group, tooltip)
-        if defvalue is not None:
-            setattr(selfobj, propname, defvalue)
-        return True
-
-
+        return assureProperty(selfobj, proptype, propname, defvalue, group, tooltip)
         
     def derivedInit(self, obj):
         '''for overriding by derived classes'''
@@ -295,6 +286,21 @@ class ViewProviderLatticeFeature:
             # catch all exceptions, because we don't want to prevent deletion if something goes wrong
             FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
         return True
+
+
+def assureProperty(docobj, proptype, propname, defvalue, group, tooltip):
+    """assureProperty(docobj, proptype, propname, defvalue, group, tooltip): adds
+    a property if one is missing, and sets its value to default. Does nothing if property 
+    already exists. Returns True if property was created, or False if not."""
+    
+    if hasattr(docobj, propname):
+        #todo: check type match
+        return False
+        
+    docobj.addProperty(proptype, propname, group, tooltip)
+    if defvalue is not None:
+        setattr(docobj, propname, defvalue)
+    return True
 
     
  # ----------------------utility functions -------------------------------------

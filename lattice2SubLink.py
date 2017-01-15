@@ -26,10 +26,13 @@ __author__ = "DeepSOIC"
 __doc__ = "Lattice SubLink is like Draft Facebinder, but for edges and vertices too."
 
 from lattice2Common import *
-from lattice2BaseFeature import isObjectLattice
+from lattice2BaseFeature import isObjectLattice, assureProperty #assureProperty(self, selfobj, proptype, propname, defvalue, group, tooltip)
 import lattice2Markers as markers
 import FreeCAD as App
 import lattice2ShapeCopy as ShapeCopy
+import lattice2Subsequencer as LSS
+
+from lattice2Utils import sublinkFromApart, syncSublinkApart
 
 # -------------------------- feature --------------------------------------------------
 
@@ -51,32 +54,75 @@ class LatticeSubLink:
         
         obj.Proxy = self
         
+        self.assureProperties(obj)
+        
+    def assureProperties(self, selfobj):
+        assureProperty(selfobj, "App::PropertyEnumeration","Looping", ["Single"] + LSS.LOOP_MODES, "Lattice SubLink", "Sets wether to collect just the element, or all similar from array.")
+        assureProperty(selfobj, "App::PropertyEnumeration","CompoundTraversal", LSS.TRAVERSAL_MODES, "Lattice SubLink", "Sets how to unpack compounds if Looping is not 'Single'.")
+        assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(selfobj.Object, selfobj.SubNames), "Lattice SubLink", "Mirror of Object+SubNames properties")
 
     def execute(self,selfobj):
+        self.assureProperties(selfobj)
+    
         #validity check
         if isObjectLattice(selfobj.Object):
             import lattice2Executer
             lattice2Executer.warning(selfobj,"A generic shape is expected, but a placement/array was supplied. It will be treated as a generic shape.")
 
-        rst = [] #variable to receive the final list of shapes
         lnkobj = selfobj.Object
-        for subname in selfobj.SubNames:
-            subname = subname.strip()
-            if len(subname)==0:
-                raise ValueError("Empty subname! Not allowed.")
-            if 'Face' in subname:
-                index = int(subname.replace('Face',''))-1
-                rst.append(lnkobj.Shape.Faces[index])
-            elif 'Edge' in subname:
-                index = int(subname.replace('Edge',''))-1
-                rst.append(lnkobj.Shape.Edges[index])
-            elif 'Vertex' in subname:
-                index = int(subname.replace('Vertex',''))-1
-                rst.append(lnkobj.Shape.Vertexes[index])
+        sh = lnkobj.Shape
+        
+        # subsequencing
+        full_link = (lnkobj, selfobj.SubNames)
+        if selfobj.Looping == 'Single':
+            lnkseq = [full_link]
+        else:
+            lnkseq = LSS.Subsequence_auto(full_link, selfobj.CompoundTraversal, selfobj.Looping )
+
+        # main code
+        seq_packs = [] #pack = single item of subsequence. Pack contains list of elements that were selected.
+        shape_count = 0
+        for lnk in lnkseq: # loop over subsequence (if Looping == 'Single', this loop will only loop once)            
+            # extract the pack
+            assert(lnk[0] is lnkobj) # all links should point to elements of one object anyway
+            subnames = lnk[1] 
+            pack = [] #acculumator, to eventually become a compound of shapes for this subsequence item
+            for subname in subnames:
+                subname = subname.strip()
+                if len(subname)==0:
+                    raise ValueError("Empty subname! Not allowed.")
+                if 'Face' in subname: # manual handling of standard cases, because support for negative indexing is needed
+                    index = int(subname.replace('Face',''))-1
+                    pack.append(sh.Faces[index])
+                elif 'Edge' in subname:
+                    index = int(subname.replace('Edge',''))-1
+                    pack.append(sh.Edges[index])
+                elif 'Vertex' in subname:
+                    index = int(subname.replace('Vertex',''))-1
+                    pack.append(sh.Vertexes[index])
+                else: #fail-safe. non-standard sublink. 
+                    lattice2Executer.warning(selfobj,"Unexpected subelement name: "+subname+". Trying to extract it with .Shape.getElement()...")
+                    pack.append(sh.getElement(subname))
+            
+            shape_count += len(pack)
+            
+            # convert list into compound
+            if len(pack) == 1:
+                pack = ShapeCopy.transformCopy(pack[0])
             else:
-                lattice2Executer.warning(selfobj,"Unexpected subelement name: "+subname+". Trying to extract it with .Shape.getElement()...")
-                rst.append(linkobj.Shape.getElement(subname))
-        if len(rst) == 0:
+                pack = Part.makeCompound(pack)
+            
+            # accumulate
+            seq_packs.append(pack)
+        
+        # convert list into compound
+        if len(seq_packs) == 1:
+            seq_packs = seq_packs[0]
+        else:
+            seq_packs = Part.makeCompound(seq_packs)
+        
+        if shape_count == 0:
+            # no shapes collected, FAIL!
             scale = 1.0
             try:
                 if selfobj.Object:
@@ -88,16 +134,13 @@ class LatticeSubLink:
             selfobj.Shape = markers.getNullShapeShape(scale)
             raise ValueError('Nothing is linked, apparently!') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
         
-        if len(rst) > 1:
-            selfobj.Shape = Part.makeCompound(rst)
-        else: # don't make compound of one shape, output it directly
-            sh = rst[0]
-            # absorb placement of original shape
-            sh = ShapeCopy.transformCopy(sh)
-            # apply Placement that is filled into feature's Placement property (not necessary)
-            sh.Placement = selfobj.Placement
-            selfobj.Shape = sh
+        # done!
+        selfobj.Shape = seq_packs
         
+    def onChanged(self, selfobj, prop): #prop is a string - name of the property
+        # synchronize SubLink and Object+SubNames properties
+        syncSublinkApart(selfobj, prop, 'SubLink', 'Object', 'SubNames')
+    
     def __getstate__(self):
         return None
 
@@ -111,15 +154,20 @@ class ViewProviderSubLink:
         vobj.Proxy = self
         
     def getIcon(self):
+        ret = ""
         if len(self.Object.SubNames) == 1:
             subname = self.Object.SubNames[0]
             if 'Face' in subname:
-                return getIconPath("Lattice2_SubLink_Face.svg")
+                ret = getIconPath("Lattice2_SubLink_Face.svg")
             elif 'Edge' in subname:
-                return getIconPath("Lattice2_SubLink_Edge.svg")
+                ret = getIconPath("Lattice2_SubLink_Edge.svg")
             elif 'Vertex' in subname:
-                return getIconPath("Lattice2_SubLink_Vertex.svg")            
-        return getIconPath("Lattice2_SubLink.svg")
+                ret = getIconPath("Lattice2_SubLink_Vertex.svg")            
+        if len(ret) == 0:
+            ret = getIconPath("Lattice2_SubLink.svg")
+        if hasattr(self.Object,'Looping') and self.Object.Looping != 'Single':
+            ret = ret.replace("SubLink","SubLinkSubsequence")
+        return ret
 
     def attach(self, vobj):
         self.ViewObject = vobj
@@ -141,7 +189,7 @@ class ViewProviderSubLink:
     def claimChildren(self):
         return []
         
-def CreateSubLink(object, subnames):
+def CreateSubLink(object, subnames, looping):
     #stabilize links
     subnames = list(subnames) #'tuple' object does not support item assignment; SubElementNames of SelectionObject is a tuple
     try:
@@ -187,11 +235,14 @@ def CreateSubLink(object, subnames):
     FreeCADGui.addModule("lattice2SubLink")
     FreeCADGui.addModule("lattice2Executer")
     name = object.Name+"_"+subnames[0]   if len(subnames)==1 else   "SubLink"
+    if looping != 'Single':
+        name = object.Name+"_"+"Elements"
     FreeCADGui.doCommand("f = lattice2SubLink.makeSubLink(name = "+repr(name)+")")
     label = unicode(subnames[0] if len(subnames)==1 else "subelements")  + u" of " + object.Label
     FreeCADGui.doCommand("f.Label = "+repr(label))    
     FreeCADGui.doCommand("f.Object = App.ActiveDocument."+object.Name)
     FreeCADGui.doCommand("f.SubNames = "+repr(subnames))
+    FreeCADGui.doCommand("f.Looping = "+repr(looping))
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     if cnt_vertexes > 0 and cnt_faces+cnt_edges+cnt_somethingelse  == 0: #only vertices selected - make them bigger to make them visible
         FreeCADGui.doCommand("f.ViewObject.PointSize = 10")
@@ -200,7 +251,7 @@ def CreateSubLink(object, subnames):
     FreeCADGui.doCommand("f = None")
     return App.ActiveDocument.ActiveObject
 
-def cmdSubLink():
+def cmdSubLink(looping = 'Single'):
     sel = FreeCADGui.Selection.getSelectionEx()
     if len(sel) == 0:
         raise SelectionError("Bad selection", "Please select some subelements from one object, first.")
@@ -209,7 +260,7 @@ def cmdSubLink():
     if len(sel[0].SubElementNames)==0:
         raise SelectionError("Bad selection", "Please select some subelements, not the whole object.")
     App.ActiveDocument.openTransaction("Create SubLink")
-    CreateSubLink(sel[0].Object,sel[0].SubElementNames)
+    CreateSubLink(sel[0].Object,sel[0].SubElementNames, looping)
     deselect(sel)
     App.ActiveDocument.commitTransaction()
 
@@ -217,7 +268,7 @@ def cmdSubLink():
 
 # -------------------------- Gui command --------------------------------------------------
 
-class _CommandSubLink:
+class CommandSubLink:
     "Command to create SubLink feature"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_SubLink.svg"),
@@ -242,8 +293,51 @@ class _CommandSubLink:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_SubLink', _CommandSubLink())
+class CommandSublinkSubsequence:
+    "Command to create SubLink Subsequence feature"
+    def GetResources(self):
+        return {'Pixmap'  : getIconPath("Lattice2_SubLinkSubsequence.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_SubLink","Subsequence"),
+                'Accel': "",
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_SubLink","Subsequence: extract individual vertices, edges and faces from shapes, from each instance in an array.")}
+        
+    def Activated(self):
+        try:
+            if len(FreeCADGui.Selection.getSelection())==0:
+                infoMessage("SubLink",
+                    "'Subsequence' command. Extracts all faces/edges/vertexes similar to those selected, from an array of shapes.\n\n"+
+                    "Please select one or more subelements of one array (compound), then invoke the command.")
+                return
+            cmdSubLink(looping= 'All around')
+        except Exception as err:
+            msgError(err)
+            
+    def IsActive(self):
+        if App.ActiveDocument:
+            return True
+        else:
+            return False
 
-exportedCommands = ['Lattice2_SubLink']
+FreeCADGui.addCommand('Lattice2_SubLink', CommandSubLink())
+FreeCADGui.addCommand('Lattice2_SublinkSubsequence', CommandSublinkSubsequence())
+
+class CommandSublinkGroup:
+    def GetCommands(self):
+        return ("Lattice2_SubLink","Lattice2_SublinkSubsequence") 
+
+    def GetDefaultCommand(self): # return the index of the tuple of the default command. 
+        return 0
+
+    def GetResources(self):
+        return { 'MenuText': 'Sublink:', 
+                 'ToolTip': 'Sublink (group): extract elements from shapes.'}
+        
+    def IsActive(self): # optional
+        return App.ActiveDocument is not None
+
+FreeCADGui.addCommand('Lattice2_Sublink_GroupCommand',CommandSublinkGroup())
+
+
+exportedCommands = ['Lattice2_Sublink_GroupCommand']
 
 # -------------------------- /Gui command --------------------------------------------------

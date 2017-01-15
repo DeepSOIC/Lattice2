@@ -32,6 +32,7 @@ import Part
 
 from lattice2Common import *
 import lattice2BaseFeature
+import lattice2Subsequencer as Subsequencer
 
 def makeAttachablePlacement(name):
     '''makeAttachablePlacement(name): makes an attachable Placement object.'''
@@ -47,7 +48,7 @@ def makeAttachablePlacement(name):
     return obj
 
 class AttachablePlacement(lattice2BaseFeature.LatticeFeature):
-    "The Lattice Placement object"
+    "Attachable Lattice Placement object"
     
     def derivedInit(self,obj):
         self.Type = "AttachablePlacement"
@@ -79,6 +80,46 @@ class ViewProviderAttachablePlacement(lattice2BaseFeature.ViewProviderLatticeFea
         Gui.Control.closeDialog()
         return True
 
+
+def makeLatticeAttachedPlacementSubsequence(name):
+    '''makeLatticeAttachedPlacementSubsequence(name): makes a AttachedPlacementSubsequence object.'''
+    return lattice2BaseFeature.makeLatticeFeature(name, AttachedPlacementSubsequence, ViewProviderAttachedPlacementSubsequence)
+
+class AttachedPlacementSubsequence(lattice2BaseFeature.LatticeFeature):
+    "Array Maker from Attachable Lattice Placement"
+    
+    def derivedInit(self,obj):
+        self.Type = "AttachablePlacementSubsequence"
+        
+        obj.ExposePlacement = False
+        obj.setEditorMode("ExposePlacement", 1) #read-only
+        
+        obj.addProperty("App::PropertyLink", "Base", "Lattice Attached Placement Subsequence", "Link to Lattice Attached Placement, which is to be subsequenced.")
+        obj.addProperty("App::PropertyString", "RefIndexFilter","Lattice Attached Placement Subsequence","Sets which references of attachment to cycle through children. '0000' = no cycle, '1000' = cycle only ref1. '' = cycle all if possible")
+        obj.addProperty("App::PropertyEnumeration", "CycleMode","Lattice Attached Placement Subsequence", "How to cycle through chidren. Open = advance each link till one reaches the end of array. Periodic = if array end reached, continue from begin if any children left.")
+        obj.CycleMode = ['Open','Periodic']
+        
+    def derivedExecute(self,obj):
+        attacher = obj.Base.Attacher.copy()
+        attacher.readParametersFromFeature(obj.Base)
+        i_filt_str = obj.RefIndexFilter
+        ifilt = None if i_filt_str == "" else [i for i in range(len(i_filt_str)) if int(i_filt_str[i]) != 0]
+        sublinks = Subsequencer.Subsequence_auto(attacher.References, 
+                                                 loop= ('Till end' if obj.CycleMode == 'Open' else 'All around'), 
+                                                 index_filter= ifilt)
+        plms = []
+        for lnkval in sublinks:
+            attacher.References = lnkval
+            plms.append(attacher.calculateAttachedPlacement(obj.Base.Placement))
+        return plms
+
+class ViewProviderAttachedPlacementSubsequence(lattice2BaseFeature.ViewProviderLatticeFeature):
+    def getIcon(self):
+        return getIconPath('Lattice2_AttachedPlacementSubsequence.svg')
+
+    def claimChildren(self):
+        return [self.Object.Base]
+
 # -------------------------- /document object --------------------------------------------------
 
 # -------------------------- Gui command --------------------------------------------------
@@ -95,6 +136,19 @@ def CreateAttachablePlacement(name):
                                                                   "callback_OK= lambda: App.ActiveDocument.commitTransaction(),"
                                                                   "callback_Cancel= lambda: App.ActiveDocument.abortTransaction())")
     FreeCAD.ActiveDocument.commitTransaction()
+
+def cmdCreateAttachedPlacementSubsequence(name):
+    sel = FreeCADGui.Selection.getSelectionEx()
+    FreeCAD.ActiveDocument.openTransaction("Array an attached placement")
+    FreeCADGui.addModule("lattice2AttachablePlacement")
+    FreeCADGui.addModule("lattice2Executer")
+    FreeCADGui.doCommand("f = lattice2AttachablePlacement.makeLatticeAttachedPlacementSubsequence(name='"+name+"')")    
+    FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].Object.Name)
+    FreeCADGui.doCommand("f.Base.ViewObject.hide()")
+    FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")    
+    FreeCAD.ActiveDocument.commitTransaction()
+    FreeCADGui.doCommand("Gui.Selection.addSelection(f)")
+    deselect(sel)
 
 class CommandAttachablePlacement:
     "Command to create Lattice Placement feature"
@@ -120,6 +174,56 @@ class CommandAttachablePlacement:
         else:
             return False
 
+class CommandAttachedPlacementSubsequence:
+    "Command to convert a attached placement into an array"
+        
+    def __init__(self):
+        pass
+    
+    def GetResources(self):
+        return {'Pixmap'  : getIconPath("Lattice2_AttachedPlacementSubsequence.svg"),
+                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_Placement","Array an attached placement") , 
+                'Accel': "",
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_Placement","Attached Placement: makes an array of placements from an attached placement by cycling attachment references...")}
+        
+    def Activated(self):
+        try:
+            sel = FreeCADGui.Selection.getSelectionEx()
+            if len(sel) == 0:
+                infoMessage("Attached Placement Subsequence",
+                            "Attached Placement Subsequence feature: makes an array of placements from an attached placement by cycling attachment references through children of an array the placement is attached to."+
+                            "\n\nPlease select an attached placement object, first. Then invoke this tool. Adjust the properties of the created object if necessary."                          )
+            else:
+                if len(sel)!=1:
+                    raise SelectionError("PlacementSubsequence", "Please select just one object, an attached placement. You have seleced {num}.".format(num= len(sel)))
+                cmdCreateAttachedPlacementSubsequence(name= "PlacementSubsequence")
+        except Exception as err:
+            msgError(err)
+            
+    def IsActive(self):
+        if FreeCAD.ActiveDocument:
+            return True
+        else:
+            return False
+
 FreeCADGui.addCommand("Lattice2_AttachedPlacement", CommandAttachablePlacement())
-exportedCommands = ["Lattice2_AttachedPlacement"]
+FreeCADGui.addCommand("Lattice2_AttachedPlacementSubsequence", CommandAttachedPlacementSubsequence())
+
+class CommandAttachedPlacementGroup:
+    def GetCommands(self):
+        return ("Lattice2_AttachedPlacement","Lattice2_AttachedPlacementSubsequence") 
+
+    def GetDefaultCommand(self): # return the index of the tuple of the default command. 
+        return 0
+
+    def GetResources(self):
+        return { 'MenuText': 'Attached Placement:', 
+                 'ToolTip': 'Attached Placement (group): tools to work with attached placement objects.'}
+        
+    def IsActive(self): # optional
+        return App.ActiveDocument is not None
+
+FreeCADGui.addCommand("Lattice2_AttachedPlacement_Group", CommandAttachedPlacementGroup())
+
+exportedCommands = ["Lattice2_AttachedPlacement_Group"]
 # -------------------------- /Gui command --------------------------------------------------

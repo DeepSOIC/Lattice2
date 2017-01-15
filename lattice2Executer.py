@@ -37,13 +37,13 @@ def executeFeature(obj):
         obj.Proxy.execute(obj)
         obj.purgeTouched()
     except CancelError:
-        FreeCAD.ActiveDocument.abortTransaction()
+        obj.Document.abortTransaction()
         raise
     except Exception as err:
         try:
             error(obj,err.message)
         except CancelError:
-            FreeCAD.ActiveDocument.abortTransaction()
+            obj.Document.abortTransaction()
             raise            
     finally:
         globalIsCreatingLatticeFeature = False
