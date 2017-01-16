@@ -39,13 +39,15 @@ import lattice2Subsequencer as Subsequencer
 
 # --------------------------- general routines ------------------------------------------------
 
-def findAllLinksTo(doc_obj):
+def findAllLinksTo(doc_obj, exclude = []):
     """findAllLinksTo(doc_obj): finds all link properties pointing to supplied object. 
     Returns them as list of tuples (dependent_object_name, property_name). Does not include 
     expression links."""
     ret = []
     doc = doc_obj.Document
     for obj in set(doc_obj.InList): # InList sometimes reports same object multiple times. Wrapping with set() removes the duplicates. 
+        if obj in exclude:
+            continue
         for prop_name in obj.PropertiesList:
             typ = obj.getTypeIdOfProperty(prop_name)
             if typ == 'App::PropertyLink':
@@ -94,7 +96,7 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
     def makeSubsequence(self, selfobj, object_to_loop):
         
         # gather up the links
-        links = findAllLinksTo(object_to_loop)
+        links = findAllLinksTo(object_to_loop, exclude= [selfobj])
         if self.isVerbose():
             print ("All links to {feature}:\n    {links}"
                    .format(feature= object_to_loop.Document.Name+"."+object_to_loop.Name,
@@ -113,6 +115,8 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
                                   object_filter= [object_to_loop]                             )
         if self.isVerbose():
             print ("Subsequence made. Length: {n_seq}".format(n_seq= ret[0]))
+            print ("Links subsequenced: \n    {links}"
+                   .format(links= "\n    ".join([link[0]+"."+link[1] for link in ret[1].keys()]))   )
         return ret
 
     
