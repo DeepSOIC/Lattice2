@@ -34,7 +34,7 @@ class CompoundExplorer:
         #    CompoundExplorer.MSG_DIVEDOWN  - child is a compound that is about to be traversed
         #    CompoundExplorer.MSG_BUBBLEUP  - child is a compound that was just finished traversing        
         #it is reference to iterator class (can be useful to extract current depth, or index stack)
-        print '    ' * it.curDepth(), (child, msg)
+        print ('    ' * it.curDepth(), (child, msg))
     
     Output:
     (<Compound object at 0000002FD26E5FC0>, 2)

@@ -59,10 +59,10 @@ def substituteobj(oldobj, newobj):
         if dep in deps_of_new:
             #we are about to make an object newobj depends on, to depend on newobj. 
             #This will create a circular graph, so we must skip this.
-            print "not replacing "+oldobj.Name+" with " + newobj.Name +" in " + dep.Name
+            print ("not replacing "+oldobj.Name+" with " + newobj.Name +" in " + dep.Name)
             list_not_replaced.append(dep)
         else:
-            print "replacing "+oldobj.Name+" with " + newobj.Name +" in " + dep.Name
+            print ("replacing "+oldobj.Name+" with " + newobj.Name +" in " + dep.Name)
             list_replaced.append(dep)
             replaceobj(dep, oldobj, newobj)
     return (list_replaced, list_not_replaced)
