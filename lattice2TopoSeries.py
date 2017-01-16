@@ -45,7 +45,7 @@ def findAllLinksTo(doc_obj):
     expression links."""
     ret = []
     doc = doc_obj.Document
-    for obj in doc_obj.InList:
+    for obj in set(doc_obj.InList): # InList sometimes reports same object multiple times. Wrapping with set() removes the duplicates. 
         for prop_name in obj.PropertiesList:
             typ = obj.getTypeIdOfProperty(prop_name)
             if typ == 'App::PropertyLink':
