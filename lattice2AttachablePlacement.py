@@ -100,7 +100,7 @@ class AttachedPlacementSubsequence(lattice2BaseFeature.LatticeFeature):
         obj.CycleMode = ['Open','Periodic']
         
     def derivedExecute(self,obj):
-        attacher = obj.Base.Attacher.copy()
+        attacher = Part.AttachEngine(obj.Base.AttacherType)
         attacher.readParametersFromFeature(obj.Base)
         i_filt_str = obj.RefIndexFilter
         ifilt = None if i_filt_str == "" else [i for i in range(len(i_filt_str)) if int(i_filt_str[i]) != 0]
