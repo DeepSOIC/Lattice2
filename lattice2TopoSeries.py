@@ -1,6 +1,6 @@
 #***************************************************************************
 #*                                                                         *
-#*   Copyright (c) 2016 - Victor Titov (DeepSOIC)                          *
+#*   Copyright (c) 2017 - Victor Titov (DeepSOIC)                          *
 #*                                               <vv.titov@gmail.com>      *  
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
