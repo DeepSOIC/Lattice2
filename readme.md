@@ -10,7 +10,11 @@ Additionally, the workbench features a few general-purpose tools, such as parame
 One of the big design goals of the workbench is being as parametric as possible.
 
 # Highlights
-First, take a look at [Gallery of screenshots](https://github.com/DeepSOIC/Lattice2/wiki/Gallery).
+![Lattice2-FreeCAD-wormcutter](https://raw.githubusercontent.com/wiki/DeepSOIC/Lattice2/gallery/worm-cutter-done.png)
+
+![Lattice2-FreeCAD-placement-interpolator](https://raw.githubusercontent.com/wiki/DeepSOIC/Lattice2/gallery/placement_interpolator_fixed.png)
+
+Take a look at other examples in the [Gallery of screenshots](https://github.com/DeepSOIC/Lattice2/wiki/Gallery).
 
 Let's have a glance over the most important capabilities that the workbench adds to FreeCAD:
 
