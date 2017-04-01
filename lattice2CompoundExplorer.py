@@ -130,6 +130,7 @@ class CompoundExplorer:
         assert(msg != 0)
         self.lastMsg = msg
         return (sh, msg, self)
+    __next__ = next
 
 
 def CalculateNumberOfLeaves(compound):

@@ -63,6 +63,28 @@ def touchEverything(doc):
     if touch_count == 0:
         raise ValueError("forceRecompute: failed to touch any object!")
 
+def recomputeFeature(featureToRecompute, bUndoable = True):
+    doc = featureToRecompute.Document
+    if bUndoable:
+        doc.openTransaction("Recompute "+featureToRecompute.Name)
+    if hasattr(featureToRecompute, 'Recomputing'):
+        if featureToRecompute.Recomputing == 'Disabled': #toposeries, paraseries...
+            featureToRecompute.Recomputing = 'Recompute Once'
+    if hasattr(featureToRecompute, "recompute"):
+        # new FreeCAD! yay!
+        featureToRecompute.recompute()
+    elif hasattr(featureToRecompute, "Proxy"):
+        #Python feature - easy!
+        featureToRecompute.Proxy.execute(featureToRecompute)
+    else:
+        infoMessage("RecomputeFeature","Selected feature is a C++ feature. Recomputing them with this command was temporarily disabled, because it is known to break dependencies. The command will be frozen, till a reliable way of recomputing c++ feature gets exposed.")
+        return
+    featureToRecompute.purgeTouched()
+    for docobj in featureToRecompute.InList:
+        touch(docobj)
+    if bUndoable:
+        doc.commitTransaction()
+
 def makeRecomputeLocker(name):
     '''makeRecomputeLocker(name): makes a RecomputeLocker document object.'''
     obj = FreeCAD.ActiveDocument.addObject("App::FeaturePython",name)
@@ -101,61 +123,7 @@ class LatticeRecomputeLocker:
         if bUndoable:
             doc.commitTransaction()
         obj.LockRecomputes = oldState
-        
-    def RecomputeFeature(self, selfobj, featureToRecompute, bUndoable = True):
-        oldState = selfobj.LockRecomputes
-        doc = selfobj.Document
-        if bUndoable:
-            doc.openTransaction("Recompute "+featureToRecompute.Name)
-        if hasattr(featureToRecompute, "Proxy"):
-            #Python feature - easy!
-            featureToRecompute.Proxy.execute(featureToRecompute)
-            featureToRecompute.purgeTouched()
-            for docobj in featureToRecompute.InList:
-                touch(docobj)
-        else:
-            infoMessage("RecomputeFeature","Selected feature is a C++ feature. Recomputing them with this command was temporarily disabled, because it is known to break dependencies. The command will be frozen, till a reliable way of recomputing c++ feature gets exposed.")
-            return
-            #non-Py feature. Hard.
-            #overview: FreeCAD will recompute just one feature, if it is the 
-            #only one that is touched, and no other features depend on it. So 
-            #that's what we are to do: untouch all other features, and remove 
-            #all links. 
-            #save touched flags, to restore them later
-            touched_dict = self.collectTouchedDict(selfobj)
-            try:
-                #temporarily remove all links to the object
-                unlinker = Unlinker()
-                unlinker.unlinkObject(featureToRecompute)
-                try:
-                    #set desired document touched state
-                    for docobj in doc.Objects:
-                        if docobj is not featureToRecompute:
-                            docobj.purgeTouched()
-                        else:
-                            touch(docobj)
-                    try:
-                        #do the business =)
-                        selfobj.LockRecomputes = False
-                        doc.recompute()
-                        #and restore the mess we've created...
-                    finally:
-                        selfobj.LockRecomputes = oldState
-                                            
                     
-                finally:
-                    unlinker.restoreLinks()
-            finally:
-                self.restoreTouched(selfobj,touched_dict)                    
-            
-            #feature recomputed - purge its touched
-            featureToRecompute.purgeTouched()
-            #feature should have changed, so mark all dependent stuff as touched
-            for docobj in featureToRecompute.InList:
-                touch(docobj)
-        if bUndoable:
-            doc.commitTransaction()
-            
     def collectTouchedDict(self, selfobj):
         doc = selfobj.Document
         dict = {}
@@ -173,58 +141,6 @@ class LatticeRecomputeLocker:
                     docobj.purgeTouched()
                     
     
-class Unlinker:
-    '''An object to temporarily unlink an object, and to restore the links afterwards'''
-    def __init__(self):
-        #List of actions for restoring the links is going to be saved here. It 
-        # is a list tuples: (object, 'property name', oldvalue).
-        self.actionList = [] 
-        
-    def unlinkObject(self, featureToUnlink):
-        '''Redirects all links to this object, to make it possible to recompute it individually. TODO: expressions!!'''
-        doc = featureToUnlink.Document
-        ListOfDependentObjects = featureToUnlink.InList #<rant> naming list of objects that are dependent on the feature as InList is bullshit. InList should have been list of inputs - that is, list of objects this feature depends on. But it's back-to-front. =<
-        if len(self.actionList) > 0:
-            raise ValueError("unlinker hasn't restored the changes it did previously. Can't unlink another object.")
-        for obj in ListOfDependentObjects:
-            for propname in obj.PropertiesList:
-                try:
-                    typ = obj.getTypeIdOfProperty(propname)
-                    val = getattr(obj,propname)
-                    bool_changed = True
-                    if typ == 'App::PropertyLink':                    
-                        setattr(obj,propname,None)
-                    elif typ == 'App::PropertyLinkSub':
-                        #val is (feature,["Edge1","Face2"])
-                        setattr(obj,propname,None)
-                    elif typ == 'App::PropertyLinkList':
-                        setattr(obj,propname,[])
-                    elif typ == 'App::PropertyLinkSubList':
-                        setattr(obj,propname,[])
-                    else:
-                        bool_changed = False
-                    
-                    if bool_changed:
-                        self.actionList.append((obj,propname,val))
-                except Exception as err:
-                    LE.error(None, "While temporarily removing all links to an object, an error occured.\n" +
-                             "Error:"+err.message+"\n" +
-                             "object = "+obj.Name+"\n" +
-                             "property = "+propname+"\n" +
-                             "value to be restored = "+repr(value))
-                    
-    def restoreLinks(self):
-        for (obj, propname, value) in self.actionList:
-            try:
-                setattr(obj,propname,value)
-            except Exception as err:
-                LE.error(None, "An error occured while restoring links.\n" +
-                         "Error:"+err.message+"\n" +
-                         "object = "+obj.Name+"\n" +
-                         "property = "+propname+"\n" +
-                         "value to be restored = "+repr(value))
-        self.actionList = []
-
 class ViewProviderLatticeRecomputeLocker:
     "A View Provider for LatticeRecomputeLocker object"
 
@@ -256,6 +172,8 @@ class ViewProviderLatticeRecomputeLocker:
 
 # --------------------------------/document object------------------------------
 
+
+
 # --------------------------------Gui commands----------------------------------
 
 def getLocker():
@@ -286,7 +204,7 @@ class _CommandMakeLockerObj:
             mb.exec_()
             
     def IsActive(self):
-        return bool(App.ActiveDocument) and getLocker() is None
+        return (bool(App.ActiveDocument) and getLocker() is None) and not USE_FC_RECOMPUTE
             
 FreeCADGui.addCommand('Lattice2_RecomputeLocker_MakeFeature', _CommandMakeLockerObj())
 
@@ -343,7 +261,7 @@ class _CommandUnlockRecomputes:
 FreeCADGui.addCommand('Lattice2_RecomputeLocker_UnlockRecomputes', _CommandUnlockRecomputes())
 
 class _CommandRecomputeFeature:
-    "Command to unlock automatic recomputes"
+    "Command to recompute single object"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_RecomputeFeature.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Recompute feature"),
@@ -353,19 +271,12 @@ class _CommandRecomputeFeature:
         
     def Activated(self):
         sel = FreeCADGui.Selection.getSelectionEx()
-        if getLocker() is not None:
-            FreeCADGui.addModule("lattice2RecomputeLocker")
-            for selobj in sel:
-                FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().Proxy.RecomputeFeature(lattice2RecomputeLocker.getLocker(), App.ActiveDocument."+selobj.ObjectName+")")
-        else:
-            mb = QtGui.QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice2_RecomputeLocker", "There is no recompute locker object in the document. Please create one, first.", None))
-            mb.setWindowTitle(translate("Lattice2_RecomputeLocker","fail", None))
-            mb.exec_()
+        FreeCADGui.addModule("lattice2RecomputeLocker")
+        for selobj in sel:
+            FreeCADGui.doCommand("lattice2RecomputeLocker.recomputeFeature(App.ActiveDocument."+selobj.ObjectName+")")
             
     def IsActive(self):
-        return getLocker() is not None   and   len(FreeCADGui.Selection.getSelectionEx()) > 0
+        return len(FreeCADGui.Selection.getSelectionEx()) > 0
             
 FreeCADGui.addCommand('Lattice2_RecomputeLocker_RecomputeFeature', _CommandRecomputeFeature())
 

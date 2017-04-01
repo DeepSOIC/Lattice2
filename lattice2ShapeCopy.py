@@ -34,18 +34,18 @@ def shallowCopy(shape, extra_placement = None):
     copy will match by isSame/isEqual/isPartner tests, but will have an independent placement."""
     
     copiers = {
-      "Vertex": lambda(sh): sh.Vertexes[0],
-      "Edge": lambda(sh): sh.Edges[0],
-      "Wire": lambda(sh): sh.Wires[0],
-      "Face": lambda(sh): sh.Faces[0],
-      "Shell": lambda(sh): sh.Shells[0],
-      "Solid": lambda(sh): sh.Solids[0],
-      "CompSolid": lambda(sh): sh.CompSolids[0],
-      "Compound": lambda(sh): sh.Compounds[0],
+      "Vertex": lambda sh: sh.Vertexes[0],
+      "Edge": lambda sh: sh.Edges[0],
+      "Wire": lambda sh: sh.Wires[0],
+      "Face": lambda sh: sh.Faces[0],
+      "Shell": lambda sh: sh.Shells[0],
+      "Solid": lambda sh: sh.Solids[0],
+      "CompSolid": lambda sh: sh.CompSolids[0],
+      "Compound": lambda sh: sh.Compounds[0],
       }
     copier = copiers.get(shape.ShapeType)
     if copier is None:
-        copier = lambda(sh): sh.copy()
+        copier = lambda sh: sh.copy()
         FreeCAD.Console.PrintWarning("Lattice2: shallowCopy: unexpected shape type '{typ}'. Using deep copy instead.\n".format(typ= shape.ShapeType))
     ret = copier(shape)
     if extra_placement is not None:

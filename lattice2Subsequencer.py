@@ -71,14 +71,14 @@ def traverseCompound(compound, traversal):
         return LCE.allLeaves(compound)
 
 element_extractors = {
-    "Vertex": (lambda(sh): sh.Vertexes),
-    "Edge": (lambda(sh): sh.Edges),
-    "Wire": (lambda(sh): sh.Wires),
-    "Face": (lambda(sh): sh.Faces),
-    "Shell": (lambda(sh): sh.Shells),
-    "Solid": (lambda(sh): sh.Solids),
-    "CompSolid": (lambda(sh): sh.CompSolids),
-    "Compound": (lambda(sh): sh.Compounds),
+    "Vertex": (lambda sh: sh.Vertexes),
+    "Edge": (lambda sh: sh.Edges),
+    "Wire": (lambda sh: sh.Wires),
+    "Face": (lambda sh: sh.Faces),
+    "Shell": (lambda sh: sh.Shells),
+    "Solid": (lambda sh: sh.Solids),
+    "CompSolid": (lambda sh: sh.CompSolids),
+    "Compound": (lambda sh: sh.Compounds),
 }    
         
 def getIndexesIntoList(element, list_of_shapes):

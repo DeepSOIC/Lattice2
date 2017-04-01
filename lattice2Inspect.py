@@ -73,7 +73,7 @@ class _CommandInspect:
             strStructure = ["<object has no shape!>"]
         else:
             if sel.Object.Shape.isNull():
-                strStructure.append(unicode("<NULL SHAPE!>"))
+                strStructure.append("<NULL SHAPE!>")
             else:
                 for (child, msg, it) in LCE.CompoundExplorer(sel.Object.Shape):
                     #child is a shape. 
@@ -88,8 +88,8 @@ class _CommandInspect:
                             if msg == LCE.CompoundExplorer.MSG_DIVEDOWN:
                                 strMsg += ":"
                         except Exception as err:
-                            strMsg = "ERROR: " + err.message
-                        strStructure.append(unicode(strMsg))
+                            strMsg = "ERROR: " + str(err)
+                        strStructure.append(strMsg)
             
         strSubInfo = []
         if sel.HasSubObjects:
@@ -102,8 +102,8 @@ class _CommandInspect:
                 try:
                     strMsg += shapeInfoString(child)
                 except Exception as err:
-                    strMsg += "ERROR: " + err.message
-                strSubInfo.append(unicode(strMsg))
+                    strMsg += "ERROR: " + str(err)
+                strSubInfo.append(strMsg)
         
         allText = u''
         if sel.HasSubObjects:
@@ -111,9 +111,9 @@ class _CommandInspect:
             allText += u'\n'.join(strSubInfo) + u'\n\n'
         
         allText += u'Selected document object:\n'
-        allText += u'  Name = ' + unicode(sel.Object.Name) + u'\n'
+        allText += u'  Name = ' + sel.Object.Name + u'\n'
         allText += u'  Label = ' + sel.Object.Label + u'\n'
-        allText += u'  Is placement/array = ' + unicode(repr(isLattice)) + u'\n'
+        allText += u'  Is placement/array = ' + repr(isLattice) + u'\n'
         allText += u'Structure: \n'
         allText += u'\n'.join(strStructure)
         mb = QtGui.QMessageBox()

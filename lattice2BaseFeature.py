@@ -42,10 +42,10 @@ def getDefShapeColor():
     #convert color in int to color in tuple of 4 floats.
     #This is probably implemented already somewhere, but I couldn't find, so I rolled my own --DeepSOIC
     # clr in hex looks like this: 0xRRGGBBOO (r,g,b,o = red, green, blue, opacity)
-    o = clr & 0x000000FFL
-    b = (clr >> 8) & 0x000000FFL
-    g = (clr >> 16) & 0x000000FFL
-    r = (clr >> 24) & 0x000000FFL
+    o = clr & 0x000000FF
+    b = (clr >> 8) & 0x000000FF
+    g = (clr >> 16) & 0x000000FF
+    r = (clr >> 24) & 0x000000FF
     return (r/255.0, g/255.0, b/255.0, (255-o)/255.0)
     
 
