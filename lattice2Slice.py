@@ -53,8 +53,8 @@ class LatticeSlice:
 
     def execute(self,obj):
         rst = []
-        pieces = LCE.AllLeaves(obj.Base.Shape)
-        cutters = LCE.AllLeaves(obj.Tool.Shape)
+        pieces = LCE.AllLeaves(screen(obj.Base).Shape)
+        cutters = LCE.AllLeaves(screen(obj.Tool).Shape)
         # prepare cutter shapes by converting them to solids
         cutters_solids = []
         for cutter in cutters:
@@ -125,12 +125,12 @@ class ViewProviderLatticeSlice:
         return None
 
     def claimChildren(self):
-        return [self.Object.Base, self.Object.Tool]
+        return [screen(self.Object.Base), screen(self.Object.Tool)]
         
     def onDelete(self, feature, subelements): # subelements is a tuple of strings
         try:
-            self.Object.Base.ViewObject.show()
-            self.Object.Tool.ViewObject.show()
+            screen(self.Object.Base).ViewObject.show()
+            screen(self.Object.Tool).ViewObject.show()
         except Exception as err:
             FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
         return True

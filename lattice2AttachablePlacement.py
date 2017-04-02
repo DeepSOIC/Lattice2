@@ -100,8 +100,8 @@ class AttachedPlacementSubsequence(lattice2BaseFeature.LatticeFeature):
         obj.CycleMode = ['Open','Periodic']
         
     def derivedExecute(self,obj):
-        attacher = Part.AttachEngine(obj.Base.AttacherType)
-        attacher.readParametersFromFeature(obj.Base)
+        attacher = Part.AttachEngine(screen(obj.Base).AttacherType)
+        attacher.readParametersFromFeature(screen(obj.Base))
         i_filt_str = obj.RefIndexFilter
         ifilt = None if i_filt_str == "" else [i for i in range(len(i_filt_str)) if int(i_filt_str[i]) != 0]
         sublinks = Subsequencer.Subsequence_auto(attacher.References, 
@@ -110,7 +110,7 @@ class AttachedPlacementSubsequence(lattice2BaseFeature.LatticeFeature):
         plms = []
         for lnkval in sublinks:
             attacher.References = lnkval
-            plms.append(attacher.calculateAttachedPlacement(obj.Base.Placement))
+            plms.append(attacher.calculateAttachedPlacement(screen(obj.Base).Placement))
         return plms
 
 class ViewProviderAttachedPlacementSubsequence(lattice2BaseFeature.ViewProviderLatticeFeature):
@@ -118,7 +118,7 @@ class ViewProviderAttachedPlacementSubsequence(lattice2BaseFeature.ViewProviderL
         return getIconPath('Lattice2_AttachedPlacementSubsequence.svg')
 
     def claimChildren(self):
-        return [self.Object.Base]
+        return [screen(self.Object.Base)]
 
 # -------------------------- /document object --------------------------------------------------
 

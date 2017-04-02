@@ -75,24 +75,24 @@ class LatticePopulateChildren(lattice2BaseFeature.LatticeFeature):
         
         self.initNewProperties(obj)
         
-        outputIsLattice = lattice2BaseFeature.isObjectLattice(obj.Object)
+        outputIsLattice = lattice2BaseFeature.isObjectLattice(screen(obj.Object))
         
-        if not lattice2BaseFeature.isObjectLattice(obj.Object):
+        if not lattice2BaseFeature.isObjectLattice(screen(obj.Object)):
             if obj.ObjectTraversal == "Direct children only":
-                objectShapes = obj.Object.Shape.childShapes()
-                if obj.Object.Shape.ShapeType != "Compound":
+                objectShapes = screen(obj.Object).Shape.childShapes()
+                if screen(obj.Object).Shape.ShapeType != "Compound":
                     lattice2Executer.warning(obj,"shape supplied as object is not a compound. It is going to be downgraded one level down (e.g, if it is a wire, the edges are going to be enumerated as children).")
             elif obj.ObjectTraversal == "Recursive":
-                objectShapes = LCE.AllLeaves(obj.Object.Shape)
+                objectShapes = LCE.AllLeaves(screen(obj.Object).Shape)
             else:
                 raise ValueError("Traversal mode not implemented: "+obj.ObjectTraversal)
         else:
-            objectPlms = lattice2BaseFeature.getPlacementsList(obj.Object, obj)
-        placements = lattice2BaseFeature.getPlacementsList(obj.PlacementsTo, obj)
+            objectPlms = lattice2BaseFeature.getPlacementsList(screen(obj.Object), obj)
+        placements = lattice2BaseFeature.getPlacementsList(screen(obj.PlacementsTo), obj)
 
         
         # Precompute referencing
-        placements = DereferenceArray(obj, placements, obj.PlacementsFrom, obj.Referencing)
+        placements = DereferenceArray(obj, placements, screen(obj.PlacementsFrom), obj.Referencing)
                 
         # initialize output containers and loop variables
         outputShapes = [] #output list of shapes
@@ -136,7 +136,7 @@ class LatticePopulateChildren(lattice2BaseFeature.LatticeFeature):
 class ViewProviderLatticePopulateChildren(lattice2BaseFeature.ViewProviderLatticeFeature):
 
     def getIcon(self):
-        if lattice2BaseFeature.isObjectLattice(self.Object):
+        if lattice2BaseFeature.isObjectLattice(screen(self.Object)):
             return getIconPath(
                 {"Origin":"Lattice2_PopulateChildren_Plms_Normal.svg",
                  "First item":"Lattice2_PopulateChildren_Plms_Array.svg",
@@ -154,9 +154,9 @@ class ViewProviderLatticePopulateChildren(lattice2BaseFeature.ViewProviderLattic
                 )  
         
     def claimChildren(self):
-        children = [self.Object.Object, self.Object.PlacementsTo]
+        children = [screen(self.Object.Object), screen(self.Object.PlacementsTo)]
         if self.Object.Referencing == "Use PlacementsFrom":
-            children.append(self.Object.PlacementsFrom)
+            children.append(screen(self.Object.PlacementsFrom))
         return children
 
 # -------------------------- /document object --------------------------------------------------

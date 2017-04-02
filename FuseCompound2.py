@@ -51,7 +51,7 @@ class _FuseCompound:
 
     def execute(self,obj):
         rst = None
-        shps = obj.Base.Shape.childShapes()
+        shps = screen(obj.Base).Shape.childShapes()
         if len(shps) > 1:
             rst = shps[0].multiFuse(shps[1:])
             if obj.Refine:
@@ -89,11 +89,11 @@ class _ViewProviderFuseCompound:
         return None
 
     def claimChildren(self):
-        return [self.Object.Base]
+        return [screen(self.Object.Base)]
         
     def onDelete(self, feature, subelements): # subelements is a tuple of strings
         try:
-            self.Object.Base.ViewObject.show()
+            screen(self.Object.Base).ViewObject.show()
         except Exception as err:
             FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
         return True

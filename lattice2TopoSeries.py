@@ -132,7 +132,7 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
             # do the subsequencing in this document first, to verify stuff is set up correctly, and to obtain sequence length
             if self.isVerbose():
                 print ("In-place pre-subsequencing, for early check")
-            n_seq, subs_linkdict = self.makeSubsequence(selfobj, selfobj.ObjectToLoopOver)
+            n_seq, subs_linkdict = self.makeSubsequence(selfobj, screen(selfobj.ObjectToLoopOver))
             
             
             bGui = bool(App.GuiUp) and Executer.globalIsCreatingLatticeFeature #disabled for most recomputes, because it causes a crash if property edits are approved by hitting Enter
@@ -150,7 +150,7 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
                 if self.isVerbose():
                     print ("Copying object with dependencies to a temporary document...")
 
-                doc2.copyObject(selfobj.ObjectToTake, True)
+                doc2.copyObject(screen(selfobj.ObjectToTake), True)
                 
                 if self.isVerbose():
                     print ("Enabling nested para/toposeries, if any...")
@@ -163,8 +163,8 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
                         except exception:
                             Executer.warning(selfobj,"Failed to enable recomputing of "+objd2.Name)
                 
-                object_to_take_in_doc2 = doc2.getObject(selfobj.ObjectToTake.Name)
-                object_to_loop_in_doc2 = doc2.getObject(selfobj.ObjectToLoopOver.Name)
+                object_to_take_in_doc2 = doc2.getObject(screen(selfobj.ObjectToTake).Name)
+                object_to_loop_in_doc2 = doc2.getObject(screen(selfobj.ObjectToLoopOver).Name)
                 if bGui:
                     progress.setValue(1)
                     
@@ -191,8 +191,8 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
                             
                             scale = 1.0
                             try:
-                                if not selfobj.ObjectToTake.Shape.isNull():
-                                    scale = selfobj.ObjectToTake.Shape.BoundBox.DiagonalLength/math.sqrt(3)
+                                if not screen(selfobj.ObjectToTake).Shape.isNull():
+                                    scale = screen(selfobj.ObjectToTake).Shape.BoundBox.DiagonalLength/math.sqrt(3)
                             except Exception:
                                 pass
                             if scale < DistConfusion * 100:
@@ -224,7 +224,7 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
                 
             selfobj.Shape = Part.makeCompound(output_shapes)
 
-            output_is_lattice = lattice2BaseFeature.isObjectLattice(selfobj.ObjectToTake)
+            output_is_lattice = lattice2BaseFeature.isObjectLattice(screen(selfobj.ObjectToTake))
             if 'Auto' in selfobj.isLattice:
                 new_isLattice = 'Auto-On' if output_is_lattice else 'Auto-Off'
                 if selfobj.isLattice != new_isLattice:#check, to not cause onChanged without necessity (onChange messes with colors, it's better to keep user color)
@@ -240,7 +240,7 @@ class ViewProviderLatticeTopoSeries(lattice2BaseFeature.ViewProviderLatticeFeatu
         return getIconPath("Lattice2_TopoSeries.svg")  
         
     def claimChildren(self):
-        return [self.Object.ObjectToTake]
+        return [screen(self.Object.ObjectToTake)]
 
 # -------------------------- /document object --------------------------------------------------
 

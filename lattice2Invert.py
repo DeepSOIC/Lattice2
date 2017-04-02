@@ -60,8 +60,8 @@ class LatticeInvert(lattice2BaseFeature.LatticeFeature):
 
     def derivedExecute(self,obj):
         # cache stuff
-        base = obj.Base.Shape
-        if not lattice2BaseFeature.isObjectLattice(obj.Base):
+        base = screen(obj.Base).Shape
+        if not lattice2BaseFeature.isObjectLattice(screen(obj.Base)):
             lattice2Executer.warning(obj, "Base is not a lattice, but lattice is expected. Results may be unexpected.\n")
         baseChildren = LCE.AllLeaves(base)
                         
@@ -107,7 +107,7 @@ class ViewProviderInvert(lattice2BaseFeature.ViewProviderLatticeFeature):
         return getIconPath('Lattice2_Invert.svg')
     
     def claimChildren(self):
-        return [self.Object.Base]
+        return [screen(self.Object.Base)]
 
 
 # -------------------------- /document object --------------------------------------------------

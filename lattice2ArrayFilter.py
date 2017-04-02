@@ -73,11 +73,11 @@ class LatticeArrayFilter(lattice2BaseFeature.LatticeFeature):
 
     def derivedExecute(self,obj):
         #validity check
-        if not lattice2BaseFeature.isObjectLattice(obj.Base):
+        if not lattice2BaseFeature.isObjectLattice(screen(obj.Base)):
             lattice2Executer.warning(obj,"A lattice object is expected as Base, but a generic shape was provided. It will be treated as a lattice object; results may be unexpected.")
 
         output = [] #variable to receive the final list of placements
-        leaves = LCE.AllLeaves(obj.Base.Shape)
+        leaves = LCE.AllLeaves(screen(obj.Base).Shape)
         input = [leaf.Placement for leaf in leaves]
         if obj.FilterType == 'bypass':
             output = input
@@ -107,7 +107,7 @@ class LatticeArrayFilter(lattice2BaseFeature.LatticeFeature):
                     if not flags[i]:
                         output.append(input[i])
         elif obj.FilterType == 'collision-pass':
-            stencil = obj.Stencil.Shape
+            stencil = screen(obj.Stencil).Shape
             for plm in input:
                 pnt = Part.Vertex(plm.Base)
                 d = pnt.distToShape(stencil)
@@ -118,7 +118,7 @@ class LatticeArrayFilter(lattice2BaseFeature.LatticeFeature):
             for i in xrange(0,len(input)):
                 if obj.FilterType == 'window-distance':
                     pnt = Part.Vertex(input[i].Base)
-                    vals[i] = pnt.distToShape(obj.Stencil.Shape)[0]
+                    vals[i] = pnt.distToShape(screen(obj.Stencil).Shape)[0]
             
             valFrom = obj.WindowFrom
             valTo = obj.WindowTo
@@ -139,9 +139,9 @@ class ViewProviderArrayFilter(lattice2BaseFeature.ViewProviderLatticeFeature):
         return getIconPath("Lattice2_ArrayFilter.svg")
 
     def claimChildren(self):
-        children = [self.Object.Base]
-        if self.Object.Stencil:
-            children.append(self.Object.Stencil)
+        children = [screen(self.Object.Base)]
+        if screen(self.Object.Stencil):
+            children.append(screen(self.Object.Stencil))
         return children
 
 def makeItemListFromSelection(sel, bMakeString = True):

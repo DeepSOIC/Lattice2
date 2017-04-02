@@ -81,12 +81,12 @@ class _CompoundFilter:
 
     def execute(self,obj):
         #validity check
-        if isObjectLattice(obj.Base):
+        if isObjectLattice(screen(obj.Base)):
             import lattice2Executer
             lattice2Executer.warning(obj,"A generic shape is expected, but an array of placements was supplied. It will be treated as a generic shape.")
 
         rst = [] #variable to receive the final list of shapes
-        shps = obj.Base.Shape.childShapes()
+        shps = screen(obj.Base).Shape.childShapes()
         if obj.FilterType == 'bypass':
             rst = shps
         elif obj.FilterType == 'specific items':
@@ -116,7 +116,7 @@ class _CompoundFilter:
                     if not flags[i]:
                         rst.append(shps[i])
         elif obj.FilterType == 'collision-pass':
-            stencil = obj.Stencil.Shape
+            stencil = screen(obj.Stencil).Shape
             for s in shps:
                 d = s.distToShape(stencil)
                 if bool(d[0] < DistConfusion) ^ bool(obj.Invert):
@@ -155,8 +155,8 @@ class _CompoundFilter:
         
         if len(rst) == 0:
             scale = 1.0
-            if not obj.Base.Shape.isNull():
-                scale = obj.Base.Shape.BoundBox.DiagonalLength/math.sqrt(3)/math.sqrt(len(shps))
+            if not screen(obj.Base).Shape.isNull():
+                scale = screen(obj.Base).Shape.BoundBox.DiagonalLength/math.sqrt(3)/math.sqrt(len(shps))
             if scale < DistConfusion * 100:
                 scale = 1.0
             obj.Shape = markers.getNullShapeShape(scale)
@@ -202,7 +202,7 @@ class _ViewProviderCompoundFilter:
         return None
 
     def claimChildren(self):
-        children = [self.Object.Base]
+        children = [screen(self.Object.Base)]
         if self.Object.Stencil:
             children.append(self.Object.Stencil)
         return children
@@ -210,7 +210,7 @@ class _ViewProviderCompoundFilter:
     def onDelete(self, feature, subelements): # subelements is a tuple of strings
         if not self.ViewObject.DontUnhideOnDelete:
             try:
-                self.Object.Base.ViewObject.show()
+                screen(self.Object.Base).ViewObject.show()
                 if self.Object.Stencil:
                     self.Object.Stencil.ViewObject.show()
             except Exception as err:

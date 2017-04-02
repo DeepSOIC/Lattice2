@@ -59,17 +59,17 @@ class LatticeSubLink:
     def assureProperties(self, selfobj):
         assureProperty(selfobj, "App::PropertyEnumeration","Looping", ["Single"] + LSS.LOOP_MODES, "Lattice SubLink", "Sets wether to collect just the element, or all similar from array.")
         assureProperty(selfobj, "App::PropertyEnumeration","CompoundTraversal", LSS.TRAVERSAL_MODES, "Lattice SubLink", "Sets how to unpack compounds if Looping is not 'Single'.")
-        assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(selfobj.Object, selfobj.SubNames), "Lattice SubLink", "Mirror of Object+SubNames properties")
+        assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(screen(selfobj.Object), selfobj.SubNames), "Lattice SubLink", "Mirror of Object+SubNames properties")
 
     def execute(self,selfobj):
         self.assureProperties(selfobj)
     
         #validity check
-        if isObjectLattice(selfobj.Object):
+        if isObjectLattice(screen(selfobj.Object)):
             import lattice2Executer
             lattice2Executer.warning(selfobj,"A generic shape is expected, but a placement/array was supplied. It will be treated as a generic shape.")
 
-        lnkobj = selfobj.Object
+        lnkobj = screen(selfobj.Object)
         sh = lnkobj.Shape
         
         # subsequencing
@@ -125,8 +125,8 @@ class LatticeSubLink:
             # no shapes collected, FAIL!
             scale = 1.0
             try:
-                if selfobj.Object:
-                    scale = selfobj.Object[0].Shape.BoundBox.DiagonalLength/math.sqrt(3)
+                if screen(selfobj.Object):
+                    scale = screen(selfobj.Object).Shape.BoundBox.DiagonalLength/math.sqrt(3)
             except Exception as err:
                 App.Console.PrintError(selfobj.Name+": Failed to estimate size of marker shape")
             if scale < DistConfusion * 100:

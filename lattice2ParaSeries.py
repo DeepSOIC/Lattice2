@@ -184,8 +184,8 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
             if len(values) == 0:
                 scale = 1.0
                 try:
-                    if not selfobj.Object.Shape.isNull():
-                        scale = selfobj.Object.Shape.BoundBox.DiagonalLength/math.sqrt(3)
+                    if not screen(selfobj.Object).Shape.isNull():
+                        scale = screen(selfobj.Object).Shape.BoundBox.DiagonalLength/math.sqrt(3)
                 except Exception:
                     pass
                 if scale < DistConfusion * 100:
@@ -204,7 +204,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
             doc2 = App.newDocument()
             object_in_doc2 = None # define the variable, to prevent del() in finally block from raising another error
             try:
-                doc2.copyObject(selfobj.Object, True)
+                doc2.copyObject(screen(selfobj.Object), True)
                 
                 #if there are nested paraseries in the dependencies, make sure to enable them
                 for objd2 in doc2.Objects:
@@ -215,7 +215,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                         except exception:
                             lattice2Executer.warning(selfobj,"Failed to enable recomputing of "+objd2.Name)
                 
-                object_in_doc2 = doc2.getObject(selfobj.Object.Name)
+                object_in_doc2 = doc2.getObject(screen(selfobj.Object).Name)
                 if bGui:
                     progress.setValue(1)
                 output_shapes = []
@@ -234,8 +234,8 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                             
                             scale = 1.0
                             try:
-                                if not selfobj.Object.Shape.isNull():
-                                    scale = selfobj.Object.Shape.BoundBox.DiagonalLength/math.sqrt(3)
+                                if not screen(selfobj.Object).Shape.isNull():
+                                    scale = screen(selfobj.Object).Shape.BoundBox.DiagonalLength/math.sqrt(3)
                             except Exception:
                                 pass
                             if scale < DistConfusion * 100:
@@ -263,7 +263,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                 
             selfobj.Shape = Part.makeCompound(output_shapes)
 
-            output_is_lattice = lattice2BaseFeature.isObjectLattice(selfobj.Object)
+            output_is_lattice = lattice2BaseFeature.isObjectLattice(screen(selfobj.Object))
             if 'Auto' in selfobj.isLattice:
                 new_isLattice = 'Auto-On' if output_is_lattice else 'Auto-Off'
                 if selfobj.isLattice != new_isLattice:#check, to not cause onChanged without necessity (onChange messes with colors, it's better to keep user color)
@@ -279,7 +279,7 @@ class ViewProviderLatticeParaSeries(lattice2BaseFeature.ViewProviderLatticeFeatu
         return getIconPath("Lattice2_ParaSeries.svg")  
         
     def claimChildren(self):
-        return [self.Object.Object]
+        return [screen(self.Object.Object)]
 
 # -------------------------- /document object --------------------------------------------------
 

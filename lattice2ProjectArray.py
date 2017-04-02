@@ -68,17 +68,17 @@ class LatticeProjectArray(lattice2BaseFeature.LatticeFeature):
 
     def derivedExecute(self,obj):
         #validity check
-        if not lattice2BaseFeature.isObjectLattice(obj.Base):
+        if not lattice2BaseFeature.isObjectLattice(screen(obj.Base)):
             lattice2Executer.warning(obj,"A lattice object is expected as Base, but a generic shape was provided. It will be treated as a lattice object; results may be unexpected.")
         
-        toolShape = obj.Tool.Shape
-        if lattice2BaseFeature.isObjectLattice(obj.Tool):
+        toolShape = screen(obj.Tool).Shape
+        if lattice2BaseFeature.isObjectLattice(screen(obj.Tool)):
             lattice2Executer.warning(obj,"A lattice object was provided as Tool. It will be converted into points; orientations will be ignored.")
             leaves = LCE.AllLeaves(toolShape)
             points = [Part.Vertex(leaf.Placement.Base) for leaf in leaves]
             toolShape = Part.makeCompound(points)
 
-        leaves = LCE.AllLeaves(obj.Base.Shape)
+        leaves = LCE.AllLeaves(screen(obj.Base).Shape)
         input = [leaf.Placement for leaf in leaves]
 
         output = [] #variable to receive the final list of placements
@@ -180,7 +180,7 @@ class ViewProviderProjectArray(lattice2BaseFeature.ViewProviderLatticeFeature):
         return getIconPath("Lattice2_ProjectArray.svg")
 
     def claimChildren(self):
-        return [self.Object.Base]
+        return [screen(self.Object.Base)]
 
 def CreateLatticeProjectArray(name):
     sel = FreeCADGui.Selection.getSelectionEx()

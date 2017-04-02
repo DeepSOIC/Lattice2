@@ -53,13 +53,13 @@ class ShapeInfoFeature:
         
         self.updatedProperties = set()
         try:
-            if LBF.isObjectLattice(selfobj.Object):
-                plms = LBF.getPlacementsList(selfobj.Object)
+            if LBF.isObjectLattice(screen(selfobj.Object)):
+                plms = LBF.getPlacementsList(screen(selfobj.Object))
                 self.assignProp(selfobj,"App::PropertyInteger","NumberOfPlacements",len(plms))
                 for i in range(    min(  len(plms), 10  )    ):
                     self.assignProp(selfobj,"App::PropertyPlacement","Placement"+str(i),plms[i])
             else:
-                sh = selfobj.Object.Shape
+                sh = screen(selfobj.Object).Shape
                 
                 self.assignProp(selfobj,"App::PropertyString","ShapeType", sh.ShapeType)
                 

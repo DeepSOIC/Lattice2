@@ -109,16 +109,16 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         self.assureProperties(obj)
         
         # cache stuff
-        objectShape = obj.Object.Shape
-        placements = lattice2BaseFeature.getPlacementsList(obj.PlacementsTo, obj)
+        objectShape = screen(obj.Object).Shape
+        placements = lattice2BaseFeature.getPlacementsList(screen(obj.PlacementsTo), obj)
 
-        outputIsLattice = lattice2BaseFeature.isObjectLattice(obj.Object)
+        outputIsLattice = lattice2BaseFeature.isObjectLattice(screen(obj.Object))
 
         # Pre-collect base placement list, if base is a lattice. For speed.
         if outputIsLattice:
-            objectPlms = lattice2BaseFeature.getPlacementsList(obj.Object,obj)
+            objectPlms = lattice2BaseFeature.getPlacementsList(screen(obj.Object),obj)
         
-        placements = DereferenceArray(obj, placements, obj.PlacementsFrom, obj.Referencing)
+        placements = DereferenceArray(obj, placements, screen(obj.PlacementsFrom), obj.Referencing)
         
         # initialize output containers and loop variables
         outputShapes = [] #output list of shapes
@@ -143,7 +143,7 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
             # Output shape or compound (complex logic involving OutputCompounding property)
             #first, autosettle the OutputCompounding.
             if obj.OutputCompounding == "(autosettle)":
-                if hasattr(obj.PlacementsTo,"ExposePlacement") and obj.PlacementsTo.ExposePlacement == False:
+                if hasattr(screen(obj.PlacementsTo),"ExposePlacement") and screen(obj.PlacementsTo).ExposePlacement == False:
                     obj.OutputCompounding = "always"
                 else:
                     obj.OutputCompounding = "only if many"
@@ -177,9 +177,9 @@ class ViewProviderLatticePopulateCopies(lattice2BaseFeature.ViewProviderLatticeF
                 )  
         
     def claimChildren(self):
-        children = [self.Object.Object, self.Object.PlacementsTo]
+        children = [screen(self.Object.Object), screen(self.Object.PlacementsTo)]
         if self.Object.Referencing == "Use PlacementsFrom":
-            children.append(self.Object.PlacementsFrom)
+            children.append(screen(self.Object.PlacementsFrom))
         return children
 
 # -------------------------- /document object --------------------------------------------------

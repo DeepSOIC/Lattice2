@@ -83,11 +83,12 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         self.assureProperties(obj)
 
     def updateReadonlyness(self, obj):
-        obj.setEditorMode("Dir", 1 if (obj.Link and obj.DirIsDriven) else 0)
-        obj.setEditorMode("Point", 1 if (obj.Link and obj.PointIsDriven) else 0)
-        obj.setEditorMode("DirIsDriven", 0 if obj.Link else 1)
-        obj.setEditorMode("PointIsDriven", 0 if obj.Link else 1)
-        obj.setEditorMode("DrivenProperty", 0 if obj.Link else 1)
+        link = screen(obj.Link)
+        obj.setEditorMode("Dir", 1 if (link and obj.DirIsDriven) else 0)
+        obj.setEditorMode("Point", 1 if (link and obj.PointIsDriven) else 0)
+        obj.setEditorMode("DirIsDriven", 0 if link else 1)
+        obj.setEditorMode("PointIsDriven", 0 if link else 1)
+        obj.setEditorMode("DrivenProperty", 0 if link else 1)
         
         self.generator.updateReadonlyness()
 
@@ -103,7 +104,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         self.updateReadonlyness(obj)
         
     def assureProperties(self, selfobj):
-        assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(selfobj.Link, selfobj.LinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
+        assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(screen(selfobj.Link), selfobj.LinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
 
     def derivedExecute(self,obj):
         self.assureGenerator(obj)
@@ -111,15 +112,15 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         self.updateReadonlyness(obj)
 
         # Apply links
-        if obj.Link:
-            if lattice2BaseFeature.isObjectLattice(obj.Link):
+        if screen(obj.Link):
+            if lattice2BaseFeature.isObjectLattice(screen(obj.Link)):
                 lattice2Executer.warning(obj,"For polar array, axis link is expected to be a regular shape. Lattice objct was supplied instead, it's going to be treated as a generic shape.")
             
             #resolve the link
             if len(obj.LinkSubelement) > 0:
-                linkedShape = obj.Link.Shape.getElement(obj.LinkSubelement)
+                linkedShape = screen(obj.Link).Shape.getElement(obj.LinkSubelement)
             else:
-                linkedShape = obj.Link.Shape
+                linkedShape = screen(obj.Link).Shape
             
             #Type check
             if linkedShape.ShapeType != 'Edge':
@@ -155,7 +156,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         #Apply reversal
         if obj.Reverse:
             obj.Dir = obj.Dir*(-1.0)
-            if not(obj.DirIsDriven and obj.Link):
+            if not(obj.DirIsDriven and screen(obj.Link)):
                 obj.Reverse = False
 
         # precompute orientation

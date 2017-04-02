@@ -68,10 +68,10 @@ class LatticeArrayFromShape(lattice2BaseFeature.LatticeFeature):
 
     def derivedExecute(self,obj):
         # cache stuff
-        if lattice2BaseFeature.isObjectLattice(obj.ShapeLink):
+        if lattice2BaseFeature.isObjectLattice(screen(obj.ShapeLink)):
             lattice2Executer.warning(obj,"ShapeLink points to a placement/array of placements. The placement/array will be reinterpreted as a generic shape; the results may be unexpected.")
 
-        base = obj.ShapeLink.Shape
+        base = screen(obj.ShapeLink).Shape
         if obj.CompoundTraversal == "Use as a whole":
             baseChildren = [base]
         else:

@@ -150,7 +150,7 @@ class LatticeShapeString:
 
     def execute(self,obj):
         nOfStrings = len(obj.Strings)
-        lattice = obj.ArrayLink
+        lattice = screen(obj.ArrayLink)
         if lattice is None:
             plms = [App.Placement() for i in range(0,nOfStrings)]
         else:

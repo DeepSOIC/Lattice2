@@ -28,7 +28,7 @@ __doc__ = "Value Series generator module: utility module to attach value generat
 
 import math
 import lattice2Executer
-from lattice2Common import ParaConfusion
+from lattice2Common import ParaConfusion, screen
 
 class ValueSeriesGenerator:
     mode_userfriendly_names = {
@@ -253,9 +253,10 @@ class ValueSeriesGenerator:
             
             #loop until the value can't be read out
             values = []
+            spsh = screen(obj.SpreadsheetLink)
             while True:
                 try:
-                    values.append( obj.SpreadsheetLink.get(col+str(row)) )
+                    values.append( spsh.get(col+str(row)) )
                 except ValueError:
                     break
                 row += 1

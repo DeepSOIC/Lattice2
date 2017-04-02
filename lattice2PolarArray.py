@@ -89,14 +89,15 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         self.updateReadonlyness(obj)
         
     def updateReadonlyness(self, obj):
-        obj.setEditorMode("AxisDir", 1 if (obj.AxisLink and obj.AxisDirIsDriven) else 0)
-        obj.setEditorMode("AxisPoint", 1 if (obj.AxisLink and obj.AxisPointIsDriven) else 0)
-        obj.setEditorMode("AxisDirIsDriven", 0 if obj.AxisLink else 1)
-        obj.setEditorMode("AxisPointIsDriven", 0 if obj.AxisLink else 1)
+        axislink = screen(obj.AxisLink)
+        obj.setEditorMode("AxisDir", 1 if (axislink and obj.AxisDirIsDriven) else 0)
+        obj.setEditorMode("AxisPoint", 1 if (axislink and obj.AxisPointIsDriven) else 0)
+        obj.setEditorMode("AxisDirIsDriven", 0 if axislink else 1)
+        obj.setEditorMode("AxisPointIsDriven", 0 if axislink else 1)
         self.generator.updateReadonlyness()
     
     def assureProperties(self, selfobj):
-        assureProperty(selfobj, "App::PropertyLinkSub", "AxisSubLink", sublinkFromApart(selfobj.AxisLink, selfobj.AxisLinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
+        assureProperty(selfobj, "App::PropertyLinkSub", "AxisSubLink", sublinkFromApart(screen(selfobj.AxisLink), selfobj.AxisLinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
 
 
     def derivedExecute(self,obj):
@@ -105,15 +106,15 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         self.updateReadonlyness(obj)
         
         # Apply links
-        if obj.AxisLink:
-            if lattice2BaseFeature.isObjectLattice(obj.AxisLink):
+        if screen(obj.AxisLink):
+            if lattice2BaseFeature.isObjectLattice(screen(obj.AxisLink)):
                 lattice2Executer.warning(obj,"For polar array, axis link is expected to be a regular shape. Lattice objct was supplied instead, it's going to be treated as a generic shape.")
                 
             #resolve the link        
             if len(obj.AxisLinkSubelement) > 0:
-                linkedShape = obj.AxisLink.Shape.getElement(obj.AxisLinkSubelement)
+                linkedShape = screen(obj.AxisLink).Shape.getElement(obj.AxisLinkSubelement)
             else:
-                linkedShape = obj.AxisLink.Shape
+                linkedShape = screen(obj.AxisLink).Shape
 
             #Type check
             if linkedShape.ShapeType != 'Edge':

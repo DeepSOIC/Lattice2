@@ -138,7 +138,7 @@ class _BoundBox:
         
 
     def execute(self,obj):
-        base = obj.ShapeLink.Shape
+        base = screen(obj.ShapeLink).Shape
         if obj.CompoundTraversal == "Use as a whole":
             baseChildren = [base]
         else:
@@ -155,11 +155,11 @@ class _BoundBox:
         if obj.OrientMode == "global":
             orients = [App.Placement()]*N
         elif obj.OrientMode == "local of compound":
-            orients = [obj.ShapeLink.Placement]*N
+            orients = [screen(obj.ShapeLink).Placement]*N
         elif obj.OrientMode == "local of child":
             orients = [child.Placement for child in baseChildren]
         elif obj.OrientMode == "use OrientLink":
-            orients = LBF.getPlacementsList(obj.OrientLink, context= obj)
+            orients = LBF.getPlacementsList(screen(obj.OrientLink), context= obj)
             if len(orients) == N:
                 pass
             elif len(orients)>N:

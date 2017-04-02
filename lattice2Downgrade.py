@@ -74,7 +74,7 @@ class _latticeDowngrade:
 
     def execute(self,obj):
         rst = [] #variable to receive the final list of shapes
-        shp = obj.Base.Shape
+        shp = screen(obj.Base).Shape
         if obj.Mode == 'bypass':
             rst = [shp]
         elif obj.Mode == 'Leaves':
@@ -124,8 +124,8 @@ class _latticeDowngrade:
         
         if len(rst) == 0:
             scale = 1.0
-            if not obj.Base.Shape.isNull():
-                scale = obj.Base.Shape.BoundBox.DiagonalLength/math.sqrt(3)
+            if not screen(obj.Base).Shape.isNull():
+                scale = screen(obj.Base).Shape.BoundBox.DiagonalLength/math.sqrt(3)
             if scale < DistConfusion * 100:
                 scale = 1.0
             obj.Shape = markers.getNullShapeShape(scale)
@@ -162,11 +162,11 @@ class _ViewProviderLatticeDowngrade:
         return None
 
     def claimChildren(self):
-        return [self.Object.Base]
+        return [screen(self.Object.Base)]
 
     def onDelete(self, feature, subelements): # subelements is a tuple of strings
         try:
-            self.Object.Base.ViewObject.show()
+            screen(self.Object.Base).ViewObject.show()
         except Exception as err:
             FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
         return True
