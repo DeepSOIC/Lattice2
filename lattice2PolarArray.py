@@ -123,7 +123,9 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
             dir = App.Vector()
             point = App.Vector()
             if isinstance(linkedShape.Curve, Part.Line):
-                dir = linkedShape.Curve.EndPoint - linkedShape.Curve.StartPoint
+                start_point = linkedShape.valueAt(linkedShape.FirstParameter)
+                end_point = linkedShape.valueAt(linkedShape.LastParameter)
+                dir = end_point - start_point
                 point = linkedShape.Curve.StartPoint
             elif isinstance(linkedShape.Curve, Part.Circle):
                 dir = linkedShape.Curve.Axis

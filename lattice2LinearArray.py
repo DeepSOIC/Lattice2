@@ -128,8 +128,10 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
                 raise ValueError('Axis link must be a line; it is '+type(linkedShape.Curve)+' instead.')
             
             #obtain
-            dir = linkedShape.Curve.EndPoint - linkedShape.Curve.StartPoint
-            point = linkedShape.Curve.StartPoint if not obj.Reverse else linkedShape.Curve.EndPoint
+            start_point = linkedShape.valueAt(linkedShape.FirstParameter)
+            end_point = linkedShape.valueAt(linkedShape.LastParameter)
+            dir = end_point - start_point
+            point = start_point if not obj.Reverse else end_point
             
             if obj.DirIsDriven:
                 obj.Dir = dir
