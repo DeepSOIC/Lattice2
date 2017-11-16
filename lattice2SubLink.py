@@ -101,6 +101,7 @@ class LatticeSubLink:
                     index = int(subname.replace('Vertex',''))-1
                     pack.append(sh.Vertexes[index])
                 else: #fail-safe. non-standard sublink. 
+                    import lattice2Executer
                     lattice2Executer.warning(selfobj,"Unexpected subelement name: "+subname+". Trying to extract it with .Shape.getElement()...")
                     pack.append(sh.getElement(subname))
             
