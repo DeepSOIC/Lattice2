@@ -195,11 +195,14 @@ class LatticeFeature():
         return []
                 
     def verifyIntegrity(self):
-        if self.__init__.__func__ is not LatticeFeature.__init__.__func__:
-            FreeCAD.Console.PrintError("__init__() of lattice object is overridden. Please don't! Fix it!\n")
-        if self.execute.__func__ is not LatticeFeature.execute.__func__:
-            FreeCAD.Console.PrintError("execute() of lattice object is overridden. Please don't! Fix it!\n")
-    
+        try:
+            if self.__init__.__func__ is not LatticeFeature.__init__.__func__:
+                FreeCAD.Console.PrintError("__init__() of lattice object is overridden. Please don't! Fix it!\n")
+            if self.execute.__func__ is not LatticeFeature.execute.__func__:
+                FreeCAD.Console.PrintError("execute() of lattice object is overridden. Please don't! Fix it!\n")
+        except AttributeError as err:
+            pass # quick-n-dirty fix for Py3. TODO: restore the functionality in Py3, or remove this routine altogether.
+            
     def onChanged(self, obj, prop): #prop is a string - name of the property
         if prop == 'isLattice':
             if obj.ViewObject is not None:
@@ -244,8 +247,11 @@ class ViewProviderLatticeFeature:
         pass
        
     def verifyIntegrity(self):
-        if self.__init__.__func__ is not ViewProviderLatticeFeature.__init__.__func__:
-            FreeCAD.Console.PrintError("__init__() of lattice object view provider is overridden. Please don't! Fix it!\n")
+        try:
+            if self.__init__.__func__ is not ViewProviderLatticeFeature.__init__.__func__:
+                FreeCAD.Console.PrintError("__init__() of lattice object view provider is overridden. Please don't! Fix it!\n")
+        except AttributeError as err:
+            pass # quick-n-dirty fix for Py3. TODO: restore the functionality in Py3, or remove this routine altogether.
 
     def getIcon(self):
         return getIconPath("Lattice.svg")

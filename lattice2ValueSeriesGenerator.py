@@ -129,7 +129,7 @@ class ValueSeriesGenerator:
         self.readonlynessDict[propname] = bool_writable
         
     def _setPropertyWritable(self, propname, bool_writable, suppress_warning = False):
-        if self.readonlynessDict.has_key(propname):
+        if propname in self.readonlynessDict:
             bool_writable = bool_writable and self.readonlynessDict[propname] 
         self.documentObject.setEditorMode(propname, 0 if bool_writable else 1)
         

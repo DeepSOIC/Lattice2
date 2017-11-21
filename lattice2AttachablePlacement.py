@@ -129,6 +129,7 @@ def CreateAttachablePlacement(name):
     FreeCAD.ActiveDocument.openTransaction("Create Attachable Placement")
     FreeCADGui.addModule("lattice2AttachablePlacement")
     FreeCADGui.addModule("lattice2Executer")
+    FreeCADGui.addModule("PartGui")
     FreeCADGui.doCommand("f = lattice2AttachablePlacement.makeAttachablePlacement(name='"+name+"')")    
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")    
     FreeCADGui.doCommand("PartGui.AttachmentEditor.editAttachment(f, take_selection= True,"
