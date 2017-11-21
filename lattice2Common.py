@@ -55,6 +55,7 @@ class SelectionError(FreeCAD.Base.FreeCADError):
     '''Error that isused inside Gui command code'''
     def __init__(self, title, message):
         self.message = message
+        self.args = (message,)
         self.title = title
         
 def msgError(err):
@@ -62,7 +63,7 @@ def msgError(err):
     if hasattr(err, "isCancelError") and err.isCancelError: return   #workaround
     mb = QtGui.QMessageBox()
     mb.setIcon(mb.Icon.Warning)
-    mb.setText(err.message)
+    mb.setText(str(err))
     if type(err) is SelectionError:
         mb.setWindowTitle(err.title)
     else:

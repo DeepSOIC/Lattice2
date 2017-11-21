@@ -378,7 +378,7 @@ def Subsequence_LinkDict(link_dict, traversal = TRAVERSAL_MODES[0], loop = LOOP_
     # trim them to shortest subsequence
     if n_seq is None:
         raise SubsequencingError_LinkValue("In supplied links, nothing to loop over compounds was found. Key-by-key errors follow: {err_list}"
-          .format(err_list= "\n".join([repr(key)+": "+err_dict[key].message for key in err_dict])))
+          .format(err_list= "\n".join([repr(key)+": "+str(err_dict[key]) for key in err_dict])))
     for key in ret_dict.keys():
         seq = ret_dict[key]
         seq = seq[0:n_seq]
