@@ -103,7 +103,7 @@ class LatticeArrayFilter(lattice2BaseFeature.LatticeFeature):
                     raise ValueError('index range cannot be parsed:'+r)
             if obj.Invert :
                 output = []
-                for i in xrange(0,len(input)):
+                for i in range(0,len(input)):
                     if not flags[i]:
                         output.append(input[i])
         elif obj.FilterType == 'collision-pass':
@@ -115,7 +115,7 @@ class LatticeArrayFilter(lattice2BaseFeature.LatticeFeature):
                     output.append(plm)
         elif obj.FilterType == 'window-distance':
             vals = [0.0] * len(input)
-            for i in xrange(0,len(input)):
+            for i in range(0,len(input)):
                 if obj.FilterType == 'window-distance':
                     pnt = Part.Vertex(input[i].Base)
                     vals[i] = pnt.distToShape(screen(obj.Stencil).Shape)[0]
@@ -123,7 +123,7 @@ class LatticeArrayFilter(lattice2BaseFeature.LatticeFeature):
             valFrom = obj.WindowFrom
             valTo = obj.WindowTo
             
-            for i in xrange(0,len(input)):
+            for i in range(0,len(input)):
                 if bool(vals[i] >= valFrom and vals[i] <= valTo) ^ obj.Invert:
                     output.append(input[i])
         else:

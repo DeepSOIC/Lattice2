@@ -112,7 +112,7 @@ class _CompoundFilter:
                     raise ValueError('index range cannot be parsed:'+r)
             if obj.Invert :
                 rst = []
-                for i in xrange(0,len(shps)):
+                for i in range(0,len(shps)):
                     if not flags[i]:
                         rst.append(shps[i])
         elif obj.FilterType == 'collision-pass':
@@ -123,7 +123,7 @@ class _CompoundFilter:
                     rst.append(s)
         elif obj.FilterType == 'window-volume' or obj.FilterType == 'window-area' or obj.FilterType == 'window-length' or obj.FilterType == 'window-distance':
             vals = [0.0] * len(shps)
-            for i in xrange(0,len(shps)):
+            for i in range(0,len(shps)):
                 if obj.FilterType == 'window-volume':
                     vals[i] = shps[i].Volume
                 elif obj.FilterType == 'window-area':
@@ -147,7 +147,7 @@ class _CompoundFilter:
             valFrom = obj.WindowFrom / 100.0 * maxval
             valTo = obj.WindowTo / 100.0 * maxval
             
-            for i in xrange(0,len(shps)):
+            for i in range(0,len(shps)):
                 if bool(vals[i] >= valFrom and vals[i] <= valTo) ^ obj.Invert:
                     rst.append(shps[i])
         else:

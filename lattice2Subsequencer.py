@@ -94,9 +94,9 @@ def getIndexesIntoList(element, list_of_shapes):
     
     ret = []
     
-    for i_sh in xrange(len(list_of_shapes)):
+    for i_sh in range(len(list_of_shapes)):
         elements = element_extractor(list_of_shapes[i_sh])
-        for i_el in xrange(len(elements)):
+        for i_el in range(len(elements)):
             if elements[i_el].isEqual(element):
                 # to make link more robust, use negative index if one is closer to the end
                 if i_el * 2 > len(elements):
@@ -187,7 +187,7 @@ def Subsequence_basic(link, traversal, loop):
         i_first_child = 0
     
     elements = element_extractors[element_type_string](compound) 
-    index_dict = dict([(HashableShape(elements[i]), i) for i in xrange(len(elements))])
+    index_dict = dict([(HashableShape(elements[i]), i) for i in range(len(elements))])
     
     # find the element in each child, find out its global index, and output result in a form of a string for a link
     ret = [] #list of tuples (object, subelement_string)
