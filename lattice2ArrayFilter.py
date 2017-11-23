@@ -165,13 +165,13 @@ def makeItemListFromSelection(sel, bMakeString = True):
         # figure out array element index of selected shape subelement
         if "Vertex" in sub:
             i_vert = int(  sub[len("Vertex"):]  )  -  1
-            i = i_vert/vertices_per_marker
+            i = int(i_vert/vertices_per_marker)
         elif "Edge" in sub:
             i_edge = int(  sub[len("Edge"):]  )  -  1
-            i = i_edge/edges_per_marker
+            i = int(i_edge/edges_per_marker)
         elif "Face" in sub:
             i_face = int(  sub[len("Face"):]  )  -  1
-            i = i_face/faces_per_marker
+            i = int(i_face/faces_per_marker)
         
         # add the index to index list, avoiding duplicates
         if len(indexes) > 0 and i == indexes[-1]:
