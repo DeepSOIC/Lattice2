@@ -182,7 +182,7 @@ def Subsequence_basic(link, traversal, loop):
         element_shape = element_extractors[element_type_string](compound)[index]
     
     # convert global element index to index in child 
-    i_first_child, element_type_string, i_in_child = getIndexesIntoList(element_shape, children).next()
+    i_first_child, element_type_string, i_in_child = next(getIndexesIntoList(element_shape, children))
     if loop == 'All from first':
         i_first_child = 0
     
