@@ -41,7 +41,7 @@ def executeFeature(obj):
         raise
     except Exception as err:
         try:
-            error(obj,err.message)
+            error(obj,str(err))
         except CancelError:
             obj.Document.abortTransaction()
             raise            
@@ -97,4 +97,5 @@ def _showMsg(obj, message, forceMessage, _type):
 class CancelError(Exception):
     def __init__(self):
         self.message = "Canceled by user"
+        self.args = (self.message,)
         self.isCancelError = True

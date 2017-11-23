@@ -214,7 +214,7 @@ class _ViewProviderCompoundFilter:
                 if self.Object.Stencil:
                     self.Object.Stencil.ViewObject.show()
             except Exception as err:
-                App.Console.PrintError("Error in onDelete: " + err.message)
+                App.Console.PrintError("Error in onDelete: " + str(err))
         return True
 
 def CreateCompoundFilter(name):

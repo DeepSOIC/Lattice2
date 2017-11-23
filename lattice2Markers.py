@@ -70,7 +70,7 @@ def loadShape(shapeID):
                 sh = sh.childShapes()[0]
             f.close()
         except Exception as err:
-            FreeCAD.Console.PrintError('Failed to load standard shape "'+shapeID+'". \n' + err.message + '\n')
+            FreeCAD.Console.PrintError('Failed to load standard shape "'+shapeID+'". \n' + str(err) + '\n')
             sh = Part.Point() #Create at least something!
         _ShapeDict[shapeID] = sh
     return sh

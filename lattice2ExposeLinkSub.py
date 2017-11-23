@@ -90,10 +90,8 @@ def cmdExposeLinkSubs():
                     ExposeLinkSub(obj, propname)
                     cnt += 1
                 except Exception as err:
-                    Executer.warning(None,"Attempting to expose sublink property %prop of %feat caused an error:\n%err"
-                                          .replace("%prop",propname)
-                                          .replace("%feat",obj.Name)
-                                          .replace("%err",err.message)   )
+                    Executer.warning(None,"Attempting to expose sublink property {prop} of {feat} caused an error:\n{err}"
+                                          .format(prop= propname, feat= obj.Name, err= str(err))   )
         if cnt == 0:
             raise ValueError("No links to expose were found.")
     except Exception:

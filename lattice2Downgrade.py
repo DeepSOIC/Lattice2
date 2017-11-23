@@ -168,7 +168,7 @@ class _ViewProviderLatticeDowngrade:
         try:
             screen(self.Object.Base).ViewObject.show()
         except Exception as err:
-            FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
+            FreeCAD.Console.PrintError("Error in onDelete: " + str(err))
         return True
 
 

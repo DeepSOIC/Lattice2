@@ -290,7 +290,7 @@ class ViewProviderLatticeFeature:
                         child.ViewObject.show()
         except Exception as err:
             # catch all exceptions, because we don't want to prevent deletion if something goes wrong
-            FreeCAD.Console.PrintError("Error in onDelete: " + err.message)
+            FreeCAD.Console.PrintError("Error in onDelete: " + str(err))
         return True
 
 

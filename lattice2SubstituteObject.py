@@ -106,7 +106,7 @@ class CommandSubstituteObject:
                 mb = QtGui.QMessageBox()
                 mb.setIcon(mb.Icon.Warning)
                 mb.setText(translate("Lattice2_SubstituteObject", "An error occured while substituting object:", None)+ u"\n"
-                               + unicode(err.message))
+                               + str(err))
                 mb.setWindowTitle(translate("Lattice2_SubstituteObject","Error", None))
                 mb.exec_()
                 App.ActiveDocument.abortTransaction()
@@ -119,7 +119,7 @@ class CommandSubstituteObject:
                 sel[0].Object.ViewObject.Visibility = True
                 sel[1].Object.ViewObject.Visibility = old_was_visible
             except Exception as err:
-                App.Console.PrintError("SubstituteFeature: error when changing visibilities: "+err.message+"\n")
+                App.Console.PrintError("SubstituteFeature: error when changing visibilities: "+str(err)+"\n")
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)

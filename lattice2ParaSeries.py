@@ -147,7 +147,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                     App.Console.PrintError("{obj}: failed to read out parameter '{param}': {err}\n"
                                             .format(obj= selfobj.Name,
                                                     param= refstr,
-                                                    err= err.message))
+                                                    err= str(err)))
                 defvalues.append(val)
             N_params = len(defvalues)
             if N_params == 0:
