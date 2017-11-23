@@ -312,7 +312,7 @@ def ExplodeArray(feature):
     features_created = []
     for i in range(len(plms)):
         af = makeArrayFilter(name = 'Placment')
-        af.Label = u'Placement' + unicode(i)
+        af.Label = u'Placement' + str(i)
         af.Base = feature
         af.FilterType = 'specific items'
         af.items = str(i)

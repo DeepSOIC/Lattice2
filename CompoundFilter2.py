@@ -271,7 +271,7 @@ def ExplodeCompound(feature):
     features_created = []
     for i in range(0, len(sh.childShapes(False,False))):
         cf = makeCompoundFilter(name = 'child')
-        cf.Label = u'Child' + unicode(i)
+        cf.Label = u'Child' + str(i)
         cf.Base = feature
         cf.FilterType = 'specific items'
         cf.items = str(i)

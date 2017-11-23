@@ -239,7 +239,7 @@ def CreateSubLink(object, subnames, looping):
     if looping != 'Single':
         name = object.Name+"_"+"Elements"
     FreeCADGui.doCommand("f = lattice2SubLink.makeSubLink(name = "+repr(name)+")")
-    label = unicode(subnames[0] if len(subnames)==1 else "subelements")  + u" of " + object.Label
+    label = (subnames[0] if len(subnames)==1 else "subelements")  + u" of " + object.Label
     FreeCADGui.doCommand("f.Label = "+repr(label))    
     FreeCADGui.doCommand("f.Object = App.ActiveDocument."+object.Name)
     FreeCADGui.doCommand("f.SubNames = "+repr(subnames))
