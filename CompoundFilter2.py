@@ -189,12 +189,6 @@ class _ViewProviderCompoundFilter:
         self.Object = vobj.Object
 
   
-    def setEdit(self,vobj,mode):
-        return False
-    
-    def unsetEdit(self,vobj,mode):
-        return
-
     def __getstate__(self):
         return None
 
