@@ -182,12 +182,13 @@ class _BoundBox:
             if abs(Q[0])+abs(Q[1])+abs(Q[2]) < ParaConfusion:
                 orients[i] = None
         
+        from lattice2ShapeCopy import shallowCopy
         boxes_shapes = []
         for i in range(N):
             child = baseChildren[i]
             if orients[i] is not None:
-                child = child.copy()
-                child.transformShape(orients[i].inverse().toMatrix())
+                child = shallowCopy(child)
+                child.Placement = orients[i].inverse().multiply(child.Placement)
 
             if obj.Precision:
                 bb = getPrecisionBoundBox(child)
@@ -199,7 +200,7 @@ class _BoundBox:
 
             bb_shape = boundBox2RealBox(bb)
             if orients[i] is not None:
-                bb_shape.transformShape(orients[i].toMatrix())
+                bb_shape.transformShape(orients[i].toMatrix(), True)
             boxes_shapes.append(bb_shape)
             
         #Fill in read-only properties
