@@ -184,7 +184,7 @@ class ViewProviderSubLink:
     def claimChildren(self):
         return []
         
-def CreateSubLink(object, subnames, looping):
+def CreateSubLink(object, subnames, looping = 'Single'):
     #stabilize links
     subnames = list(subnames) #'tuple' object does not support item assignment; SubElementNames of SelectionObject is a tuple
     try:

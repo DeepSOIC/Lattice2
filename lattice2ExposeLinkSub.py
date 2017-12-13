@@ -28,12 +28,13 @@ __doc__ = "Tool to expose LinkSub properties of objects, by spawning a SubLink o
 from lattice2Common import *
 import lattice2SubLink as LSL
 import lattice2Executer as Executer
+from lattice2Subsequencer import linkSubList_convertToOldStyle
 import FreeCAD as App
 
 def ExposeLinkSub(feature, propname):
     # read links out into reflist variable
     if feature.getTypeIdOfProperty(propname) == 'App::PropertyLinkSubList':
-        reflist = getattr(feature,propname)
+        reflist = linkSubList_convertToOldStyle(getattr(feature,propname))
     elif feature.getTypeIdOfProperty(propname) == 'App::PropertyLinkSub':
         (obj, subnames) = getattr(feature,propname)
         reflist = [(obj,subname) for subname in subnames]
