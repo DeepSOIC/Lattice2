@@ -11,3 +11,4 @@ import lattice2PopulateChildren     as PopulateChildren
 import lattice2PopulateCopies       as PopulateCopies  
 import lattice2ProjectArray         as ProjectArray    
 import lattice2Resample             as Resample        
+import lattice2Mirror               as Mirror

@@ -62,3 +62,18 @@ def syncSublinkApart(selfobj, prop, sublink_prop_name, obj_property_name, subnam
                 setattr(selfobj, subnames_prop_name, tup_apart[1])
         else:
             setattr(selfobj, sublink_prop_name, sl)
+
+def getSelectionAsPropertyLinkSubList():
+    import FreeCADGui as Gui
+    sel = Gui.Selection.getSelectionEx()
+    ret = []
+    for s in sel:
+        subnames = s.SubElementNames
+        if len(subnames)==0:
+            subnames = [""]
+        for sub in subnames:
+            ret.append((s.Object, sub))
+    return ret
+            
+def getSelectionAsListOfLinkSub():
+    return [(obj, [sub,]) for (obj,sub) in getSelectionAsPropertyLinkSubList()]
