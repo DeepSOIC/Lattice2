@@ -49,16 +49,25 @@ def shallowCopy(shape, extra_placement = None):
         FreeCAD.Console.PrintWarning("Lattice2: shallowCopy: unexpected shape type '{typ}'. Using deep copy instead.\n".format(typ= shape.ShapeType))
     ret = copier(shape)
     if extra_placement is not None:
-        ret.Placement = extra_placement.multiply(ret.Placement)
+        if hasattr(extra_placement, 'toMatrix'):
+            ret.Placement = extra_placement.multiply(ret.Placement)
+        elif extra_placement.determinant() - 1.0 < 1e-7:
+            ret.transformShape(extra_placement)
+        else:
+            raise NonPlacementMatrixError("Matrix supplied to shallowCopy must be unitary.")
     return ret
     
 def deepCopy(shape, extra_placement = None):
     """deepCopy(shape, extra_placement = None): Copies all subshapes. The copy will not match by isSame/isEqual/
     isPartner tests."""
     
-    ret = shape.copy()
     if extra_placement is not None:
-        ret.Placement = extra_placement.multiply(ret.Placement)
+        if hasattr(extra_placement, 'toMatrix'):
+            ret = shape.copy()
+            ret.Placement = extra_placement.multiply(ret.Placement)
+        else:
+            ret = shallowCopy(shape)
+            ret.transformShape(extra_placement, True)
     return ret    
     
 def transformCopy(shape, extra_placement = None):
@@ -67,13 +76,16 @@ def transformCopy(shape, extra_placement = None):
     
     if extra_placement is None:
         extra_placement = FreeCAD.Placement()
+    if hasattr(extra_placement, 'toMatrix'):
+        extra_placement = extra_placement.toMatrix()
     ret = shape.copy()
     if ret.ShapeType == "Vertex":
         # oddly, on Vertex, transformShape behaves strangely. So we'll create a new vertex instead.
-        ret = Part.Vertex(extra_placement.multVec(ret.Point))
+        ret = Part.Vertex(extra_placement.multiply(ret.Point))
     else:
-        ret.transformShape(extra_placement.multiply(ret.Placement).toMatrix(), True)
-        ret.Placement = FreeCAD.Placement() #reset placement
+        splm = ret.Matrix
+        ret.Matrix = FreeCAD.Base.Matrix()
+        ret.transformShape(extra_placement.multiply(splm), True)
     return ret
 
     
@@ -90,3 +102,19 @@ def copyShape(shape, copy_type_index, extra_placement = None):
     
     global copy_functions
     return copy_functions[copy_type_index](shape, extra_placement)    
+
+def transformShape(shape, extra_placement):
+    """transformShape(shape, extra_placement): returns shape with  extra_placement applied to it.
+    extra_placement must be either a Placement, or a Matrix. Matrix can be mirroring.
+    shallowCopy is done if Placement or a placement matrix. transformCopy is done if the matrix features mirroring."""
+
+    if hasattr(extra_placement, 'toMatrix'):
+        # extra_placement is a Placement
+        return shallowCopy(shape, extra_placement)
+    else:
+        # extra_placement is a Matrix
+        return transformCopy(shape, extra_placement)
+    
+
+class NonPlacementMatrixError(ValueError):
+    pass
