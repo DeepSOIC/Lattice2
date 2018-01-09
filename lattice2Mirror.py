@@ -202,7 +202,14 @@ class ViewProviderLatticeMirror(LBF.ViewProviderLatticeFeature):
     "A View Provider for the LatticeMirror object"
        
     def getIcon(self):
-        return getIconPath("Lattice2_Mirror.svg")
+        obj = self.Object
+        base_is_lattice = LBF.isObjectLattice(obj.Object)
+        pivot_is_lattice = LBF.isObjectLattice(obj.Pivot[0]) if obj.Pivot else True
+        whole = obj.ObjectTraversal == 'Use whole'
+        key = 'Plm' if base_is_lattice else 'Sh'
+        key += 's' if not whole and pivot_is_lattice else ''
+        key += 'Plms' if pivot_is_lattice else 'Sh'
+        return getIconPath("Lattice2_Mirror_{key}.svg".format(key= key))
 
     def attach(self, vobj):
         self.ViewObject = vobj
@@ -243,10 +250,10 @@ def CreateLatticeMirror(name, extra_code = ''):
 class CommandLatticeMirror:
     "Command to create LatticeMirror feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice2_Mirror.svg"),
+        return {'Pixmap'  : getIconPath("Part_Mirror.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2Mirror","Mirror"),
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2Mirror","Lattice Mirror: Split object by cutting it with another object, and pack resulting pieces as compound.")}
+                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2Mirror","Lattice Mirror: mirror, inversion or 180-turn of placements and shapes")}
         
     def Activated(self):
         try:
