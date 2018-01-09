@@ -135,6 +135,8 @@ class LatticeMirror(LBF.LatticeFeature):
                     base = pivot_shape.Point
                     pivots = [App.Placement(base, obj.PivotPlacement.Rotation)]
                     em = 0 #editable
+                else:
+                    raise TypeError("Unsupported geometry for use as mirror")
             if len(pivots) == 1:
                 obj.PivotPlacement = pivots[0]
             else:
@@ -289,7 +291,7 @@ class CommandLatticeMirror:
                         )
                 CreateLatticeMirror(name = "Mirror", extra_code= extra_code)
             else:
-                infoMessage("Lattice Mirror","Lattice Mirror feature. Mirrors shapes and commands. Please select object to be mirrored, first,"
+                infoMessage("Lattice Mirror","Lattice Mirror feature. Mirrors shapes and placements. Please select object to be mirrored, first,"
                                              " and then the mirror object (optional). Then invoke this tool.\n\n"
                                              "Object to be mirrored: any shape, or compound of shapes, or a placement, or an array of placements."
                                              " Note that when a placement is mirrored, its Y axis is switched, for the coordinate system to remain right-handed.\n\n"
