@@ -229,7 +229,7 @@ class ValueSeriesGenerator:
                     new_list = []
                     for v in list_evenDistrib:
                         new_list.append(v)
-                        if v > 1e-12:
+                        if abs(v) > 1e-12:
                             new_list.append(-v)
                     list_evenDistrib = new_list
                 
