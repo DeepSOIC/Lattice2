@@ -11,7 +11,7 @@ One of the big design goals of the workbench is being as parametric as possible.
 
 # Getting started
 
-Follow through ![Basic Tutorial](https://github.com/DeepSOIC/Lattice2/wiki/Basic-Tutorial) to get the basic concept of Lattice2.
+Follow through [Basic Tutorial](https://github.com/DeepSOIC/Lattice2/wiki/Basic-Tutorial) to get the basic concept of Lattice2.
 
 # Highlights
 ![Lattice2-FreeCAD-wormcutter](https://raw.githubusercontent.com/wiki/DeepSOIC/Lattice2/gallery/worm-cutter-done.png)
