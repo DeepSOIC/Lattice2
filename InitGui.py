@@ -46,6 +46,11 @@ class Lattice2Workbench (Workbench):
 
     def Initialize(self):
         
+        import lattice2HelpCommands
+        
+        cmdsHelp = lattice2HelpCommands.exportedCommands
+        self.appendMenu('Lattice2', cmdsHelp + ['Separator'])
+        
         import Lattice2
         cmdsArrayTools = ([]
             + Lattice2.ArrayFeatures.Placement.exportedCommands
