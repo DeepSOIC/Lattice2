@@ -12,7 +12,7 @@ class CommandBasicTutorial:
         try:
             import os
             import lattice2Dummy
-            tutorial_pdf = os.path.dirname(lattice2Dummy.__file__) + "/ExampleProjects/Lattice2 workbench basic tutorial.pdf".replace("/", os.path.sep)
+            tutorial_pdf = os.path.dirname(lattice2Dummy.__file__) + "/ExampleProjects/Lattice2WorkbenchBasicTutorial.pdf".replace("/", os.path.sep)
 
             import webbrowser
             webbrowser.open(tutorial_pdf)
