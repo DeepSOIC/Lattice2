@@ -399,7 +399,7 @@ exportedCommands = [
     "Lattice2_RecomputeLocker_ForceRecompute",
     "Lattice2_RecomputeLocker_Touch"
     ]
-if App.Version()[1] >= 17:
+if int(App.Version()[1]) >= 17:
     exportedCommands.remove("Lattice2_RecomputeLocker_MakeFeature")
     
 class CommandRecomputeGroup:
