@@ -204,7 +204,11 @@ class _CommandMakeLockerObj:
             mb.exec_()
             
     def IsActive(self):
-        return (bool(App.ActiveDocument) and getLocker() is None) and not USE_FC_RECOMPUTE
+        if not App.ActiveDocument: return False
+        if hasattr(App.ActiveDocument,'RecomputesFrozen'):
+            return False # new FreeCAD, with proper recompute disablement. Disable the hack.
+        else:
+            return (bool(App.ActiveDocument) and getLocker() is None)
             
 FreeCADGui.addCommand('Lattice2_RecomputeLocker_MakeFeature', _CommandMakeLockerObj())
 
@@ -218,7 +222,9 @@ class _CommandLockRecomputes:
                 'CmdType':"ForEdit"}
         
     def Activated(self):
-        if getLocker() is not None:
+        if hasattr(App.ActiveDocument,'RecomputesFrozen'):
+            FreeCADGui.doCommand("App.ActiveDocument.RecomputesFrozen = True")
+        elif getLocker() is not None:
             FreeCADGui.addModule("lattice2RecomputeLocker")
             FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().LockRecomputes = True")
             FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().touch()") #gets rid of the tick, plus updates the icon.
@@ -230,7 +236,11 @@ class _CommandLockRecomputes:
             mb.exec_()
             
     def IsActive(self):
-        return getLocker() is not None and not getLocker().LockRecomputes
+        if not App.ActiveDocument: return False
+        if hasattr(App.ActiveDocument,'RecomputesFrozen'):
+            return App.ActiveDocument.RecomputesFrozen == False 
+        else:
+            return getLocker() is not None and not getLocker().LockRecomputes
             
 FreeCADGui.addCommand('Lattice2_RecomputeLocker_LockRecomputes', _CommandLockRecomputes())
 
@@ -244,7 +254,9 @@ class _CommandUnlockRecomputes:
                 'CmdType':"ForEdit"}
         
     def Activated(self):
-        if getLocker() is not None:
+        if hasattr(App.ActiveDocument,'RecomputesFrozen'):
+            FreeCADGui.doCommand("App.ActiveDocument.RecomputesFrozen = False")
+        elif getLocker() is not None:
             FreeCADGui.addModule("lattice2RecomputeLocker")
             FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().LockRecomputes = False")
             FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().purgeTouched()") #gets rid of the tick, plus updates the icon.
@@ -256,7 +268,11 @@ class _CommandUnlockRecomputes:
             mb.exec_()
             
     def IsActive(self):
-        return getLocker() is not None and getLocker().LockRecomputes
+        if not App.ActiveDocument: return False
+        if hasattr(App.ActiveDocument,'RecomputesFrozen'):
+            return App.ActiveDocument.RecomputesFrozen == True 
+        else:
+            return getLocker() is not None and getLocker().LockRecomputes
             
 FreeCADGui.addCommand('Lattice2_RecomputeLocker_UnlockRecomputes', _CommandUnlockRecomputes())
 
@@ -292,11 +308,20 @@ class _CommandRecomputeDocument:
         
     def Activated(self):
         try:
-            if getLocker() is not None:
-                FreeCADGui.addModule("lattice2RecomputeLocker")
-                FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().Proxy.RecomputeDocument(lattice2RecomputeLocker.getLocker())")
-            else:
-                FreeCADGui.doCommand("App.ActiveDocument.recompute()")
+            if hasattr(App.ActiveDocument, 'RecomputesFrozen'):
+                FreeCADGui.doCommand(
+                    '_lock = App.ActiveDocument.RecomputesFrozen\n'
+                    'App.ActiveDocument.RecomputesFrozen = False\n'
+                    'App.ActiveDocument.recompute()\n'
+                    'App.ActiveDocument.RecomputesFrozen = _lock\n'
+                    'del _lock\n'
+                )
+            else: #old FC, hacky recompute control
+                if getLocker() is not None:
+                    FreeCADGui.addModule("lattice2RecomputeLocker")
+                    FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().Proxy.RecomputeDocument(lattice2RecomputeLocker.getLocker())")
+                else:
+                    FreeCADGui.doCommand("App.ActiveDocument.recompute()")
         except Exception as err:
             msgError(err)
             
@@ -318,10 +343,7 @@ class _CommandForceRecompute:
         try:
             FreeCADGui.addModule("lattice2RecomputeLocker")
             FreeCADGui.doCommand("lattice2RecomputeLocker.touchEverything(App.ActiveDocument)")
-            if getLocker() is not None:
-                FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().Proxy.RecomputeDocument(lattice2RecomputeLocker.getLocker())")
-            else:
-                FreeCADGui.doCommand("App.ActiveDocument.recompute()")
+            _CommandRecomputeDocument().Activated()
         except Exception as err:
             msgError(err)
             
@@ -377,6 +399,8 @@ exportedCommands = [
     "Lattice2_RecomputeLocker_ForceRecompute",
     "Lattice2_RecomputeLocker_Touch"
     ]
+if App.Version()[1] >= 17:
+    exportedCommands.remove("Lattice2_RecomputeLocker_MakeFeature")
     
 class CommandRecomputeGroup:
     def GetCommands(self):
