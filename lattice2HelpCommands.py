@@ -1,3 +1,4 @@
+import FreeCAD
 if FreeCAD.GuiUp:
     import FreeCADGui
 from lattice2Common import *
