@@ -36,7 +36,8 @@ def makeShapeInfoFeature(name):
     '''makeShapeInfoFeature(name): makes a ShapeInfoFeature object.'''
     obj = App.ActiveDocument.addObject("App::FeaturePython",name)
     ShapeInfoFeature(obj)
-    ViewProviderShapeInfo(obj.ViewObject)
+    if FreeCAD.GuiUp:        
+        ViewProviderShapeInfo(obj.ViewObject)
     return obj
     
 

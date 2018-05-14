@@ -99,7 +99,8 @@ def makeBoundBox(name):
     '''makeBoundBox(name): makes a BoundBox object.'''
     obj = App.ActiveDocument.addObject("Part::FeaturePython",name)
     _BoundBox(obj)
-    _ViewProviderBoundBox(obj.ViewObject)
+    if FreeCAD.GuiUp:        
+        _ViewProviderBoundBox(obj.ViewObject)
     return obj
 
 class _BoundBox:

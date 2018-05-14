@@ -44,7 +44,8 @@ def makeAttachablePlacement(name):
         obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
         obj.addExtension("Part::AttachExtensionPython", None)
     AttachablePlacement(obj)
-    ViewProviderAttachablePlacement(obj.ViewObject)        
+    if FreeCAD.GuiUp:
+        ViewProviderAttachablePlacement(obj.ViewObject)        
     return obj
 
 class AttachablePlacement(lattice2BaseFeature.LatticeFeature):

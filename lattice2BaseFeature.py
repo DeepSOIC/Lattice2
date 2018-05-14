@@ -53,10 +53,11 @@ def makeLatticeFeature(name, AppClass, ViewClass):
     '''makeLatticeFeature(name, AppClass, ViewClass = None): makes a document object for a LatticeFeature-derived object.'''
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
     AppClass(obj)
-    if ViewClass:
-        vp = ViewClass(obj.ViewObject)
-    else:
-        vp = ViewProviderLatticeFeature(obj.ViewObject)
+    if FreeCAD.GuiUp:
+        if ViewClass:
+            vp = ViewClass(obj.ViewObject)
+        else:
+            vp = ViewProviderLatticeFeature(obj.ViewObject)
         
     return obj
     

@@ -47,7 +47,8 @@ def makeCompoundFilter(name):
     '''makeCompoundFilter(name): makes a CompoundFilter object.'''
     obj = App.ActiveDocument.addObject("Part::FeaturePython",name)
     _CompoundFilter(obj)
-    _ViewProviderCompoundFilter(obj.ViewObject)
+    if FreeCAD.GuiUp:
+        _ViewProviderCompoundFilter(obj.ViewObject)
     return obj
 
 class _CompoundFilter:

@@ -51,7 +51,8 @@ def makeLatticeDowngrade(name):
     '''makeLatticeDowngrade(name): makes a latticeDowngrade object.'''
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
     _latticeDowngrade(obj)
-    _ViewProviderLatticeDowngrade(obj.ViewObject)
+    if FreeCAD.GuiUp:        
+        _ViewProviderLatticeDowngrade(obj.ViewObject)
     return obj
 
 

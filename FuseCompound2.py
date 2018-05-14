@@ -35,7 +35,8 @@ def makeFuseCompound(name):
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
     _FuseCompound(obj)
     obj.Refine = getParamRefine()
-    _ViewProviderFuseCompound(obj.ViewObject)
+    if FreeCAD.GuiUp:
+        _ViewProviderFuseCompound(obj.ViewObject)
     return obj
 
 class _FuseCompound:

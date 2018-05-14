@@ -81,7 +81,8 @@ def makeLatticeMirror(name):
     '''makeLatticeMirror(name): makes a LatticeMirror object.'''
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
     LatticeMirror(obj)
-    ViewProviderLatticeMirror(obj.ViewObject)
+    if FreeCAD.GuiUp:        
+        ViewProviderLatticeMirror(obj.ViewObject)
     return obj
 
 

@@ -89,7 +89,8 @@ def makeRecomputeLocker(name):
     '''makeRecomputeLocker(name): makes a RecomputeLocker document object.'''
     obj = FreeCAD.ActiveDocument.addObject("App::FeaturePython",name)
     LatticeRecomputeLocker(obj)
-    ViewProviderLatticeRecomputeLocker(obj.ViewObject)
+    if FreeCAD.GuiUp:        
+        ViewProviderLatticeRecomputeLocker(obj.ViewObject)
     return obj
 
 class LatticeRecomputeLocker:

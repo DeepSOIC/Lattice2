@@ -74,7 +74,8 @@ def makeLatticeShapeString(name):
     '''makeBoundBox(name): makes a BoundBox object.'''
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
     LatticeShapeString(obj)
-    ViewProviderLatticeShapeString(obj.ViewObject)
+    if FreeCAD.GuiUp:        
+        ViewProviderLatticeShapeString(obj.ViewObject)
     return obj
 
 class FoolFeatureDocumentObject:

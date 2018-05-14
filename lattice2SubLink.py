@@ -40,7 +40,8 @@ def makeSubLink(name):
     '''makeSubLink(name): makes a SubLink object.'''
     obj = App.ActiveDocument.addObject("Part::FeaturePython",name)
     LatticeSubLink(obj)
-    ViewProviderSubLink(obj.ViewObject)
+    if FreeCAD.GuiUp:        
+        ViewProviderSubLink(obj.ViewObject)
     return obj
     
 

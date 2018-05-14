@@ -34,7 +34,8 @@ def makeLatticeSlice(name):
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
     LatticeSlice(obj)
     obj.Refine = getParamRefine()
-    ViewProviderLatticeSlice(obj.ViewObject)
+    if FreeCAD.GuiUp:        
+        ViewProviderLatticeSlice(obj.ViewObject)
     return obj
 
 def float_fuzzy_equal(v1, v2, rel_tol):
