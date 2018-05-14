@@ -140,7 +140,8 @@ class _CommandInspect:
         else:
             return False
 
-FreeCADGui.addCommand('Lattice2_Inspect',_CommandInspect())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Inspect',_CommandInspect())
 
 import lattice2ShapeInfoFeature
 
@@ -157,7 +158,8 @@ class GroupCommandInspect:
     def IsActive(self): # optional
         return True
 
-FreeCADGui.addCommand('Lattice2_Inspect_GroupCommand',GroupCommandInspect())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Inspect_GroupCommand',GroupCommandInspect())
 
 exportedCommands = ['Lattice2_Inspect_GroupCommand']
 

@@ -251,19 +251,23 @@ class _CommandLatticeArrayFromShape:
 list_of_commands = []
 
 cmdName = 'Lattice2_ArrayFromShape_Internal'
-FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("internal placements", "Read out placements of children inside the compound", "Array from %1", 'child', 'child'))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("internal placements", "Read out placements of children inside the compound", "Array from %1", 'child', 'child'))
 list_of_commands.append(cmdName)
 
 cmdName = 'Lattice2_ArrayFromShape_CenterBB'
-FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("center of bounding box", "Align placement's origin to center of shape's bounding box", "Array from %1", 'child.CenterOfBoundBox', 'parent'))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("center of bounding box", "Align placement's origin to center of shape's bounding box", "Array from %1", 'child.CenterOfBoundBox', 'parent'))
 list_of_commands.append(cmdName)
 
 cmdName = 'Lattice2_ArrayFromShape_CenterMass'
-FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("center of mass", "Align placement's origin to shape's center of mass", "Array from %1", 'child.CenterOfMass', 'parent'))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("center of mass", "Align placement's origin to shape's center of mass", "Array from %1", 'child.CenterOfMass', 'parent'))
 list_of_commands.append(cmdName)
 
 cmdName = 'Lattice2_ArrayFromShape_Inertial'
-FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("inertial axis system", "Make placements from inertial axes of children", "Array from %1", 'child.CenterOfMass', 'child.InertiaAxes'))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandLatticeArrayFromShape("inertial axis system", "Make placements from inertial axes of children", "Array from %1", 'child.CenterOfMass', 'child.InertiaAxes'))
 list_of_commands.append(cmdName)
 
 class GroupCommandArrayFromShape:
@@ -282,7 +286,8 @@ class GroupCommandArrayFromShape:
     def IsActive(self): # optional
         return True
 
-FreeCADGui.addCommand('Lattice2_ArrayFromShapeGroup', GroupCommandArrayFromShape(list_of_commands))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_ArrayFromShapeGroup', GroupCommandArrayFromShape(list_of_commands))
 
 
 
@@ -323,19 +328,23 @@ class _CommandLatticePlacementFromShape:
 list_of_commands = []
 
 cmdName = 'Lattice2_PlacementFromShape_Internal'
-FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("copy object.Placement", "Create a placement linked to Placement property of selected object", "Placement of %1", 'child', 'child'))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("copy object.Placement", "Create a placement linked to Placement property of selected object", "Placement of %1", 'child', 'child'))
 list_of_commands.append(cmdName)
 
 cmdName = 'Lattice2_PlacementFromShape_CenterBB'
-FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("center of bounding box", "Align placement's origin to center of shape's bounding box", "Placement of %1", 'child.CenterOfBoundBox', '(none)'))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("center of bounding box", "Align placement's origin to center of shape's bounding box", "Placement of %1", 'child.CenterOfBoundBox', '(none)'))
 list_of_commands.append(cmdName)
 
 cmdName = 'Lattice2_PlacementFromShape_CenterMass'
-FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("center of mass", "Align placement's origin to shape's center of mass", "Placement of %1", 'child.CenterOfMass', 'parent'))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("center of mass", "Align placement's origin to shape's center of mass", "Placement of %1", 'child.CenterOfMass', 'parent'))
 list_of_commands.append(cmdName)
 
 cmdName = 'Lattice2_PlacementFromShape_Inertial'
-FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("inertial axis system", "Make placement on inertial axes of shape", "Placement of %1", 'child.CenterOfMass', 'child.InertiaAxes'))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandLatticePlacementFromShape("inertial axis system", "Make placement on inertial axes of shape", "Placement of %1", 'child.CenterOfMass', 'child.InertiaAxes'))
 list_of_commands.append(cmdName)
 
 

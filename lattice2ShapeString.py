@@ -288,7 +288,8 @@ class _CommandLatticeShapeString:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_ShapeString', _CommandLatticeShapeString())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_ShapeString', _CommandLatticeShapeString())
 
 exportedCommands = ['Lattice2_ShapeString']
 

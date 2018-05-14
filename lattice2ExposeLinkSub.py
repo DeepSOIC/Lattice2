@@ -144,7 +144,8 @@ class _CommandExposeLinkSub:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_ExposeLinkSub', _CommandExposeLinkSub())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_ExposeLinkSub', _CommandExposeLinkSub())
 
 exportedCommands = ['Lattice2_ExposeLinkSub']
 

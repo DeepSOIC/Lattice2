@@ -308,7 +308,8 @@ class CommandLatticeMirror:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2Mirror', CommandLatticeMirror())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2Mirror', CommandLatticeMirror())
 
 exportedCommands = ['Lattice2Mirror']
 

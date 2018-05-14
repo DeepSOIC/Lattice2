@@ -207,8 +207,9 @@ class CommandAttachedPlacementSubsequence:
         else:
             return False
 
-FreeCADGui.addCommand("Lattice2_AttachedPlacement", CommandAttachablePlacement())
-FreeCADGui.addCommand("Lattice2_AttachedPlacementSubsequence", CommandAttachedPlacementSubsequence())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand("Lattice2_AttachedPlacement", CommandAttachablePlacement())
+    FreeCADGui.addCommand("Lattice2_AttachedPlacementSubsequence", CommandAttachedPlacementSubsequence())
 
 class CommandAttachedPlacementGroup:
     def GetCommands(self):
@@ -224,7 +225,8 @@ class CommandAttachedPlacementGroup:
     def IsActive(self): # optional
         return App.ActiveDocument is not None
 
-FreeCADGui.addCommand("Lattice2_AttachedPlacement_Group", CommandAttachedPlacementGroup())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand("Lattice2_AttachedPlacement_Group", CommandAttachedPlacementGroup())
 
 exportedCommands = ["Lattice2_AttachedPlacement_Group"]
 # -------------------------- /Gui command --------------------------------------------------

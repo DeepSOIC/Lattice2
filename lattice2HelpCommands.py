@@ -1,4 +1,5 @@
-import FreeCADGui
+if FreeCAD.GuiUp:
+    import FreeCADGui
 from lattice2Common import *
 
 class CommandBasicTutorial:
@@ -22,7 +23,8 @@ class CommandBasicTutorial:
     def IsActive(self):
         return True
             
-FreeCADGui.addCommand('Lattice2_Help_BasicTutorial', CommandBasicTutorial())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Help_BasicTutorial', CommandBasicTutorial())
 
 
 class CommandOpenManual:
@@ -42,6 +44,7 @@ class CommandOpenManual:
     def IsActive(self):
         return True
             
-FreeCADGui.addCommand('Lattice2_Help_OpenManual', CommandOpenManual())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Help_OpenManual', CommandOpenManual())
 
 exportedCommands = ['Lattice2_Help_BasicTutorial', 'Lattice2_Help_OpenManual']

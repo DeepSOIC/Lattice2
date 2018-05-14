@@ -170,7 +170,8 @@ class CommandLatticeSlice:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2Slice', CommandLatticeSlice())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2Slice', CommandLatticeSlice())
 
 exportedCommands = ['Lattice2Slice']
 

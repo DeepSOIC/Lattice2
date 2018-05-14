@@ -217,7 +217,8 @@ class _CommandPolarArray:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_PolarArray', _CommandPolarArray())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_PolarArray', _CommandPolarArray())
 
 exportedCommands = ['Lattice2_PolarArray']
 

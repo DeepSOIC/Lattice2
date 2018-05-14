@@ -349,6 +349,7 @@ class _CommandLatticeParaSeries:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_ParaSeries', _CommandLatticeParaSeries())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_ParaSeries', _CommandLatticeParaSeries())
 
 exportedCommands = ['Lattice2_ParaSeries']

@@ -254,7 +254,8 @@ class _CommandShapeInfoFeature:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_ShapeInfoFeature', _CommandShapeInfoFeature())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_ShapeInfoFeature', _CommandShapeInfoFeature())
 
 exportedCommands = ['Lattice2_ShapeInfoFeature']
 

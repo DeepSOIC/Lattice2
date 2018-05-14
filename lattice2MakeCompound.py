@@ -67,6 +67,7 @@ class _CommandLatticeMakeCompound:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_Compound', _CommandLatticeMakeCompound())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Compound', _CommandLatticeMakeCompound())
 
 exportedCommands = ["Lattice2_Compound"]

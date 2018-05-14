@@ -140,7 +140,8 @@ class _CommandJoinArrays:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_JoinArrays', _CommandJoinArrays())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_JoinArrays', _CommandJoinArrays())
 
 exportedCommands = ['Lattice2_JoinArrays']
 

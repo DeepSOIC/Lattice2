@@ -26,7 +26,8 @@ __author__ = "DeepSOIC"
 __url__ = ""
 
 import FreeCAD
-from PySide import QtGui
+if FreeCAD.GuiUp:
+    from PySide import QtGui
 
 globalIsCreatingLatticeFeature = False
 

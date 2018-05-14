@@ -247,7 +247,8 @@ _listOfSubCommands = []
 for m in ValueSeriesGenerator.gen_modes:
     cmd_name = 'Lattice2_LinearArray_'+m
     _listOfSubCommands.append(cmd_name)
-    FreeCADGui.addCommand(cmd_name, CommandLinearArray(m))
+    if FreeCAD.GuiUp:
+        FreeCADGui.addCommand(cmd_name, CommandLinearArray(m))
 
 class GroupCommandLinearArray:
     def GetCommands(self):
@@ -263,7 +264,8 @@ class GroupCommandLinearArray:
     def IsActive(self): # optional
         return FreeCAD.ActiveDocument is not None
 
-FreeCADGui.addCommand('Lattice2_LinearArray_GroupCommand',GroupCommandLinearArray())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_LinearArray_GroupCommand',GroupCommandLinearArray())
 exportedCommands = ['Lattice2_LinearArray_GroupCommand']
 
 # -------------------------- /Gui command --------------------------------------------------

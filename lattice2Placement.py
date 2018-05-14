@@ -246,7 +246,8 @@ class _CommandPlacement:
 _listOfSubCommands = []
 for mode in LatticePlacement._PlacementChoiceList: 
     cmdName = 'Lattice2_Placement' + mode
-    FreeCADGui.addCommand(cmdName, _CommandPlacement(mode))
+    if FreeCAD.GuiUp:
+        FreeCADGui.addCommand(cmdName, _CommandPlacement(mode))
     _listOfSubCommands.append(cmdName)
     
 class _CommandPlacementAx:
@@ -282,15 +283,18 @@ class _CommandPlacementAx:
             return False
 
 cmdName = "Lattice2_PlacementAx_AlongX"
-FreeCADGui.addCommand(cmdName, _CommandPlacementAx("along X","Single Placement with local X aligned along global X","Plm along X","XZY", XDir= App.Vector(1,0,0)))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandPlacementAx("along X","Single Placement with local X aligned along global X","Plm along X","XZY", XDir= App.Vector(1,0,0)))
 _listOfSubCommands.append(cmdName)
 
 cmdName = "Lattice2_PlacementAx_AlongY"
-FreeCADGui.addCommand(cmdName, _CommandPlacementAx("along Y","Single Placement with local X aligned along global Y","Plm along Y","XZY", XDir= App.Vector(0,1,0)))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandPlacementAx("along Y","Single Placement with local X aligned along global Y","Plm along Y","XZY", XDir= App.Vector(0,1,0)))
 _listOfSubCommands.append(cmdName)
 
 cmdName = "Lattice2_PlacementAx_AlongZ"
-FreeCADGui.addCommand(cmdName, _CommandPlacementAx("along Z","Single Placement with local X aligned along global Z","Plm along Z","XZY", XDir= App.Vector(0,0,1)))
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandPlacementAx("along Z","Single Placement with local X aligned along global Z","Plm along Z","XZY", XDir= App.Vector(0,0,1)))
 _listOfSubCommands.append(cmdName)
 
 class _CommandPlacementEuler:
@@ -316,7 +320,8 @@ class _CommandPlacementEuler:
             return False
 
 cmdName = "Lattice2_PlacementEuler"
-FreeCADGui.addCommand(cmdName, _CommandPlacementEuler())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand(cmdName, _CommandPlacementEuler())
 _listOfSubCommands.append(cmdName)
 
 
@@ -337,7 +342,8 @@ class GroupCommandPlacement:
     def IsActive(self): # optional
         return True
         
-FreeCADGui.addCommand('Lattice2_Placement_GroupCommand',GroupCommandPlacement())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Placement_GroupCommand',GroupCommandPlacement())
 
 
 

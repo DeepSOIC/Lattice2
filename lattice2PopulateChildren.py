@@ -265,7 +265,8 @@ class _CommandLatticePopulateChildren_Normal:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_PopulateChildren_Normal', _CommandLatticePopulateChildren_Normal())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_PopulateChildren_Normal', _CommandLatticePopulateChildren_Normal())
 
 class _CommandLatticePopulateChildren_Array:
     "Command to create LatticePopulateChildren feature"
@@ -293,7 +294,8 @@ class _CommandLatticePopulateChildren_Array:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_PopulateChildren_Array', _CommandLatticePopulateChildren_Array())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_PopulateChildren_Array', _CommandLatticePopulateChildren_Array())
 
 class _CommandLatticePopulateChildren_Move:
     "Command to create LatticePopulateChildren feature"
@@ -321,7 +323,8 @@ class _CommandLatticePopulateChildren_Move:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_PopulateChildren_Move', _CommandLatticePopulateChildren_Move())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_PopulateChildren_Move', _CommandLatticePopulateChildren_Move())
 
 class _CommandLatticePopulateChildrenGroup:
     def GetCommands(self):
@@ -337,7 +340,8 @@ class _CommandLatticePopulateChildrenGroup:
     def IsActive(self): # optional
         return True
         
-FreeCADGui.addCommand('Lattice2_PopulateChildrenGroupCommand',_CommandLatticePopulateChildrenGroup())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_PopulateChildrenGroupCommand',_CommandLatticePopulateChildrenGroup())
 
 exportedCommands = ['Lattice2_PopulateChildrenGroupCommand']
 

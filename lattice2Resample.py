@@ -187,7 +187,8 @@ class _CommandLatticeResample:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_Resample', _CommandLatticeResample())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Resample', _CommandLatticeResample())
 
 exportedCommands = ['Lattice2_Resample']
 

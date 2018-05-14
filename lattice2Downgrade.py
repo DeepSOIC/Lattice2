@@ -220,7 +220,8 @@ class _CommandLatticeDowngrade:
 _listOfSubCommands = []
 for mode in _latticeDowngrade._DowngradeModeList: 
     cmdName = 'Lattice2_Downgrade' + mode
-    FreeCADGui.addCommand(cmdName, _CommandLatticeDowngrade(mode))
+    if FreeCAD.GuiUp:
+        FreeCADGui.addCommand(cmdName, _CommandLatticeDowngrade(mode))
     _listOfSubCommands.append(cmdName)
     
 
@@ -238,7 +239,8 @@ class GroupCommandLatticeDowngrade:
     def IsActive(self): # optional
         return True
         
-FreeCADGui.addCommand('Lattice2_Downgrade_GroupCommand',GroupCommandLatticeDowngrade())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Downgrade_GroupCommand',GroupCommandLatticeDowngrade())
 
 
 

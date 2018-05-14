@@ -288,7 +288,8 @@ class _CommandLatticePopulateCopies_Normal:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_PopulateCopies_Normal', _CommandLatticePopulateCopies_Normal())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_PopulateCopies_Normal', _CommandLatticePopulateCopies_Normal())
 
 class _CommandLatticePopulateCopies_Array:
     "Command to create LatticePopulateCopies feature"
@@ -316,7 +317,8 @@ class _CommandLatticePopulateCopies_Array:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_PopulateCopies_Array', _CommandLatticePopulateCopies_Array())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_PopulateCopies_Array', _CommandLatticePopulateCopies_Array())
 
 class _CommandLatticePopulateCopies_Move:
     "Command to create LatticePopulateCopies feature"
@@ -345,7 +347,8 @@ class _CommandLatticePopulateCopies_Move:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_PopulateCopies_Move', _CommandLatticePopulateCopies_Move())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_PopulateCopies_Move', _CommandLatticePopulateCopies_Move())
 
 class _CommandLatticePopulateCopiesGroup:
     def GetCommands(self):
@@ -361,7 +364,8 @@ class _CommandLatticePopulateCopiesGroup:
     def IsActive(self): # optional
         return True
         
-FreeCADGui.addCommand('Lattice2_PopulateCopiesGroupCommand',_CommandLatticePopulateCopiesGroup())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_PopulateCopiesGroupCommand',_CommandLatticePopulateCopiesGroup())
 
 exportedCommands = ['Lattice2_PopulateCopiesGroupCommand']
 

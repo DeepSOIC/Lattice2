@@ -248,7 +248,8 @@ class _CommandArrayFilterItems:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_ArrayFilter_Items', _CommandArrayFilterItems())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_ArrayFilter_Items', _CommandArrayFilterItems())
 _listOfSubCommands.append('Lattice2_ArrayFilter_Items')
 
 class _CommandArrayFilterStencilBased:
@@ -286,7 +287,8 @@ class _CommandArrayFilterStencilBased:
             
 for mode in LatticeArrayFilter.stencilModeList:
     cmdName = 'Lattice2_ArrayFilter'+mode.replace("-","_")
-    FreeCADGui.addCommand(cmdName, _CommandArrayFilterStencilBased(mode))
+    if FreeCAD.GuiUp:
+        FreeCADGui.addCommand(cmdName, _CommandArrayFilterStencilBased(mode))
     _listOfSubCommands.append(cmdName)
     
 class GroupCommandLatticeArrayFilter:
@@ -304,7 +306,8 @@ class GroupCommandLatticeArrayFilter:
     def IsActive(self): # optional
         return bool(App.ActiveDocument)
         
-FreeCADGui.addCommand('Lattice2_ArrayFilter_GroupCommand',GroupCommandLatticeArrayFilter())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_ArrayFilter_GroupCommand',GroupCommandLatticeArrayFilter())
 
 
 def ExplodeArray(feature):
@@ -379,7 +382,8 @@ class _CommandExplodeArray:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_ExplodeArray', _CommandExplodeArray())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_ExplodeArray', _CommandExplodeArray())
 
 exportedCommands = ['Lattice2_ArrayFilter_GroupCommand', 'Lattice2_ExplodeArray']
 

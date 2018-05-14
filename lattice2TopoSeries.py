@@ -308,6 +308,7 @@ class _CommandLatticeTopoSeries:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_TopoSeries', _CommandLatticeTopoSeries())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_TopoSeries', _CommandLatticeTopoSeries())
 
 exportedCommands = ['Lattice2_TopoSeries']

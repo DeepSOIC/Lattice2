@@ -313,8 +313,9 @@ class CommandSublinkSubsequence:
         else:
             return False
 
-FreeCADGui.addCommand('Lattice2_SubLink', CommandSubLink())
-FreeCADGui.addCommand('Lattice2_SublinkSubsequence', CommandSublinkSubsequence())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_SubLink', CommandSubLink())
+    FreeCADGui.addCommand('Lattice2_SublinkSubsequence', CommandSublinkSubsequence())
 
 class CommandSublinkGroup:
     def GetCommands(self):
@@ -330,7 +331,8 @@ class CommandSublinkGroup:
     def IsActive(self): # optional
         return App.ActiveDocument is not None
 
-FreeCADGui.addCommand('Lattice2_Sublink_GroupCommand',CommandSublinkGroup())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Sublink_GroupCommand',CommandSublinkGroup())
 
 
 exportedCommands = ['Lattice2_Sublink_GroupCommand']

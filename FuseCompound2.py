@@ -130,7 +130,8 @@ class _CommandFuseCompound:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_FuseCompound', _CommandFuseCompound())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_FuseCompound', _CommandFuseCompound())
 
 exportedCommands = ['Lattice2_FuseCompound']
 

@@ -27,22 +27,9 @@ if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore, QtGui
 
-#-------------------------- translation-related code ----------------------------------------
-#Thanks, yorik! (see forum thread "A new Part tool is being born... JoinFeatures!"
-#http://forum.freecadweb.org/viewtopic.php?f=22&t=11112&start=30#p90239 )
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
-try:
-    _encoding = QtGui.QApplication.UnicodeUTF8
-    def translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig, _encoding)
-except AttributeError:
-    def translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig)
-#--------------------------/translation-related code ----------------------------------------
+def translate(context, text, disambig):
+    #Lattice2 is not translatable, sorry...
+    return text
 
 
 def getParamRefine():
@@ -86,7 +73,8 @@ def deselect(sel):
 DistConfusion = 1e-7
 ParaConfusion = 1e-8
 
-import lattice2_rc
+if FreeCAD.GuiUp:
+    import lattice2_rc
 
 def screen(feature):
     """screen(feature): protects link properties from being overwritten. 

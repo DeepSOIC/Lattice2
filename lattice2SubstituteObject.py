@@ -133,6 +133,7 @@ class CommandSubstituteObject:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_SubstituteObject', CommandSubstituteObject())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_SubstituteObject', CommandSubstituteObject())
 
 exportedCommands = ['Lattice2_SubstituteObject']

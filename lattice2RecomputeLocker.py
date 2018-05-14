@@ -210,7 +210,8 @@ class _CommandMakeLockerObj:
         else:
             return (bool(App.ActiveDocument) and getLocker() is None)
             
-FreeCADGui.addCommand('Lattice2_RecomputeLocker_MakeFeature', _CommandMakeLockerObj())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_MakeFeature', _CommandMakeLockerObj())
 
 class _CommandLockRecomputes:
     "Command to lock automatic recomputes"
@@ -242,7 +243,8 @@ class _CommandLockRecomputes:
         else:
             return getLocker() is not None and not getLocker().LockRecomputes
             
-FreeCADGui.addCommand('Lattice2_RecomputeLocker_LockRecomputes', _CommandLockRecomputes())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_LockRecomputes', _CommandLockRecomputes())
 
 class _CommandUnlockRecomputes:
     "Command to unlock automatic recomputes"
@@ -274,7 +276,8 @@ class _CommandUnlockRecomputes:
         else:
             return getLocker() is not None and getLocker().LockRecomputes
             
-FreeCADGui.addCommand('Lattice2_RecomputeLocker_UnlockRecomputes', _CommandUnlockRecomputes())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_UnlockRecomputes', _CommandUnlockRecomputes())
 
 class _CommandRecomputeFeature:
     "Command to recompute single object"
@@ -294,7 +297,8 @@ class _CommandRecomputeFeature:
     def IsActive(self):
         return len(FreeCADGui.Selection.getSelectionEx()) > 0
             
-FreeCADGui.addCommand('Lattice2_RecomputeLocker_RecomputeFeature', _CommandRecomputeFeature())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_RecomputeFeature', _CommandRecomputeFeature())
 
 
 class _CommandRecomputeDocument:
@@ -328,7 +332,8 @@ class _CommandRecomputeDocument:
     def IsActive(self):
         return App.ActiveDocument is not None
             
-FreeCADGui.addCommand('Lattice2_RecomputeLocker_RecomputeDocument', _CommandRecomputeDocument())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_RecomputeDocument', _CommandRecomputeDocument())
 
 class _CommandForceRecompute:
     "Command to force recompute of every feature"
@@ -350,7 +355,8 @@ class _CommandForceRecompute:
     def IsActive(self):
         return App.ActiveDocument is not None
             
-FreeCADGui.addCommand('Lattice2_RecomputeLocker_ForceRecompute', _CommandForceRecompute())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_ForceRecompute', _CommandForceRecompute())
 
 
 class _CommandTouch:
@@ -388,7 +394,8 @@ class _CommandTouch:
     def IsActive(self):
         return App.ActiveDocument is not None
             
-FreeCADGui.addCommand('Lattice2_RecomputeLocker_Touch', _CommandTouch())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_Touch', _CommandTouch())
 
 exportedCommands = [
     "Lattice2_RecomputeLocker_MakeFeature",
@@ -417,7 +424,8 @@ class CommandRecomputeGroup:
         
     def IsActive(self): # optional
         return App.ActiveDocument is not None
-FreeCADGui.addCommand('Lattice2_RecomputeLockerGroup', CommandRecomputeGroup())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_RecomputeLockerGroup', CommandRecomputeGroup())
     
     
 def msgbox(strmsg):

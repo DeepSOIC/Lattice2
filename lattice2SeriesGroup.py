@@ -30,7 +30,8 @@ import lattice2ParaSeries as ParaSeries
 import lattice2TopoSeries as TopoSeries
 
 import FreeCAD as App
-import FreeCADGui
+if App.GuiUp:
+    import FreeCADGui
 
 class CommandSeriesGroup:
     def GetCommands(self):
@@ -46,7 +47,8 @@ class CommandSeriesGroup:
     def IsActive(self): # optional
         return App.ActiveDocument is not None
 
-FreeCADGui.addCommand('Lattice2_Series_GroupCommand',CommandSeriesGroup())
+if App.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Series_GroupCommand',CommandSeriesGroup())
 
 exportedCommands = ['Lattice2_Series_GroupCommand']
 

@@ -238,7 +238,8 @@ class _CommandProjectArray:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_ProjectArray', _CommandProjectArray())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_ProjectArray', _CommandProjectArray())
 
 exportedCommands = ['Lattice2_ProjectArray']
 

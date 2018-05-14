@@ -152,7 +152,8 @@ class _CommandLatticeInvert:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_Invert', _CommandLatticeInvert())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Invert', _CommandLatticeInvert())
 
 exportedCommands = ['Lattice2_Invert']
 

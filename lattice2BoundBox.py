@@ -351,7 +351,8 @@ class _CommandBoundBoxSingle:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_BoundBox_Single', _CommandBoundBoxSingle())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_BoundBox_Single', _CommandBoundBoxSingle())
 
 class _CommandBoundBoxMulti:
     "Command to create BoundBox feature"
@@ -378,7 +379,8 @@ class _CommandBoundBoxMulti:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_BoundBox_Compound', _CommandBoundBoxMulti())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_BoundBox_Compound', _CommandBoundBoxMulti())
 
 class _CommandBoundBoxGroup:
     def GetCommands(self):
@@ -394,7 +396,8 @@ class _CommandBoundBoxGroup:
     def IsActive(self): # optional
         return True
 
-FreeCADGui.addCommand('Lattice2_BoundBoxGroupCommand',_CommandBoundBoxGroup())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_BoundBoxGroupCommand',_CommandBoundBoxGroup())
 
 
 exportedCommands = ['Lattice2_BoundBoxGroupCommand']

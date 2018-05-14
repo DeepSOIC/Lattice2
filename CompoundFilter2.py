@@ -258,7 +258,8 @@ class _CommandCompoundFilter:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_CompoundFilter', _CommandCompoundFilter())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_CompoundFilter', _CommandCompoundFilter())
 
 def ExplodeCompound(feature):
     sh = feature.Shape
@@ -328,7 +329,8 @@ class _CommandExplode:
         else:
             return False
             
-FreeCADGui.addCommand('Lattice2_Explode', _CommandExplode())
+if FreeCAD.GuiUp:
+    FreeCADGui.addCommand('Lattice2_Explode', _CommandExplode())
 
 exportedCommands = ['Lattice2_CompoundFilter', 'Lattice2_Explode']
 
