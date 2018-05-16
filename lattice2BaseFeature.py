@@ -86,6 +86,11 @@ def isObjectLattice(documentObject):
     if hasattr(documentObject,"isLattice"):
         if 'On' in documentObject.isLattice:
             ret = True
+    if documentObject.isDerivedFrom('PartDesign::ShapeBinder'):
+        if len(documentObject.Support) == 1 and documentObject.Support[0][1] == ('',):
+            ret = isObjectLattice(documentObject.Support[0][0])
+    if hasattr(documentObject, 'IAm') and documentObject.IAm == 'PartOMagic.Ghost':
+        ret = isObjectLattice(documentObject.Base)
     return ret
     
 def getMarkerSizeEstimate(ListOfPlacements):
