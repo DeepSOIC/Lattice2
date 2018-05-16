@@ -49,16 +49,34 @@ def getDefShapeColor():
     return (r/255.0, g/255.0, b/255.0, (255-o)/255.0)
     
 
-def makeLatticeFeature(name, AppClass, ViewClass):
-    '''makeLatticeFeature(name, AppClass, ViewClass = None): makes a document object for a LatticeFeature-derived object.'''
-    obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
+def makeLatticeFeature(name, AppClass, ViewClass, no_body = False, no_disable_attacher = False):
+    '''makeLatticeFeature(name, AppClass, ViewClass, no_body = False): makes a document object for a LatticeFeature-derived object.
+    
+    no_body: if False, the Lattice object will end up in an active body, and Part2DObject will be used.
+    no_disable_attacher: if True, attachment properties of Part2DObject won't be hidden'''
+    
+    body = activeBody()
+    if body and not no_body:
+        obj = body.newObject("Part::Part2DObjectPython",name)
+        obj.AttacherType = 'Attacher::AttachEngine3D'
+        if not no_disable_attacher:
+            attachprops = [
+                'Support', 
+                'MapMode', 
+                'MapReversed', 
+                'MapPathParameter', 
+                'AttachmentOffset', 
+            ]
+            for prop in attachprops:
+                obj.setEditorMode(prop, 2) #hidden
+    else:
+        obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
     AppClass(obj)
     if FreeCAD.GuiUp:
         if ViewClass:
             vp = ViewClass(obj.ViewObject)
         else:
             vp = ViewProviderLatticeFeature(obj.ViewObject)
-        
     return obj
     
     

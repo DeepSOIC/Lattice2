@@ -90,3 +90,6 @@ def screen(feature):
         return feature
     feature = getattr(feature.Document, feature.Name)
     return feature
+
+def activeBody():
+    return FreeCADGui.ActiveDocument.ActiveView.getActiveObject("pdbody")

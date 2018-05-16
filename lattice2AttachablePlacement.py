@@ -36,16 +36,22 @@ import lattice2Subsequencer as Subsequencer
 
 def makeAttachablePlacement(name):
     '''makeAttachablePlacement(name): makes an attachable Placement object.'''
-    rev_number = int(App.Version()[2].split(" ")[0])
+    
+    try:
+        rev_number = int(App.Version()[2].split(" ")[0])
+    except Exception as err:
+        rev_number = 10000000
+    
     if rev_number < 9177:
         #obsolete!
         obj = FreeCAD.ActiveDocument.addObject("Part::AttachableObjectPython",name)
+        AttachablePlacement(obj)
+        if FreeCAD.GuiUp:
+            ViewProviderAttachablePlacement(obj.ViewObject)        
     else:
-        obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
+        obj = lattice2BaseFeature.makeLatticeFeature(name, AttachablePlacement, ViewProviderAttachablePlacement, no_disable_attacher= True)
         obj.addExtension("Part::AttachExtensionPython", None)
-    AttachablePlacement(obj)
-    if FreeCAD.GuiUp:
-        ViewProviderAttachablePlacement(obj.ViewObject)        
+            
     return obj
 
 class AttachablePlacement(lattice2BaseFeature.LatticeFeature):
