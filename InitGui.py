@@ -83,6 +83,12 @@ class Lattice2Workbench (Workbench):
         )
         self.appendToolbar('Lattice2CompoundFeatures', cmdsCompoundTools)
         self.appendMenu('Lattice2', cmdsCompoundTools)
+
+        cmdsPDTools = ([]
+            + Lattice2.PartDesignFeatures.PDPattern.exportedCommands
+        )
+        self.appendToolbar('Lattice2PartDesignFeatres', cmdsPDTools)
+        self.appendMenu('Lattice2', cmdsPDTools)
         
         cmdsGuiTools = ([]
             + Lattice2.GuiTools.Inspect.exportedCommands

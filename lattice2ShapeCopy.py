@@ -28,10 +28,12 @@ __doc__ = "Utility methods to copy shapes"
 
 import FreeCAD
 import Part
+from lattice2GeomUtils import PlacementsFuzzyCompare
 
 def shallowCopy(shape, extra_placement = None):
     """shallowCopy(shape, extra_placement = None): creates a shallow copy of a shape. The 
-    copy will match by isSame/isEqual/isPartner tests, but will have an independent placement."""
+    copy will match by isSame/isEqual/isPartner tests, but will have an independent placement.
+    Supports matrix, but the matrix should be pure placement (not be mirroring)."""
     
     copiers = {
       "Vertex": lambda sh: sh.Vertexes[0],
@@ -59,7 +61,7 @@ def shallowCopy(shape, extra_placement = None):
     
 def deepCopy(shape, extra_placement = None):
     """deepCopy(shape, extra_placement = None): Copies all subshapes. The copy will not match by isSame/isEqual/
-    isPartner tests."""
+    isPartner tests. If matrix is provided, redirects the call to transformCopy."""
     
     if extra_placement is not None:
         if hasattr(extra_placement, 'toMatrix'):
@@ -72,7 +74,7 @@ def deepCopy(shape, extra_placement = None):
     
 def transformCopy(shape, extra_placement = None):
     """transformCopy(shape, extra_placement = None): creates a deep copy shape with shape's placement applied to 
-    the subelements (the placement of returned shape is zero)."""
+    the subelements (the placement of returned shape is zero). Supports matrices, including mirroring matrices."""
     
     if extra_placement is None:
         extra_placement = FreeCAD.Placement()
@@ -87,6 +89,21 @@ def transformCopy(shape, extra_placement = None):
         ret.Matrix = FreeCAD.Base.Matrix()
         ret.transformShape(extra_placement.multiply(splm), True)
     return ret
+
+def transformCopy_Smart(shape, feature_placement):
+    """transformCopy_Smart(shape, feature_placement): gets rid of shape's internal placement 
+    (by applying transform to all its elements), and assigns feature_placement to the placement. 
+    I.e. feature_placement is the additional transform to apply. Unlike transformCopy, creates 
+    a shallow copy if possible. Does not support matrices."""
+    
+    if shape.isNull():
+        return shape
+    if PlacementsFuzzyCompare(shape.Placement, FreeCAD.Placement()):
+        sh = shallowCopy(shape)
+    else:
+        sh = transformCopy(shape)
+    sh.Placement = feature_placement
+    return sh
 
     
 copy_types = ["Shallow copy", "Deep copy", "Transformed deep copy"]

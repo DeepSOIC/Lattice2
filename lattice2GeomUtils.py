@@ -30,6 +30,21 @@ __title__="Geometric utility routines for Lattice workbench for FreeCAD"
 __author__ = "DeepSOIC"
 __url__ = ""
 
+def PlacementsFuzzyCompare(plm1, plm2):
+    pos_eq = (plm1.Base - plm2.Base).Length < 1e-7   # 1e-7 is OCC's Precision::Confusion
+    
+    q1 = plm1.Rotation.Q
+    q2 = plm2.Rotation.Q
+    # rotations are equal if q1 == q2 or q1 == -q2. 
+    # Invert one of Q's if their scalar product is negative, before comparison.
+    if q1[0]*q2[0] + q1[1]*q2[1] + q1[2]*q2[2] + q1[3]*q2[3] < 0:
+        q2 = [-v for v in q2]
+    rot_eq = (  abs(q1[0]-q2[0]) + 
+                abs(q1[1]-q2[1]) + 
+                abs(q1[2]-q2[2]) + 
+                abs(q1[3]-q2[3])  ) < 1e-12   # 1e-12 is OCC's Precision::Angular (in radians)
+    return pos_eq and rot_eq
+
 
 def makeOrientationFromLocalAxes(ZAx, XAx = None):
     '''

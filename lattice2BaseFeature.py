@@ -57,21 +57,12 @@ def makeLatticeFeature(name, AppClass, ViewClass, no_body = False, no_disable_at
     
     body = activeBody()
     if body and not no_body:
-        obj = body.newObject("Part::Part2DObjectPython",name)
+        obj = body.newObject("Part::Part2DObjectPython",name) #hack: body accepts any 2dobjectpython, thinking it is a sketch. Use it to get into body. This does cause some weirdness (e.g. one can Pad a placement), but that is rather minor. 
         obj.AttacherType = 'Attacher::AttachEngine3D'
-        if not no_disable_attacher:
-            attachprops = [
-                'Support', 
-                'MapMode', 
-                'MapReversed', 
-                'MapPathParameter', 
-                'AttachmentOffset', 
-            ]
-            for prop in attachprops:
-                obj.setEditorMode(prop, 2) #hidden
     else:
         obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
     AppClass(obj)
+    
     if FreeCAD.GuiUp:
         if ViewClass:
             vp = ViewClass(obj.ViewObject)
@@ -253,6 +244,25 @@ class LatticeFeature():
 
     def __setstate__(self,state):
         return None
+    
+    def disableAttacher(self, selfobj, enable= False):
+        if selfobj.isDerivedFrom('Part::Part2DObject'):
+            attachprops = [
+                'Support', 
+                'MapMode', 
+                'MapReversed', 
+                'MapPathParameter', 
+                'AttachmentOffset', 
+            ]
+            for prop in attachprops:
+                selfobj.setEditorMode(prop, 0 if enable else 2)
+            if enable:
+                selfobj.MapMode = selfobj.MapMode #trigger attachment, to make it update property states
+    
+    def onDocumentRestored(self, selfobj):
+        #override to have attachment!
+        self.disableAttacher(selfobj)
+
     
 class ViewProviderLatticeFeature:
     "A View Provider for base lattice object"

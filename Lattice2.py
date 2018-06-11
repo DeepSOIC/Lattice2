@@ -31,6 +31,8 @@ import Lattice2CompoundFeatures as CompoundFeatures
 
 import Lattice2ArrayFeatures as ArrayFeatures
 
+import Lattice2PartDesignFeatures as PartDesignFeatures
+
 import Lattice2GuiTools as GuiTools
 
 import lattice2_rc as resource_module

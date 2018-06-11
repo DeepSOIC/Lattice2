@@ -34,6 +34,8 @@ def translate(context, text, disambig):
 
 def getParamRefine():
     return FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/Part/Boolean").GetBool("RefineModel")
+def getParamPDRefine():
+    return FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/PartDesign").GetBool("RefineModel")
 
 def getIconPath(icon_dot_svg):
     return ":/icons/" + icon_dot_svg
@@ -93,3 +95,10 @@ def screen(feature):
 
 def activeBody():
     return FreeCADGui.ActiveDocument.ActiveView.getActiveObject("pdbody")
+    
+def bodyOf(feature):
+    body = feature.getParentGeoFeatureGroup()
+    if body.isDerivedFrom('PartDesign::Body'):
+        return body
+    else:
+        return None

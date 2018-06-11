@@ -50,7 +50,8 @@ def makeAttachablePlacement(name):
             ViewProviderAttachablePlacement(obj.ViewObject)        
     else:
         obj = lattice2BaseFeature.makeLatticeFeature(name, AttachablePlacement, ViewProviderAttachablePlacement, no_disable_attacher= True)
-        obj.addExtension("Part::AttachExtensionPython", None)
+        if not obj.hasExtension('Part::AttachExtension'):
+            obj.addExtension("Part::AttachExtensionPython", None)
             
     return obj
 
@@ -67,6 +68,10 @@ class AttachablePlacement(lattice2BaseFeature.LatticeFeature):
         obj.positionBySupport()
         
         return [obj.Placement]
+        
+    def onDocumentRestored(self, selfobj):
+        #override that disables disabling of attacher
+        pass 
 
 
 class ViewProviderAttachablePlacement(lattice2BaseFeature.ViewProviderLatticeFeature):
