@@ -94,6 +94,9 @@ def screen(feature):
     return feature
 
 def activeBody():
+    if FreeCAD.ActiveDocument is None: return None
+    if not hasattr(FreeCADGui.ActiveDocument.ActiveView, 'getActiveObject'): #prevent errors in 0.16
+        return None
     return FreeCADGui.ActiveDocument.ActiveView.getActiveObject("pdbody")
     
 def bodyOf(feature):
