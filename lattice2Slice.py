@@ -167,7 +167,7 @@ class CommandLatticeSlice:
             msgError(err)
     def IsActive(self):
         if FreeCAD.ActiveDocument:
-            return True
+            return activeBody() is None
         else:
             return False
             

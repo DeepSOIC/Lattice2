@@ -235,6 +235,9 @@ class ViewProviderLatticeMirror(LBF.ViewProviderLatticeFeature):
 # -------------------------- Gui command --------------------------------------------------
 
 def CreateLatticeMirror(name, extra_code = ''):
+    sel = FreeCADGui.Selection.getSelectionEx()
+    if not LBF.isObjectLattice(sel[0].Object) and activeBody():
+        raise SelectionError("PartDesign Mode", "You can only mirror placements while in body. Please deactivate the body to mirror shapes. PartDesign Feature mirroring is not supported yet.")
     FreeCAD.ActiveDocument.openTransaction("Create LatticeMirror")
     FreeCADGui.addModule("lattice2Mirror")
     FreeCADGui.addModule("lattice2Executer")

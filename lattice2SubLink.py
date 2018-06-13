@@ -330,7 +330,7 @@ class CommandSublinkGroup:
                  'ToolTip': 'Sublink (group): extract elements from shapes.'}
         
     def IsActive(self): # optional
-        return App.ActiveDocument is not None
+        return App.ActiveDocument is not None and activeBody() is None
 
 if FreeCAD.GuiUp:
     FreeCADGui.addCommand('Lattice2_Sublink_GroupCommand',CommandSublinkGroup())

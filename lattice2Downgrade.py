@@ -238,7 +238,7 @@ class GroupCommandLatticeDowngrade:
         return { 'MenuText': 'Parametric Downgrade', 'ToolTip': 'Parametric Downgrade: downgrade and pack results into a compound.'}
         
     def IsActive(self): # optional
-        return True
+        return activeBody() is None
         
 if FreeCAD.GuiUp:
     FreeCADGui.addCommand('Lattice2_Downgrade_GroupCommand',GroupCommandLatticeDowngrade())

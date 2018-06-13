@@ -72,7 +72,8 @@ def findFont(font_file_name):
 
 def makeLatticeShapeString(name):
     '''makeBoundBox(name): makes a BoundBox object.'''
-    obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython",name)
+    typ = 'Part::Part2DObjectPython' if activeBody() else 'Part::FeaturePython'
+    obj = FreeCAD.ActiveDocument.addObject(typ, name)
     LatticeShapeString(obj)
     if FreeCAD.GuiUp:        
         ViewProviderLatticeShapeString(obj.ViewObject)

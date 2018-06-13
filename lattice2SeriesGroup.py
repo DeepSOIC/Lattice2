@@ -28,6 +28,7 @@ __doc__ = "Group command for Lattice Series features"
 
 import lattice2ParaSeries as ParaSeries
 import lattice2TopoSeries as TopoSeries
+from lattice2Common import activeBody
 
 import FreeCAD as App
 if App.GuiUp:
@@ -45,7 +46,7 @@ class CommandSeriesGroup:
                  'ToolTip': 'Series features (group): features that collect permutations of an object by changing dependent objects.'}
         
     def IsActive(self): # optional
-        return App.ActiveDocument is not None
+        return App.ActiveDocument is not None and activeBody() is None
 
 if App.GuiUp:
     FreeCADGui.addCommand('Lattice2_Series_GroupCommand',CommandSeriesGroup())

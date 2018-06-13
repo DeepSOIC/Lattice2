@@ -395,7 +395,7 @@ class _CommandBoundBoxGroup:
                  'ToolTip': 'Bounding Box: make a box that precisely fits a shape.'}
         
     def IsActive(self): # optional
-        return True
+        return activeBody() is None
 
 if FreeCAD.GuiUp:
     FreeCADGui.addCommand('Lattice2_BoundBoxGroupCommand',_CommandBoundBoxGroup())

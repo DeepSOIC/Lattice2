@@ -216,10 +216,15 @@ def CreateLatticePopulateCopies(name, label, shapeObj, latticeObjFrom, latticeOb
     #finalize
     FreeCADGui.doCommand("Gui.Selection.addSelection(f)")
     FreeCADGui.doCommand("f = None")
+    
+def throwBody():
+    raise SelectionError("PartDesign mode", "You can't use population tools on shapes in partdesign body. Use Lattice PartDesign Pattern instead. Or deactivate active body to use populate tools on shapes.")
 
 def cmdPopulate_shapes_nonFromTo(refmode):
     sel = FreeCADGui.Selection.getSelectionEx()
     (lattices, shapes) = lattice2BaseFeature.splitSelection(sel)
+    if activeBody() and len(shapes)>0:
+        throwBody()
     if len(shapes) > 0 and len(lattices) == 1:
         FreeCAD.ActiveDocument.openTransaction("Populate with copies")
         lattice = lattices[0]
@@ -247,6 +252,8 @@ def cmdPopulate_shapes_nonFromTo(refmode):
 def cmdPopulate_shapes_FromTo():
     sel = FreeCADGui.Selection.getSelectionEx()
     (lattices, shapes) = lattice2BaseFeature.splitSelection(sel)
+    if activeBody() and len(shapes)>0:
+        throwBody()
     if len(shapes) == 0 and len(sel) >= 3:
         shapes = sel[:-2]
         lattices = sel[-2:]

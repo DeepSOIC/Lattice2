@@ -34,7 +34,7 @@ from lattice2Common import *
 import lattice2BaseFeature
 import lattice2CompoundExplorer as LCE
 import lattice2Executer
-from lattice2PopulateCopies import DereferenceArray
+from lattice2PopulateCopies import DereferenceArray, throwBody
 import lattice2ShapeCopy as ShapeCopy
 
 # -------------------------- document object --------------------------------------------------
@@ -197,6 +197,8 @@ def CreateLatticePopulateChildren(name, label, shapeObj, latticeObjFrom, lattice
 def cmdPopulate_shapes_nonFromTo(refmode):
     sel = FreeCADGui.Selection.getSelectionEx()
     (lattices, shapes) = lattice2BaseFeature.splitSelection(sel)
+    if activeBody() and len(shapes)>0:
+        throwBody()
     if len(shapes) > 0 and len(lattices) == 1:
         FreeCAD.ActiveDocument.openTransaction("Populate with Children")
         lattice = lattices[0]
@@ -224,6 +226,8 @@ def cmdPopulate_shapes_nonFromTo(refmode):
 def cmdPopulate_shapes_FromTo():
     sel = FreeCADGui.Selection.getSelectionEx()
     (lattices, shapes) = lattice2BaseFeature.splitSelection(sel)
+    if activeBody() and len(shapes)>0:
+        throwBody()
     if len(shapes) == 0 and len(sel) >= 3:
         shapes = sel[:-2]
         lattices = sel[-2:]

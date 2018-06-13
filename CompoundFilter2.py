@@ -255,7 +255,7 @@ class _CommandCompoundFilter:
             
     def IsActive(self):
         if App.ActiveDocument:
-            return True
+            return activeBody() is None
         else:
             return False
             
@@ -326,7 +326,7 @@ class _CommandExplode:
             
     def IsActive(self):
         if App.ActiveDocument:
-            return True
+            return activeBody() is None
         else:
             return False
             
