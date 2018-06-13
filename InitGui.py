@@ -32,7 +32,8 @@ __Status__ = 'alpha'
 __Requires__ = 'freecad 0.16.5155'
 __Communication__ = 'vv.titov@gmail.com; DeepSOIC on FreeCAD forum'
 
-
+import lattice2InjectedToolbars as TB
+TB.registerPDToolbar()
 
 class Lattice2Workbench (Workbench):
     MenuText = 'Lattice2'
@@ -85,7 +86,7 @@ class Lattice2Workbench (Workbench):
         self.appendMenu('Lattice2', cmdsCompoundTools)
 
         cmdsPDTools = ([]
-            + Lattice2.PartDesignFeatures.PDPattern.exportedCommands
+            + Lattice2.PartDesignFeatures.PDPatternCommand.exportedCommands
         )
         self.appendToolbar('Lattice2PartDesignFeatres', cmdsPDTools)
         self.appendMenu('Lattice2', cmdsPDTools)
