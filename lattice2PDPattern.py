@@ -91,6 +91,7 @@ def feature_sign(feature, raise_if_unsupported = False):
     subtractive_types = [
         'PartDesign::Pocket',
         'PartDesign::Groove',
+        'PartDesign::Hole',
     ]
     def unsupported():
         if raise_if_unsupported:
