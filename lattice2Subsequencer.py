@@ -49,7 +49,9 @@ class SubsequencingError_LinkValue(SubsequencingError):
 # -----------------------</EXCEPTIONS>------------------------
 
 # -----------------------<HELPER STUFF>-----------------------
-if not hasattr(__builtins__, "basestring"):
+try:
+    basestring = basestring
+except Exception:
     basestring = str #Py3 compatibility
 
 class HashableShape(object):
