@@ -36,3 +36,5 @@ import Lattice2PartDesignFeatures as PartDesignFeatures
 import Lattice2GuiTools as GuiTools
 
 import lattice2_rc as resource_module
+
+import lattice2Compatibility as Compatibility

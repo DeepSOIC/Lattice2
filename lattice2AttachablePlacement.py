@@ -31,55 +31,56 @@ import FreeCAD as App
 import Part
 
 from lattice2Common import *
+import lattice2Compatibility as Compat
 import lattice2BaseFeature
 import lattice2Subsequencer as Subsequencer
 
+EDIT_ATTACHMENT = 56 # Viewprovider edit mode number
+
 def makeAttachablePlacement(name):
     '''makeAttachablePlacement(name): makes an attachable Placement object.'''
-    
-    try:
-        rev_number = int(App.Version()[2].split(" ")[0])
-    except Exception as err:
-        rev_number = 10000000
-    
-    if rev_number < 9177:
+    if Compat.attach_extension_era:
+        obj = lattice2BaseFeature.makeLatticeFeature(name, AttachablePlacement, ViewProviderAttachablePlacement, no_disable_attacher= True)
+    else:
         #obsolete!
         obj = FreeCAD.ActiveDocument.addObject("Part::AttachableObjectPython",name)
         AttachablePlacement(obj)
         if FreeCAD.GuiUp:
             ViewProviderAttachablePlacement(obj.ViewObject)        
-    else:
-        obj = lattice2BaseFeature.makeLatticeFeature(name, AttachablePlacement, ViewProviderAttachablePlacement, no_disable_attacher= True)
-        if not obj.hasExtension('Part::AttachExtension'):
-            obj.addExtension("Part::AttachExtensionPython", None)
             
     return obj
 
-class AttachablePlacement(lattice2BaseFeature.LatticeFeature):
-    "Attachable Lattice Placement object"
+class AttachableFeature(lattice2BaseFeature.LatticeFeature):
+    "Base class for attachable features"
     
     def derivedInit(self,obj):
-        self.Type = "AttachablePlacement"
-        
-        obj.ExposePlacement = True
-        obj.setEditorMode("ExposePlacement", 1) #read-only
-        
-    def derivedExecute(self,obj):
-        obj.positionBySupport()
-        
-        return [obj.Placement]
+        if Compat.attach_extension_era:
+            if not obj.hasExtension('Part::AttachExtension'): #PartDesign-related hack: the placement already has attachextension if created in PD
+                obj.addExtension('Part::AttachExtensionPython', None)
         
     def onDocumentRestored(self, selfobj):
-        #override that disables disabling of attacher
+        #PartDesign-related hack: this dummy override disables disabling of attacher
         pass 
 
 
-class ViewProviderAttachablePlacement(lattice2BaseFeature.ViewProviderLatticeFeature):
+class AttachablePlacement(AttachableFeature):
+    "Attachable Lattice Placement object"
+    
+    def derivedInit(self,selfobj):
+        super(AttachablePlacement, self).derivedInit(selfobj)
+        selfobj.ExposePlacement = True
+        selfobj.setEditorMode('ExposePlacement', 1) #read-only
         
-    def getIcon(self):
-        return getIconPath('Lattice2_AttachablePlacement.svg')
+    def derivedExecute(self,selfobj):
+        selfobj.ExposePlacement = True
+        selfobj.positionBySupport()
+        
+        return [selfobj.Placement]
 
+class ViewProviderAttachableFeature(lattice2BaseFeature.ViewProviderLatticeFeature):
+    always_edit_attachment = False
     def setEdit(self,vobj,mode):
+        if not (mode == EDIT_ATTACHMENT or (mode == 0 and always_edit_attachment)): raise NotImplementedError()
         import PartGui
         import FreeCADGui as Gui
         PartGui.AttachmentEditor.editAttachment(self.Object, 
@@ -88,9 +89,22 @@ class ViewProviderAttachablePlacement(lattice2BaseFeature.ViewProviderLatticeFea
         return True
     
     def unsetEdit(self,vobj,mode):
+        if not (mode == EDIT_ATTACHMENT or (mode == 0 and always_edit_attachment)): raise NotImplementedError()
         import FreeCADGui as Gui
         Gui.Control.closeDialog()
         return True
+
+    def setupContextMenu(self,vobj,menu):
+        from PySide import QtCore,QtGui
+        action1 = QtGui.QAction(QtGui.QIcon(":/icons/Part_Attachment.svg"),"Attachment...",menu)
+        QtCore.QObject.connect(action1,QtCore.SIGNAL("triggered()"), lambda: FreeCADGui.ActiveDocument.setEdit(vobj, 56))
+        menu.addAction(action1)
+        menu.setDefaultAction(action1)
+
+class ViewProviderAttachablePlacement(ViewProviderAttachableFeature):
+    always_edit_attachment = True    
+    def getIcon(self):
+        return getIconPath('Lattice2_AttachablePlacement.svg')
 
 
 def makeLatticeAttachedPlacementSubsequence(name):
@@ -136,6 +150,18 @@ class ViewProviderAttachedPlacementSubsequence(lattice2BaseFeature.ViewProviderL
 
 # -------------------------- Gui command --------------------------------------------------
 
+def editNewAttachment(f):
+    def accepted(f):
+        App.ActiveDocument.commitTransaction()
+        FreeCADGui.Selection.clearSelection()
+        FreeCADGui.Selection.addSelection(f)
+    import PartGui
+    PartGui.AttachmentEditor.editAttachment(f, take_selection= True,
+                                               create_transaction= False,
+                                               callback_OK= lambda f=f: accepted(f),
+                                               callback_Cancel= lambda: App.ActiveDocument.abortTransaction())
+
+
 def CreateAttachablePlacement(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     FreeCAD.ActiveDocument.openTransaction("Create Attachable Placement")
@@ -144,11 +170,8 @@ def CreateAttachablePlacement(name):
     FreeCADGui.addModule("PartGui")
     FreeCADGui.doCommand("f = lattice2AttachablePlacement.makeAttachablePlacement(name='"+name+"')")    
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")    
-    FreeCADGui.doCommand("PartGui.AttachmentEditor.editAttachment(f, take_selection= True,"
-                                                                  "create_transaction= False,"
-                                                                  "callback_OK= lambda: App.ActiveDocument.commitTransaction(),"
-                                                                  "callback_Cancel= lambda: App.ActiveDocument.abortTransaction())")
-    FreeCAD.ActiveDocument.commitTransaction()
+    FreeCADGui.doCommand("lattice2AttachablePlacement.editNewAttachment(f)")
+    #FreeCAD.ActiveDocument.commitTransaction()
 
 def cmdCreateAttachedPlacementSubsequence(name):
     sel = FreeCADGui.Selection.getSelectionEx()
