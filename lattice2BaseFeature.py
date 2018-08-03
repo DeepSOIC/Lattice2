@@ -100,7 +100,7 @@ def getMarkerSizeEstimate(ListOfPlacements):
     
 
 
-class LatticeFeature():
+class LatticeFeature(object):
     "Base object for lattice objects (arrays of placements)"
     
     def __init__(self,obj):
@@ -264,7 +264,7 @@ class LatticeFeature():
         self.disableAttacher(selfobj)
 
     
-class ViewProviderLatticeFeature:
+class ViewProviderLatticeFeature(object):
     "A View Provider for base lattice object"
 
     def __init__(self,vobj):
