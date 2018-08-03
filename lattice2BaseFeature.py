@@ -176,6 +176,7 @@ class LatticeFeature(object):
                     raise ValueError('Lattice object is null') 
                 
                 sh = Part.makeCompound(shapes)
+                sh.Placement = obj.Placement
                 obj.Shape = sh
 
             if obj.isLattice == 'Auto-Off':
