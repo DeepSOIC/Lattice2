@@ -46,18 +46,58 @@ class SelectionError(FreeCAD.Base.FreeCADError):
         self.message = message
         self.args = (message,)
         self.title = title
-        
-def msgError(err):
-    #if type(err) is CancelError: return   # doesn't work! Why!
+
+def msgError(err = None, message = u'{errmsg}'):
+    import sys
+    if err is None:
+        err = sys.exc_info()[1]
+    if type(err) is CancelError: return # doesn't work! Why!
     if hasattr(err, "isCancelError") and err.isCancelError: return   #workaround
+
+    # can we get a traceback?
+    b_tb =  err is sys.exc_info()[1]
+    if b_tb:
+        import traceback
+        tb = traceback.format_exc()
+        import FreeCAD as App
+        App.Console.PrintError(tb+'\n')
+    
+    #make messagebox object
+    from PySide import QtGui
     mb = QtGui.QMessageBox()
     mb.setIcon(mb.Icon.Warning)
-    mb.setText(str(err))
-    if type(err) is SelectionError:
+    
+    #fill in message
+    errmsg = ''
+    if hasattr(err,'message'):
+        if isinstance(err.message, dict):
+            errmsg = err.message['swhat']
+        elif len(err.message) > 0:
+            errmsg = err.message
+        else: 
+            errmsg = str(err)
+    else:
+        errmsg = str(err)
+    mb.setText(message.format(errmsg= errmsg, err= err))
+    
+    # fill in title
+    if hasattr(err, "title"):
         mb.setWindowTitle(err.title)
     else:
         mb.setWindowTitle("Error")
+        
+    #add traceback button
+    if b_tb:
+        btnClose = mb.addButton(QtGui.QMessageBox.StandardButton.Close)
+        btnCopy = mb.addButton("Copy traceback", QtGui.QMessageBox.ButtonRole.ActionRole)
+        mb.setDefaultButton(btnClose)
+        
     mb.exec_()
+    if b_tb:
+        if mb.clickedButton() is btnCopy:
+            cb = QtGui.QClipboard()
+            cb.setText(tb)
+        
 
 def infoMessage(title, message):
     mb = QtGui.QMessageBox()
