@@ -145,7 +145,7 @@ def is_supported(feature):
     try:
         sign = feature_sign(feature, raise_if_unsupported= True)
         return True
-    except FeatureUnsupportedError, NotPartDesignFeatureError:
+    except (FeatureUnsupportedError, NotPartDesignFeatureError):
         return False
 
 def applyFeature(baseshape, feature, transforms, mts):
