@@ -395,20 +395,20 @@ def source(feature):
             return (feature.Placement, feature)
         if feature in visitset:
             raise RuntimeError("Dependency loop!")
-        visitset.add(feature)
+        visitset.append(feature)
         if feature.isDerivedFrom('PartDesign::ShapeBinder'):
             if len(feature.Support) == 1 and feature.Support[0][1] == ('',):
-                base = feature.Support[0][1]
-                transform1, src = _source(base, visitlist)
+                base = feature.Support[0][0]
+                transform1, src = _source(base, visitset)
                 transform = feature.Placement.multiply(base.Placement.inverse().multiply(transform1))
                 return (transform, src)
         if hasattr(feature, 'IAm') and feature.IAm == 'PartOMagic.Ghost':
             base = feature.Base
-            transform1, src = _source(base, visitlist)
+            transform1, src = _source(base, visitset)
             transform = feature.Placement.multiply(base.Placement.inverse().multiply(transform1))
             return (transform, src)
         return (feature.Placement, feature)
-    return _source(feature, set())
+    return _source(feature, list())
     
 
 def splitSelection(sel):
