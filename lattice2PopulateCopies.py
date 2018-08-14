@@ -37,13 +37,16 @@ import lattice2Executer
 import lattice2ShapeCopy as ShapeCopy
 
 # ---------------------------shared code--------------------------------------
-def DereferenceArray(obj,placements, lnkFrom, refmode):
+
+REF_MODES = ['Origin', 'First item', 'Last item', 'Use PlacementsFrom', 'Array\'s reference']
+
+def DereferenceArray(obj, lnkTo, lnkFrom, refmode):
     '''common implementation of treatment Referencing property. Returns a list of placements to use directly.
-    obj - feature being executed (used for error reporting; can be None)
-    placements - the array, converted into a list of placements.
+    obj - feature being executed
+    lnkTo - the array of target placements (documentobject).
     lnkFrom - object linked as a lattice of 'from' placements. Can be None, if mode is not 'Use PlacemenetsFrom'
     refmode - a string - enum property item'''
-        
+    placements = lattice2BaseFeature.getPlacementsList(lnkTo, obj)    
     plmDeref = App.Placement() #inverse placement of reference (reference is a substitute of origin)
     if lnkFrom is not None  and  refmode != "Use PlacementsFrom":
         lattice2Executer.warning(obj,"Referencing mode is '"+refmode+"', doesn't need PlacementsFrom link to be set. The link is set, but it will be ignored.")
@@ -52,7 +55,7 @@ def DereferenceArray(obj,placements, lnkFrom, refmode):
     elif refmode == "First item":
         plmDeref = placements[0].inverse()
     elif refmode == "Last item":
-        plmDeref = placements[0].inverse()
+        plmDeref = placements[-1].inverse()
     elif refmode == "Use PlacementsFrom":
         if lnkFrom is None:
             raise ValueError("Referencing mode is 'Move from to', but PlacementsFrom link is not set.")
@@ -63,8 +66,13 @@ def DereferenceArray(obj,placements, lnkFrom, refmode):
             return [lattice2BaseFeature.makeMoveFromTo(placementsFrom[i], placements[i]) for i in range(0, len(placements))]
         else:
             lattice2Executer.warning(obj,"Lengths of arrays linked as PlacementsTo and PlacementsFrom must equal, or PlacementsFrom can be one placement. Violation: lengths are "+str(len(placements))+ " and "+str(len(placementsFrom)))
+    elif refmode == 'Array\'s reference':
+        plmRef = lattice2BaseFeature.getReferencePlm(lnkTo)
+        if plmRef is None:
+            raise AttributeError('Object {obj} does not expose a reference placement.')
+        plmDeref = plmRef.inverse()
     else:
-        raise ValueError("Referencing mode not implemented: "+refmode)
+        raise ValueError("Referencing mode not implemented: " + refmode)
     
     return [plm.multiply(plmDeref) for plm in placements]
 
@@ -85,7 +93,7 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyLink","Object","Lattice PopulateCopies","Base object. Can be any generic shape, as well as another lattice object.")
                 
         obj.addProperty("App::PropertyEnumeration","Referencing","Lattice PopulateCopies","Reference for array of placements.")
-        obj.Referencing = ["Origin","First item", "Last item", "Use PlacementsFrom"]
+        obj.Referencing = REF_MODES
         
         
         obj.addProperty("App::PropertyLink","PlacementsTo","Lattice PopulateCopies", "Placement or array of placements, containing target locations.")
@@ -110,7 +118,6 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         
         # cache stuff
         objectShape = screen(obj.Object).Shape
-        placements = lattice2BaseFeature.getPlacementsList(screen(obj.PlacementsTo), obj)
 
         outputIsLattice = lattice2BaseFeature.isObjectLattice(screen(obj.Object))
 
@@ -118,7 +125,7 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         if outputIsLattice:
             objectPlms = lattice2BaseFeature.getPlacementsList(screen(obj.Object),obj)
         
-        placements = DereferenceArray(obj, placements, screen(obj.PlacementsFrom), obj.Referencing)
+        placements = DereferenceArray(obj, obj.PlacementsTo, screen(obj.PlacementsFrom), obj.Referencing)
         
         # initialize output containers and loop variables
         outputShapes = [] #output list of shapes
@@ -199,6 +206,11 @@ def CreateLatticePopulateCopies(name, label, shapeObj, latticeObjFrom, latticeOb
     FreeCADGui.doCommand("f.PlacementsTo = App.ActiveDocument."+latticeObjTo.Name)
     if latticeObjFrom is not None:
         FreeCADGui.doCommand("f.PlacementsFrom = App.ActiveDocument."+latticeObjFrom.Name)        
+    if refmode == 'Auto':
+        if lattice2BaseFeature.getReferencePlm(latticeObjTo) is not None:
+            refmode = 'Array\'s reference'
+        else:
+            refmode = 'First item'
     FreeCADGui.doCommand("f.Referencing = "+repr(refmode))
     FreeCADGui.doCommand("f.Label = " + repr(label))                         
     
@@ -314,7 +326,7 @@ class _CommandLatticePopulateCopies_Array:
                     "Please select some objects, and the array of placements. Then invoke the command. Object can also be a placement/array.\n\n"+
                     "Compared to plain 'Populate With copies' command, the placements are treated as being relative to the first placement in the array. As a result, the array built always includes the original object as-is.")
                 return
-            cmdPopulate_shapes_nonFromTo("First item")
+            cmdPopulate_shapes_nonFromTo("Auto")
         except Exception as err:
             msgError(err)
             

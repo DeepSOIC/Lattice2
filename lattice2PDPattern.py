@@ -33,7 +33,7 @@ import lattice2BaseFeature
 import lattice2Executer
 from lattice2ShapeCopy import shallowCopy, transformCopy_Smart
 
-from lattice2PopulateCopies import DereferenceArray
+from lattice2PopulateCopies import DereferenceArray, REF_MODES
 
 
 class FeatureUnsupportedError(RuntimeError):
@@ -182,7 +182,7 @@ class LatticePDPattern(object):
         obj.addProperty('App::PropertyLink','PlacementsTo',"Lattice Pattern","Target placements")
         
         obj.addProperty('App::PropertyEnumeration','Referencing',"Lattice Pattern","Reference placement mode (sets what to grab the feature by).")
-        obj.Referencing = ['Origin','First item', 'Last item', 'Use PlacementsFrom']
+        obj.Referencing = REF_MODES
         
         obj.addProperty('App::PropertyBool', 'IgnoreUnsupported', "Lattice Pattern", "Skip unsupported features such as fillets, instead of throwing errors")
         obj.addProperty('App::PropertyBool', 'SkipFirstInBody', "Lattice Pattern", "Skip first body feature (which may be used as support for the important features).")
@@ -250,8 +250,7 @@ class LatticePDPattern(object):
                     raise ScopeError('Reference placement and the feature are not in the same body (use Shapebinder or Ghost to bring the placement in).')
         
         
-        placements = lattice2BaseFeature.getPlacementsList(selfobj.PlacementsTo, selfobj)
-        placements = DereferenceArray(selfobj, placements, selfobj.PlacementsFrom, selfobj.Referencing)
+        placements = DereferenceArray(selfobj, selfobj.PlacementsTo, selfobj.PlacementsFrom, selfobj.Referencing)
         if selfobj.Referencing == 'First item' and transforms is None:
             placements.pop(0) #to not repeat the feature where it was applied already 
         elif selfobj.Referencing == 'Last item' and transforms is None:

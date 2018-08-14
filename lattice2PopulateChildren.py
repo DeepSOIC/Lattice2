@@ -34,7 +34,7 @@ from lattice2Common import *
 import lattice2BaseFeature
 import lattice2CompoundExplorer as LCE
 import lattice2Executer
-from lattice2PopulateCopies import DereferenceArray, throwBody
+from lattice2PopulateCopies import DereferenceArray, throwBody, REF_MODES
 import lattice2ShapeCopy as ShapeCopy
 
 # -------------------------- document object --------------------------------------------------
@@ -58,7 +58,7 @@ class LatticePopulateChildren(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyBool","LoopObjectSequence","Lattice PopulateChildren","If true, children of Object will be traversed in a loop if there are more placements than children. Otherwise, extra placements will be dropped.")
                 
         obj.addProperty("App::PropertyEnumeration","Referencing","Lattice PopulateChildren","Reference for array of placements.")
-        obj.Referencing = ["Origin","First item", "Last item", "Use PlacementsFrom"]
+        obj.Referencing = REF_MODES
         
         
         obj.addProperty("App::PropertyLink","PlacementsTo","Lattice PopulateChildren", "Placement or array of placements, containing target locations.")
@@ -88,11 +88,10 @@ class LatticePopulateChildren(lattice2BaseFeature.LatticeFeature):
                 raise ValueError("Traversal mode not implemented: "+obj.ObjectTraversal)
         else:
             objectPlms = lattice2BaseFeature.getPlacementsList(screen(obj.Object), obj)
-        placements = lattice2BaseFeature.getPlacementsList(screen(obj.PlacementsTo), obj)
 
         
         # Precompute referencing
-        placements = DereferenceArray(obj, placements, screen(obj.PlacementsFrom), obj.Referencing)
+        placements = DereferenceArray(obj, obj.PlacementsTo, screen(obj.PlacementsFrom), obj.Referencing)
                 
         # initialize output containers and loop variables
         outputShapes = [] #output list of shapes

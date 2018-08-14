@@ -73,15 +73,16 @@ def makeLatticeFeature(name, AppClass, ViewClass, no_body = False, no_disable_at
     
 def isObjectLattice(documentObject):
     '''isObjectLattice(documentObject): When operating on the object, it is to be treated as a lattice object. If False, treat as a regular shape.'''
+    transform, src = source(documentObject)
     ret = False
-    if hasattr(documentObject,"isLattice"):
-        if 'On' in documentObject.isLattice:
+    if hasattr(src,'isLattice'):
+        if 'On' in src.isLattice:
             ret = True
-    if documentObject.isDerivedFrom('PartDesign::ShapeBinder'):
-        if len(documentObject.Support) == 1 and documentObject.Support[0][1] == ('',):
-            ret = isObjectLattice(documentObject.Support[0][0])
-    if hasattr(documentObject, 'IAm') and documentObject.IAm == 'PartOMagic.Ghost':
-        ret = isObjectLattice(documentObject.Base)
+    #if documentObject.isDerivedFrom('PartDesign::ShapeBinder'):
+    #    if len(documentObject.Support) == 1 and documentObject.Support[0][1] == ('',):
+    #        ret = isObjectLattice(documentObject.Support[0][0])
+    #if hasattr(documentObject, 'IAm') and documentObject.IAm == 'PartOMagic.Ghost':
+    #    ret = isObjectLattice(documentObject.Base)
     return ret
     
 def getMarkerSizeEstimate(ListOfPlacements):
@@ -109,7 +110,7 @@ class LatticeFeature(object):
         obj.Type = self.__module__ + '.' + type(self).__name__
 
         prop = "NumElements"
-        obj.addProperty("App::PropertyInteger",prop,"Lattice","Info: number of placements in the array")
+        obj.addProperty("App::PropertyInteger",prop,"Lattice","Info: number of placements in the array", 0, True)
         obj.setEditorMode(prop, 1) # set read-only
         
         obj.addProperty("App::PropertyLength","MarkerSize","Lattice","Size of placement markers (set to zero for automatic).")
@@ -123,7 +124,7 @@ class LatticeFeature(object):
         # Auto-On an Auto-Off can be modified when recomputing. Force values are going to stay.
         
         prop = "ExposePlacement"
-        obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the placement syncronized to Placement property. This will oftem make this object unmoveable. Not applicable to arrays.")
+        obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the placement syncronized to Placement property. This will often make this object unmoveable. Not applicable to arrays.")
 
         self.derivedInit(obj)
         
@@ -135,7 +136,24 @@ class LatticeFeature(object):
         already exists. Returns True if property was created, or False if not."""
         
         return assureProperty(selfobj, proptype, propname, defvalue, group, tooltip)
-        
+    
+    def setReferencePlm(self, selfobj, refplm):
+        """setReferencePlm(selfobj, refplm): sets reference placement, in internal CS. If refplm is None, the property is removed."""
+        attr = 'ReferencePlacement'
+        if refplm is None and hasattr(selfobj, attr):
+            selfobj.removeProperty(attr)
+        else:
+            if not hasattr(selfobj, attr):
+                selfobj.addProperty(
+                    'App::PropertyPlacement', 
+                    'ReferencePlacement', 
+                    "Lattice", 
+                    "Reference placement, used by 'Populate: build array'. For it, all placements in this array are reinterpreted as relative to this one. The placement is in internal coordinates, under main Placement.",
+                    0,
+                    True
+                )
+            selfobj.ReferencePlacement = refplm
+    
     def derivedInit(self, obj):
         '''for overriding by derived classes'''
         pass
@@ -357,6 +375,41 @@ def getPlacementsList(documentObject, context = None, suppressWarning = False):
             lattice2Executer.warning(context, documentObject.Name + " is not a placement or an array of placements. Results may be unexpected.")
     leaves = LCE.AllLeaves(documentObject.Shape)
     return [leaf.Placement for leaf in leaves]
+
+def getReferencePlm(feature):
+    """Obtains reference placement, in container's CS (includes feature.Placement)."""
+    transform, src = source(feature)
+    if not isObjectLattice(src):
+        raise TypeError('getReferencePlm: array of placements expected, got something else.')
+    if hasattr(src, 'ReferencePlacement'):
+        return transform.multiply(src.ReferencePlacement)
+    else:
+        return None
+    
+def source(feature):
+    """source(feature): finds the original Lattice array feature from behind shapebinders and such. Returns (transform, lattice_feature).
+    transform: placement that converts feature's local coordinates into global.
+    lattice_feature may not actually be an array of placements."""
+    def _source(feature, visitset):
+        if hasattr(feature,'isLattice'):
+            return (feature.Placement, feature)
+        if feature in visitset:
+            raise RuntimeError("Dependency loop!")
+        visitset.add(feature)
+        if feature.isDerivedFrom('PartDesign::ShapeBinder'):
+            if len(feature.Support) == 1 and feature.Support[0][1] == ('',):
+                base = feature.Support[0][1]
+                transform1, src = _source(base, visitlist)
+                transform = feature.Placement.multiply(base.Placement.inverse().multiply(transform1))
+                return (transform, src)
+        if hasattr(feature, 'IAm') and feature.IAm == 'PartOMagic.Ghost':
+            base = feature.Base
+            transform1, src = _source(base, visitlist)
+            transform = feature.Placement.multiply(base.Placement.inverse().multiply(transform1))
+            return (transform, src)
+        return (feature.Placement, feature)
+    return _source(feature, set())
+    
 
 def splitSelection(sel):
     '''splitSelection(sel): splits sel (use getSelectionEx()) into lattices and non-lattices.

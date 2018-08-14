@@ -77,6 +77,7 @@ class PolarArray(APlm.AttachableFeature):
         selfobj.addProperty('App::PropertyBool', 'FlipX', "Polar Array", "Reverses x axis of every placement.")
         selfobj.addProperty('App::PropertyBool', 'FlipZ', "Polar Array", "Reverses z axis of every placement.")
         
+        self.assureProperties(selfobj)
         self.assureGenerator(selfobj)
 
         selfobj.ValuesSource = 'Generator'
@@ -85,7 +86,20 @@ class PolarArray(APlm.AttachableFeature):
         selfobj.EndInclusive = False
         selfobj.Step = 55
         selfobj.Count = 7
-        
+    
+    def assureProperties(self, selfobj):
+        # upgrades older versions of the feature
+        created = self.assureProperty(selfobj, 
+            'App::PropertyEnumeration', 
+            'ReferencePlacementOption', 
+            ['none', 'SpanStart', 'SpanEnd', 'at custom value', 'first placement', 'last placement'],
+            "Polar Array", 
+            "Reference placement, corresponds to the original occurrence of the object to be populated."
+        )
+        if created:
+            selfobj.ReferencePlacementOption = 'SpanStart'
+        self.assureProperty(selfobj, 'App::PropertyFloat', 'ReferenceValue', 0.0, "Polar Array", "Sets the value to use for generating ReferencePlacement. This value sets, what angle the object to be populated corresponds to.")
+    
     def assureGenerator(self, selfobj):
         '''Adds an instance of value series generator, if one doesn't exist yet.'''
         if hasattr(self,'generator'):
@@ -102,6 +116,7 @@ class PolarArray(APlm.AttachableFeature):
         
         arc = self.fetchArc(selfobj) 
         selfobj.setEditorMode('Radius', 1 if arc and selfobj.UseArcRadius else 0)
+        selfobj.setEditorMode('ReferenceValue', 0 if selfobj.ReferencePlacementOption == 'at custom value' else 2)
         self.generator.setPropertyWritable('SpanEnd', False if arc and selfobj.UseArcRange == 'as Span' else True)
         self.generator.setPropertyWritable('SpanStart', False if arc and selfobj.UseArcRange == 'as Span' else True)
         self.generator.setPropertyWritable('Step', False if arc and selfobj.UseArcRange == 'as Step' else True)
@@ -189,7 +204,7 @@ class PolarArray(APlm.AttachableFeature):
         angleplus = -90.0 if on_arc else 0.0
         mm = -1.0 if selfobj.Reverse else +1.0
         output = [] # list of placements
-        for ang in values:
+        def plmByVal(ang):
             localrot = App.Rotation(App.Vector(0,0,1), ang * mm + angleplus)
             localtransl = localrot.multVec(App.Vector(radius,0,0))
             localplm = App.Placement(localtransl, localrot)
@@ -200,7 +215,25 @@ class PolarArray(APlm.AttachableFeature):
             elif is_static:
                 resultplm.Rotation = App.Rotation()
                 resultplm = resultplm.multiply(flipplm)
-            output.append(resultplm)
+            return resultplm
+        output = [plmByVal(ang) for ang in values]
+            
+        # update reference placement
+        ref = selfobj.ReferencePlacementOption
+        if ref == 'none':
+            self.setReferencePlm(selfobj, None)
+        elif ref == 'SpanStart':
+            self.setReferencePlm(selfobj, plmByVal(selfobj.SpanStart))
+        elif ref == 'SpanEnd':
+            self.setReferencePlm(selfobj, plmByVal(selfobj.SpanEnd))
+        elif ref == 'at custom value':
+            self.setReferencePlm(selfobj, plmByVal(selfobj.ReferenceValue))
+        elif ref == 'first placement':
+            self.setReferencePlm(selfobj, output[0])
+        elif ref == 'last placement':
+            self.setReferencePlm(selfobj, output[-1])
+        else:
+            raise NotImplementedError("Reference option not implemented: " + ref)
 
         return output
     
