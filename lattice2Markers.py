@@ -21,15 +21,19 @@
 #*                                                                         *
 #***************************************************************************
 
-import Part, os
+import Part
+import os
+
+import lattice2CoinGlue as CoinGlue
 
 __title__="latticeMarkers module for FreeCAD"
 __author__ = "DeepSOIC"
 __url__ = ""
 __doc__ = "Module for loading marker shapes for Lattice workbench"
 
-_nullShapeShape = 0
+_nullShapeShape = None
 _ShapeDict = {}
+_NodeDict = {}
 
 def getShapePath(shapeName):
     """
@@ -44,7 +48,7 @@ def getNullShapeShape(scale = 1.0):
     
     #read shape from file, if not done this before
     global _nullShapeShape
-    if not _nullShapeShape:
+    if _nullShapeShape is None:
         _nullShapeShape = Part.Shape()
         f = open(getShapePath("empty-shape.brep"))
         _nullShapeShape.importBrep(f)
@@ -73,8 +77,7 @@ def loadShape(shapeID):
             FreeCAD.Console.PrintError('Failed to load standard shape "'+shapeID+'". \n' + str(err) + '\n')
             sh = Part.Point() #Create at least something!
         _ShapeDict[shapeID] = sh
-    return sh
-        
+    return sh        
 
 def getPlacementMarker(scale = 1.0, markerID = None):
     '''getPlacementMarker(scale = 1.0, markerID = None): returns a placement marker shape. 
@@ -87,3 +90,27 @@ def getPlacementMarker(scale = 1.0, markerID = None):
         sh = sh.copy()
         sh.scale(scale)
     return sh
+    
+def loadNode(shapeID):
+    global _NodeDict
+    nd = _NodeDict.get(shapeID)
+    if nd is None:
+        nd = CoinGlue.readNodeFromFile(getShapePath(shapeID + '.iv'))
+        _NodeDict[shapeID] = nd
+        nd.ref() # not sure if needed, but won't hurt.
+    return nd
+
+def getRefPlmMarker(markerID, placement = None, scale = 1.0):
+    '''getRefPlmMarker(markerID, placement = None, scale = 1.0): returns a coin placement marker shape, as SoSeparator (+ transform node + shape node). 
+    The shape is scaled according to "scale" argument. 
+    markerID sets the marker file name.'''
+    sh = loadNode(markerID + '-refplm')
+    from pivy import coin
+    sep = coin.SoSeparator()
+    tr = coin.SoTransform()
+    if placement is not None:
+        CoinGlue.cointransform(placement, scale, tr)
+    sep.addChild(tr)
+    sep.addChild(sh)
+    return (sep, tr, sh)
+

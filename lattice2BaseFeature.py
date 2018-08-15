@@ -33,6 +33,7 @@ import lattice2CompoundExplorer as LCE
 import lattice2Markers
 import lattice2Executer
 from lattice2ShapeCopy import shallowCopy
+import lattice2CoinGlue as CoinGlue
 
 
 def getDefLatticeFaceColor():
@@ -130,12 +131,12 @@ class LatticeFeature(object):
         
         obj.Proxy = self
         
-    def assureProperty(self, selfobj, proptype, propname, defvalue, group, tooltip):
+    def assureProperty(self, selfobj, proptype, propname, defvalue, group, tooltip, readonly = False, hidden = False):
         """assureProperty(selfobj, proptype, propname, defvalue, group, tooltip): adds
         a property if one is missing, and sets its value to default. Does nothing if property 
         already exists. Returns True if property was created, or False if not."""
         
-        return assureProperty(selfobj, proptype, propname, defvalue, group, tooltip)
+        return assureProperty(selfobj, proptype, propname, defvalue, group, tooltip, readonly, hidden)
     
     def setReferencePlm(self, selfobj, refplm):
         """setReferencePlm(selfobj, refplm): sets reference placement, in internal CS. If refplm is None, the property is removed."""
@@ -153,6 +154,13 @@ class LatticeFeature(object):
                     True
                 )
             selfobj.ReferencePlacement = refplm
+    
+    def getReferencePlm(self, selfobj):
+        """getReferencePlm(self, selfobj): Returns reference placement in internal CS, or None."""
+        if hasattr(selfobj, 'ReferencePlacement'):
+            return selfobj.ReferencePlacement
+        else:
+            return None
     
     def derivedInit(self, obj):
         '''for overriding by derived classes'''
@@ -172,6 +180,8 @@ class LatticeFeature(object):
             if markerSize < DistConfusion:
                 markerSize = getMarkerSizeEstimate(plms)
             marker = lattice2Markers.getPlacementMarker(scale= markerSize, markerID= obj.MarkerShape)
+            self.assureProperty(obj, 'App::PropertyLength', 'MarkerSizeActual', markerSize, "Lattice", "Size of placement markers of this array", hidden= True)
+            obj.MarkerSizeActual = markerSize
             
             bExposing = False
             if obj.ExposePlacement:
@@ -316,6 +326,27 @@ class ViewProviderLatticeFeature(object):
     def attach(self, vobj):
         self.ViewObject = vobj
         self.Object = vobj.Object
+        self.refplm_node, self.refplm_tr, self.refplm_sh = None, None, None
+        self.makeRefplmVisual(vobj)
+        from pivy import coin
+        self.modenode = next((node for node in vobj.RootNode.getChildren() if node.isOfType(coin.SoSwitch.getClassTypeId())))
+        self.modenode_refplm = None 
+        
+    def makeRefplmVisual(self, vobj):
+        import pivy
+        from pivy import coin
+        refplm = self.Object.Proxy.getReferencePlm(self.Object)
+        if refplm is not None:
+            if not hasattr(self.Object, 'MarkerSizeActual'): return
+            if self.refplm_node is None:
+                self.refplm_node, self.refplm_tr, self.refplm_sh = lattice2Markers.getRefPlmMarker(self.Object.MarkerShape)
+                vobj.RootNode.addChild(self.refplm_node)
+                self.modenode_refplm = next((node for node in self.refplm_sh.getChildren() if node.isOfType(coin.SoSwitch.getClassTypeId())))
+            CoinGlue.cointransform(refplm, float(self.Object.MarkerSizeActual), self.refplm_tr)
+        else:
+            if hasattr(self, 'refplm_node') and self.refplm_node is not None:
+                vobj.RootNode.removeChild(self.refplm_node)
+                self.refplm_node, self.refplm_tr, self.refplm_sh = None, None, None
 
     def __getstate__(self):
         return None
@@ -342,10 +373,19 @@ class ViewProviderLatticeFeature(object):
             # catch all exceptions, because we don't want to prevent deletion if something goes wrong
             FreeCAD.Console.PrintError("Error in onDelete: " + str(err))
         return True
+    
+    def updateData(self, obj, prop):
+        if prop == 'ReferencePlacement' or prop == 'MarkerSizeActual':
+            self.makeRefplmVisual(obj.ViewObject)
+        
+    def onChanged(self, vobj, prop):
+        if prop == 'Visibility':
+            self.modenode_refplm.whichChild.setValue(0 if vobj.Visibility == True else -1)
+        
 
 
-def assureProperty(docobj, proptype, propname, defvalue, group, tooltip):
-    """assureProperty(docobj, proptype, propname, defvalue, group, tooltip): adds
+def assureProperty(docobj, proptype, propname, defvalue, group, tooltip, readonly = False, hidden = False):
+    """assureProperty(docobj, proptype, propname, defvalue, group, tooltip, readonly = False, hidden = False): adds
     a property if one is missing, and sets its value to default. Does nothing if property 
     already exists. Returns True if property was created, or False if not."""
     
@@ -353,7 +393,7 @@ def assureProperty(docobj, proptype, propname, defvalue, group, tooltip):
         #todo: check type match
         return False
         
-    docobj.addProperty(proptype, propname, group, tooltip)
+    docobj.addProperty(proptype, propname, group, tooltip, 0, readonly, hidden)
     if defvalue is not None:
         setattr(docobj, propname, defvalue)
     return True
