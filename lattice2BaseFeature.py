@@ -141,8 +141,9 @@ class LatticeFeature(object):
     def setReferencePlm(self, selfobj, refplm):
         """setReferencePlm(selfobj, refplm): sets reference placement, in internal CS. If refplm is None, the property is removed."""
         attr = 'ReferencePlacement'
-        if refplm is None and hasattr(selfobj, attr):
-            selfobj.removeProperty(attr)
+        if refplm is None:
+            if hasattr(selfobj, attr):
+                selfobj.removeProperty(attr)
         else:
             if not hasattr(selfobj, attr):
                 selfobj.addProperty(
@@ -347,6 +348,7 @@ class ViewProviderLatticeFeature(object):
             if hasattr(self, 'refplm_node') and self.refplm_node is not None:
                 vobj.RootNode.removeChild(self.refplm_node)
                 self.refplm_node, self.refplm_tr, self.refplm_sh = None, None, None
+                self.modenode_refplm = None
 
     def __getstate__(self):
         return None
@@ -380,7 +382,8 @@ class ViewProviderLatticeFeature(object):
         
     def onChanged(self, vobj, prop):
         if prop == 'Visibility':
-            self.modenode_refplm.whichChild.setValue(0 if vobj.Visibility == True else -1)
+            if self.modenode_refplm is not None:
+                self.modenode_refplm.whichChild.setValue(0 if vobj.Visibility == True else -1)
         
 
 

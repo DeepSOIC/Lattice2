@@ -98,7 +98,7 @@ def loadNode(shapeID):
         nd = CoinGlue.readNodeFromFile(getShapePath(shapeID + '.iv'))
         _NodeDict[shapeID] = nd
         nd.ref() # not sure if needed, but won't hurt.
-    return nd
+    return nd.copy()
 
 def getRefPlmMarker(markerID, placement = None, scale = 1.0):
     '''getRefPlmMarker(markerID, placement = None, scale = 1.0): returns a coin placement marker shape, as SoSeparator (+ transform node + shape node). 
