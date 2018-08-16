@@ -343,7 +343,7 @@ class ViewProviderLatticeFeature(object):
                 self.refplm_node, self.refplm_tr, self.refplm_sh = lattice2Markers.getRefPlmMarker(self.Object.MarkerShape)
                 vobj.RootNode.addChild(self.refplm_node)
                 self.modenode_refplm = next((node for node in self.refplm_sh.getChildren() if node.isOfType(coin.SoSwitch.getClassTypeId())))
-            CoinGlue.cointransform(refplm, float(self.Object.MarkerSizeActual), self.refplm_tr)
+            CoinGlue.cointransform(refplm, float(self.Object.MarkerSizeActual) * 1.1, self.refplm_tr)
         else:
             if hasattr(self, 'refplm_node') and self.refplm_node is not None:
                 vobj.RootNode.removeChild(self.refplm_node)
