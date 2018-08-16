@@ -100,6 +100,20 @@ class LatticePopulateChildren(lattice2BaseFeature.LatticeFeature):
         numChildren = len(objectPlms) if outputIsLattice else len(objectShapes) 
         copy_method_index = ShapeCopy.getCopyTypeIndex(obj.Copying)
         
+        #inherit reference placement from the array being copied
+        if outputIsLattice:
+            refplm = None
+            if obj.Referencing == 'Array\'s reference' or obj.Referencing == 'First item' or obj.Referencing == 'Last item':
+                #simple cases - we just copy the reference plm from the object
+                refplm = lattice2BaseFeature.getReferencePlm(obj.Object)
+            else:
+                #other cases - apply first transform to reference placement
+                refplm = lattice2BaseFeature.getReferencePlm(obj.Object)
+                if refplm is not None and len(placements) > 0:
+                    refplm = placements[0].multiply(refplm)
+            self.setReferencePlm(obj, refplm)
+
+        
         # the essence
         for iPlm in range(len(placements)):
             if iChild == numChildren:
