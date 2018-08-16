@@ -46,8 +46,6 @@ class LatticeInvert(lattice2BaseFeature.LatticeFeature):
     "The Lattice Invert object"
     
     def derivedInit(self,obj):
-        self.Type = "LatticeInvert"
-                
         obj.addProperty("App::PropertyLink","Base","Lattice Invert","Lattice, all the placements of which are to be inverted.")
                 
         obj.addProperty("App::PropertyEnumeration","TranslateMode","Lattice Invert","What to do with translation part of placements")
@@ -57,14 +55,30 @@ class LatticeInvert(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyEnumeration","OrientMode","Lattice Invert","what to do with orientation part of placements")
         obj.OrientMode = ['invert', 'keep', 'reset']
         obj.OrientMode = 'invert'
-
+        
+        self.assureProperties(obj)
+    
+    def assureProperties(self, selfobj):
+        self.assureProperty(selfobj, 'App::PropertyEnumeration', 'Referencing', ['Origin', 'Array\'s reference'], "Lattice Invert", "Sets which placement to use as origin")
+        
     def derivedExecute(self,obj):
+        self.assureProperties(obj)
+        
         # cache stuff
-        base = screen(obj.Base).Shape
-        if not lattice2BaseFeature.isObjectLattice(screen(obj.Base)):
-            lattice2Executer.warning(obj, "Base is not a lattice, but lattice is expected. Results may be unexpected.\n")
-        baseChildren = LCE.AllLeaves(base)
-                        
+        placements = lattice2BaseFeature.getPlacementsList(obj.Base)
+        
+        # dereference
+        refplm = App.Placement()
+        if obj.Referencing == 'Origin':
+            pass
+        elif obj.Referencing == 'Array\'s reference':
+            refplm = self.getReferencePlm(obj.Base)
+            self.setReferencePlm(obj, refplm)
+        else:
+            raise NotImplementedError(obj.Referencing)
+        inv_refplm = refplm.inverse()
+        locplms = [inv_refplm.multiply(plm) for plm in placements]
+        
         #cache mode comparisons, for speed
         posIsInvert = obj.TranslateMode == 'invert'
         posIsKeep = obj.TranslateMode == 'keep'
@@ -78,26 +92,29 @@ class LatticeInvert(lattice2BaseFeature.LatticeFeature):
         outputPlms = [] #list of placements
         
         # the essence
-        for child in baseChildren:
+        for plm in locplms:
             pos = App.Vector()
             ori = App.Rotation()
-            inverted = child.Placement.inverse()
+            inverted = plm.inverse()
             if posIsInvert:
                 pos = inverted.Base
             elif posIsKeep:
-                pos = child.Placement.Base
+                pos = plm.Base
             elif posIsReset:
                 pass
             
             if oriIsInvert:
                 ori = inverted.Rotation
             elif oriIsKeep:
-                ori = child.Placement.Rotation
+                ori = plm.Rotation
             elif oriIsReset:
                 pass
                 
-            plm = App.Placement(pos, ori)
-            outputPlms.append(plm)
+            outputPlms.append(App.Placement(pos, ori))
+        
+        # re-reference
+        outputPlms = [refplm.multiply(plm) for plm in outputPlms]
+        
         return outputPlms
 
 
@@ -121,6 +138,8 @@ def CreateLatticeInvert(name):
     FreeCADGui.addModule("lattice2Executer")
     FreeCADGui.doCommand("f = lattice2Invert.makeLatticeInvert(name='"+name+"')")
     FreeCADGui.doCommand("f.Base = App.ActiveDocument."+sel[0].ObjectName)
+    hasref = lattice2BaseFeature.getReferencePlm(sel[0].Object) is not None
+    FreeCADGui.doCommand("f.Referencing = {r}".format(r= repr('Array\'s reference' if hasref else 'Origin') ))    
     FreeCADGui.doCommand("for child in f.ViewObject.Proxy.claimChildren():\n"+
                          "    child.ViewObject.hide()")
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
