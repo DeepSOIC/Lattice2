@@ -182,18 +182,20 @@ class ViewProviderLatticePopulateCopies(lattice2BaseFeature.ViewProviderLatticeF
     def getIcon(self):
         if lattice2BaseFeature.isObjectLattice(self.Object):
             return getIconPath(
-                {"Origin":"Lattice2_PopulateCopies_Plms_Normal.svg",
-                 "First item":"Lattice2_PopulateCopies_Plms_Array.svg",
-                 "Last item":"Lattice2_PopulateCopies_Plms_Array.svg",
-                 "Use PlacementsFrom":"Lattice2_PopulateCopies_Plms_Move.svg",
+                {'Origin':'Lattice2_PopulateCopies_Plms_Normal.svg',
+                 'First item':'Lattice2_PopulateCopies_Plms_Array.svg',
+                 'Last item':'Lattice2_PopulateCopies_Plms_Array.svg',
+                 'Use PlacementsFrom':'Lattice2_PopulateCopies_Plms_Move.svg',
+                 'Array\'s reference':'Lattice2_PopulateCopies_Plms_Ref.svg',
                 }[self.Object.Referencing]
                 )  
         else:
             return getIconPath(
-                {"Origin":"Lattice2_PopulateCopies_Normal.svg",
-                 "First item":"Lattice2_PopulateCopies_Array.svg",
-                 "Last item":"Lattice2_PopulateCopies_Array.svg",
-                 "Use PlacementsFrom":"Lattice2_PopulateCopies_Move.svg",
+                {'Origin':'Lattice2_PopulateCopies_Normal.svg',
+                 'First item':'Lattice2_PopulateCopies_Array.svg',
+                 'Last item':'Lattice2_PopulateCopies_Array.svg',
+                 'Use PlacementsFrom':'Lattice2_PopulateCopies_Move.svg',
+                 'Array\'s reference':'Lattice2_PopulateCopies_Ref.svg',
                 }[self.Object.Referencing]
                 )  
         
