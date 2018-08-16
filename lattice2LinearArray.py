@@ -89,6 +89,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         obj.setEditorMode("DirIsDriven", 0 if link else 1)
         obj.setEditorMode("PointIsDriven", 0 if link else 1)
         obj.setEditorMode("DrivenProperty", 0 if link else 1)
+        obj.setEditorMode('ReferenceValue', 0 if obj.ReferencePlacementOption == 'at custom value' else 2)
         
         self.generator.updateReadonlyness()
 
@@ -105,6 +106,17 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         
     def assureProperties(self, selfobj):
         assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(screen(selfobj.Link), selfobj.LinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
+
+        created = self.assureProperty(selfobj, 
+            'App::PropertyEnumeration', 
+            'ReferencePlacementOption', 
+            ['none', 'SpanStart', 'SpanEnd', 'at custom value', 'first placement', 'last placement'],
+            "Lattice Array", 
+            "Reference placement, corresponds to the original occurrence of the object to be populated."
+        )
+        if created:
+            selfobj.ReferencePlacementOption = 'SpanStart'
+        self.assureProperty(selfobj, 'App::PropertyDistance', 'ReferenceValue', 0.0, "Lattice Array", "Sets the value to use for generating ReferencePlacement. This value sets, what coordinate the object to be populated corresponds to.")
 
     def derivedExecute(self,obj):
         self.assureGenerator(obj)
@@ -170,9 +182,28 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         dir.normalize()
         
         # Make the array
+        def plmByVal(val):
+            return App.Placement(obj.Point + obj.Dir*val, ori)
         output = [] # list of placements
         for v in values:
-            output.append( App.Placement(obj.Point + obj.Dir*v, ori) )
+            output.append( plmByVal(v) )
+
+        # update reference placement
+        ref = obj.ReferencePlacementOption
+        if ref == 'none':
+            self.setReferencePlm(obj, None)
+        elif ref == 'SpanStart':
+            self.setReferencePlm(obj, plmByVal(float(obj.SpanStart)))
+        elif ref == 'SpanEnd':
+            self.setReferencePlm(obj, plmByVal(float(obj.SpanEnd)))
+        elif ref == 'at custom value':
+            self.setReferencePlm(obj, plmByVal(float(obj.ReferenceValue)))
+        elif ref == 'first placement':
+            self.setReferencePlm(obj, output[0])
+        elif ref == 'last placement':
+            self.setReferencePlm(obj, output[-1])
+        else:
+            raise NotImplementedError("Reference option not implemented: " + ref)
             
         return output
         
