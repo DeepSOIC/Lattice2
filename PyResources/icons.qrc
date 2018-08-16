@@ -34,15 +34,19 @@
         <file>icons/Lattice2_PopulateChildren_Array.svg</file>
         <file>icons/Lattice2_PopulateChildren_Move.svg</file>
         <file>icons/Lattice2_PopulateChildren_Normal.svg</file>        
+        <file>icons/Lattice2_PopulateChildren_Ref.svg</file>
         <file>icons/Lattice2_PopulateChildren_Plms_Array.svg</file>
         <file>icons/Lattice2_PopulateChildren_Plms_Normal.svg</file>
         <file>icons/Lattice2_PopulateChildren_Plms_Move.svg</file>
+        <file>icons/Lattice2_PopulateChildren_Plms_Ref.svg</file>
         <file>icons/Lattice2_PopulateCopies_Array.svg</file>
         <file>icons/Lattice2_PopulateCopies_Move.svg</file>
         <file>icons/Lattice2_PopulateCopies_Normal.svg</file>        
+        <file>icons/Lattice2_PopulateCopies_Ref.svg</file>
         <file>icons/Lattice2_PopulateCopies_Plms_Array.svg</file>
         <file>icons/Lattice2_PopulateCopies_Plms_Normal.svg</file>
         <file>icons/Lattice2_PopulateCopies_Plms_Move.svg</file>
+        <file>icons/Lattice2_PopulateCopies_Plms_Ref.svg</file>
         <file>icons/Lattice2_ProjectArray.svg</file>
         <file>icons/Lattice2_RecomputeLocker_ForceRecompute.svg</file>
         <file>icons/Lattice2_RecomputeLocker_Locked.svg</file>
