@@ -1,0 +1,160 @@
+#Inventor V2.1 ascii
+
+PickStyle {
+  style UNPICKABLE
+}
+
+Coordinate3 {
+  point [ 0 0 0,
+      -1.7347235e-018 -0.30000001 1.3877788e-017,
+      1.7347235e-018 0.30000001 -2.1359844e-015,
+      -1.7347235e-018 8.3193401e-018 0.30000001,
+      1.7347235e-018 0.30000001 -2.1359844e-015,
+      0 0 0,
+      1 -2.7755576e-017 -2.0816682e-017,
+      -1.7347235e-018 -0.30000001 1.3877788e-017,
+      -1.7347235e-018 -0.30000001 1.3877788e-017,
+      1 -2.7755576e-017 -2.0816682e-017,
+      -1.7347235e-018 8.3193401e-018 0.30000001,
+      1 -2.7755576e-017 -2.0816682e-017,
+      -1.7347235e-018 8.3193401e-018 0.30000001,
+      1.7347235e-018 0.30000001 -2.1359844e-015,
+      0 0 0,
+      -1.7347235e-018 -0.30000001 1.3877788e-017,
+      1.7347235e-018 0.30000001 -2.1359844e-015,
+      -1.7347235e-018 8.3193401e-018 0.30000001,
+      1 -2.7755576e-017 -2.0816682e-017 ]
+}
+
+Switch {
+  whichChild 0
+
+  Separator {
+
+    DEF myLines Separator {
+
+      MaterialBinding {
+        value OVERALL
+
+      }
+      Material {
+        ambientColor 0.2 0.2 0.2
+        diffuseColor 0.33333334 0.65490198 0.87058824
+        specularColor 0 0 0
+        emissiveColor 0 0 0
+        shininess 1
+        transparency 0
+
+      }
+      DrawStyle {
+        style LINES
+        lineWidth 2
+        linePattern 0xffff
+
+      }
+      SoBrepEdgeSet {
+        fields [ SFNode vertexProperty, MFInt32 coordIndex, MFInt32 materialIndex, MFInt32 normalIndex, MFInt32 textureCoordIndex, SFInt32 highlightIndex, MFInt32 selectionIndex ]
+        coordIndex [ 0, 1, -1, 2, 0, -1, 1, 3,
+            -1, 3, 2, -1, 4, 6, -1, 7,
+            6, -1, 9, 10, -1 ]
+        highlightIndex 6
+        selectionIndex -1
+
+      }
+    }
+    PolygonOffset {
+
+    }
+    DEF myFaces Separator {
+
+      ShapeHints {
+        vertexOrdering UNKNOWN_ORDERING
+        shapeType UNKNOWN_SHAPE_TYPE
+
+      }
+      MaterialBinding {
+        value OVERALL
+
+      }
+      Material {
+        ambientColor 0.2 0.2 0.2
+        diffuseColor 0 0.66666669 1
+        specularColor 0 0 0
+        emissiveColor 0 0 0
+        shininess 0.2
+        transparency 0.5
+
+      }
+      DrawStyle {
+        style FILLED
+
+      }
+      Normal {
+        vector [ -1 0 0,
+            -1 0 0,
+            -1 0 0,
+            -1 0 0,
+            0 0 -1,
+            0 0 -1,
+            0 0 -1,
+            0 0 -1,
+            0.20751435 -0.69171447 0.69171447,
+            0.20751435 -0.69171447 0.69171447,
+            0.20751435 -0.69171447 0.69171447,
+            0.20751435 0.69171447 0.69171447,
+            0.20751435 0.69171447 0.69171447,
+            0.20751435 0.69171447 0.69171447 ]
+
+      }
+      NormalBinding {
+        value PER_VERTEX_INDEXED
+
+      }
+      SoBrepFaceSet {
+        fields [ SFNode vertexProperty, MFInt32 coordIndex, MFInt32 materialIndex, MFInt32 normalIndex, MFInt32 textureCoordIndex, MFInt32 partIndex, SFInt32 highlightIndex, MFInt32 selectionIndex ]
+        coordIndex [ 1, 3, 0, -1, 0, 3, 2, -1,
+            4, 6, 5, -1, 5, 6, 7, -1,
+            10, 8, 9, -1, 13, 12, 11, -1 ]
+        partIndex [ 2, 2, 1, 1 ]
+        highlightIndex -1
+        selectionIndex -1
+
+      }
+    }
+    DEF myPoints Separator {
+
+      MaterialBinding {
+        value OVERALL
+
+      }
+      Material {
+        ambientColor 0.2 0.2 0.2
+        diffuseColor 0.25490198 0.67450982 0.89803922
+        specularColor 0 0 0
+        emissiveColor 0 0 0
+        shininess 1
+        transparency 0
+
+      }
+      DrawStyle {
+        style POINTS
+        pointSize 2
+
+      }
+      SoBrepPointSet {
+        fields [ SFNode vertexProperty, SFInt32 startIndex, SFInt32 numPoints, SFInt32 highlightIndex, MFInt32 selectionIndex ]
+        startIndex 14
+        highlightIndex -1
+        selectionIndex [ 14, 15, 16, 17, 18 ]
+
+      }
+    }
+  }
+  USE myFaces
+  Separator {
+
+    USE myLines
+    USE myPoints
+  }
+  USE myPoints
+}
