@@ -128,7 +128,9 @@ class LatticeArrayFilter(lattice2BaseFeature.LatticeFeature):
                     output.append(input[i])
         else:
             raise ValueError('Filter mode not implemented:'+obj.FilterType)
-                            
+        
+        self.setReferencePlm(obj, lattice2BaseFeature.getReferencePlm(obj.Base))
+                    
         return output
         
         
