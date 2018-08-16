@@ -25,16 +25,11 @@ __title__="Lattice Invert object: creates an array of placements from a compound
 __author__ = "DeepSOIC"
 __url__ = ""
 
-import math
-
 import FreeCAD as App
 import Part
 
 from lattice2Common import *
 import lattice2BaseFeature
-import lattice2CompoundExplorer as LCE
-import lattice2GeomUtils as Utils
-import lattice2Executer
 
 # -------------------------- document object --------------------------------------------------
 
