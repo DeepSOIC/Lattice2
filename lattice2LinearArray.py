@@ -102,7 +102,6 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
                                      groupname_gen= "Lattice Series Generator", 
                                      valuesdoc= "List of distances. Distance is measured from Point, along Dir, in millimeters.",
                                      valuestype= "App::PropertyDistance")
-        self.updateReadonlyness(obj)
         
     def assureProperties(self, selfobj):
         assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(screen(selfobj.Link), selfobj.LinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
