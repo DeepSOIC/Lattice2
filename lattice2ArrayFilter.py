@@ -192,7 +192,7 @@ def CreateLatticeArrayFilter(name,mode):
     iLtc = 0 #index of lattice object in selection
     iStc = 1 #index of stencil object in selection
     for i in range(0,len(sel)):
-        if lattice2BaseFeature.isObjectLattice(sel[i]):
+        if lattice2BaseFeature.isObjectLattice(sel[i].Object):
             iLtc = i
             iStc = i-1 #this may give negative index, but python accepts negative indexes
             break
