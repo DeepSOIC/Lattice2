@@ -120,12 +120,26 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         objectShape = screen(obj.Object).Shape
 
         outputIsLattice = lattice2BaseFeature.isObjectLattice(screen(obj.Object))
+        
 
         # Pre-collect base placement list, if base is a lattice. For speed.
         if outputIsLattice:
             objectPlms = lattice2BaseFeature.getPlacementsList(screen(obj.Object),obj)
         
         placements = DereferenceArray(obj, obj.PlacementsTo, screen(obj.PlacementsFrom), obj.Referencing)
+
+        #inherit reference placement from the array being copied
+        if outputIsLattice:
+            refplm = None
+            if obj.Referencing == 'Array\'s reference' or obj.Referencing == 'First item' or obj.Referencing == 'Last item':
+                #simple cases - we just copy the reference plm from the object
+                refplm = lattice2BaseFeature.getReferencePlm(obj.Object)
+            else:
+                #other cases - apply first transform to reference placement
+                refplm = lattice2BaseFeature.getReferencePlm(obj.Object)
+                if refplm is not None and len(placements) > 0:
+                    refplm = placements[0].multiply(refplm)
+            self.setReferencePlm(obj, refplm)
         
         # initialize output containers and loop variables
         outputShapes = [] #output list of shapes
