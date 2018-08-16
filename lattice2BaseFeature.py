@@ -156,10 +156,14 @@ class LatticeFeature(object):
                 )
             selfobj.ReferencePlacement = refplm
     
-    def getReferencePlm(self, selfobj):
-        """getReferencePlm(self, selfobj): Returns reference placement in internal CS, or None."""
+    def getReferencePlm(self, selfobj, in_global = False):
+        """getReferencePlm(self, selfobj): Returns reference placement in internal CS, or in global CS. Returns None if reference placement is not defined."""
         if hasattr(selfobj, 'ReferencePlacement'):
-            return selfobj.ReferencePlacement
+            if selfobj.ExposePlacement:
+                plml = selfobj.Placement.inverse().multiply(selfobj.ReferencePlacement) 
+            else:
+                plml = selfobj.ReferencePlacement
+            return selfobj.Placement.multiply(plml) if in_global else plml
         else:
             return None
     
@@ -377,7 +381,7 @@ class ViewProviderLatticeFeature(object):
         return True
     
     def updateData(self, obj, prop):
-        if prop == 'ReferencePlacement' or prop == 'MarkerSizeActual':
+        if prop == 'ReferencePlacement' or prop == 'MarkerSizeActual' or prop == 'Placement':
             self.makeRefplmVisual(obj.ViewObject)
         
     def onChanged(self, vobj, prop):
@@ -425,7 +429,7 @@ def getReferencePlm(feature):
     if not isObjectLattice(src):
         raise TypeError('getReferencePlm: array of placements expected, got something else.')
     if hasattr(src, 'ReferencePlacement'):
-        return transform.multiply(src.ReferencePlacement)
+        return transform.multiply(src.Proxy.getReferencePlm(src))
     else:
         return None
     
