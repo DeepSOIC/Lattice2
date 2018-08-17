@@ -85,6 +85,11 @@ class JoinArrays(lattice2BaseFeature.LatticeFeature):
         else:
             for list in listlistPlms:
                 output.extend(list)
+        
+        #reference placement
+        if len(obj.Links)>0:
+            self.setReferencePlm(obj, lattice2BaseFeature.getReferencePlm(obj.Links[0]))
+        
         return output
 
 class ViewProviderJoinArrays(lattice2BaseFeature.ViewProviderLatticeFeature):
