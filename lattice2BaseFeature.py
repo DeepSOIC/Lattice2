@@ -302,6 +302,27 @@ class LatticeFeature(object):
 class ViewProviderLatticeFeature(object):
     "A View Provider for base lattice object"
 
+    Object = None # documentobject the vp is attached to 
+    ViewObject = None # viewprovider this proxy is attached to
+    
+    #coin graph:
+    #    transform #in sync with Placement
+    #    coordinate3 #coordinates for main shape rendering
+    #    switch: #main display mode switch, == self.modenode
+    #        ...
+    #    separator: #reference placement related stuff, == self.refplm_node
+    #        transform #reference placement, == self.refplm_tr
+    #        separator: #actual shape of reference placement, == self.refplm_sh
+    #            ...
+    #            switch: #mode switch of reference placement, == self.modenode_refplm
+    #                ...
+    
+    modenode = None # main displaymode switch node
+    refplm_node = None # the node containing everything related to reference placement
+    refplm_tr = None #transform node of reference placement
+    refplm_sh = None #node containing the shape of reference placement
+    modenode_refplm = None # displaymode switch node for reference placement
+
     def __init__(self,vobj):
         '''Don't override. Override derivedInit, please!'''
         vobj.Proxy = self
@@ -331,11 +352,9 @@ class ViewProviderLatticeFeature(object):
     def attach(self, vobj):
         self.ViewObject = vobj
         self.Object = vobj.Object
-        self.refplm_node, self.refplm_tr, self.refplm_sh = None, None, None
         self.makeRefplmVisual(vobj)
         from pivy import coin
         self.modenode = next((node for node in vobj.RootNode.getChildren() if node.isOfType(coin.SoSwitch.getClassTypeId())))
-        self.modenode_refplm = None 
         
     def makeRefplmVisual(self, vobj):
         import pivy
