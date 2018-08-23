@@ -345,16 +345,27 @@ class ViewProviderLatticeFeature(object):
                 FreeCAD.Console.PrintError("__init__() of lattice object view provider is overridden. Please don't! Fix it!\n")
         except AttributeError as err:
             pass # quick-n-dirty fix for Py3. TODO: restore the functionality in Py3, or remove this routine altogether.
-
+    
+    def fixProxy(self, vobj):
+        if vobj is not self.ViewObject:
+            vobj.Proxy = vobj.ProxyBackup
+            raise RuntimeError('fixing broken proxy...')
+    
     def getIcon(self):
         return getIconPath("Lattice.svg")
 
     def attach(self, vobj):
         self.ViewObject = vobj
         self.Object = vobj.Object
+        try:
+            vobj.ProxyBackup = self
+        except Exception:
+            vobj.addProperty('App::PropertyPythonObject', 'ProxyBackup', 'Base', "helper property for workaround FC bug #3564", 0, False, True)
+            vobj.ProxyBackup = self
         self.makeRefplmVisual(vobj)
         from pivy import coin
         self.modenode = next((node for node in vobj.RootNode.getChildren() if node.isOfType(coin.SoSwitch.getClassTypeId())))
+        
         
     def makeRefplmVisual(self, vobj):
         import pivy
@@ -401,6 +412,7 @@ class ViewProviderLatticeFeature(object):
     
     def updateData(self, obj, prop):
         if prop == 'ReferencePlacement' or prop == 'MarkerSizeActual' or prop == 'Placement':
+            self.fixProxy(obj.ViewObject)
             self.makeRefplmVisual(obj.ViewObject)
         
     def onChanged(self, vobj, prop):
