@@ -92,7 +92,7 @@ class PolarArray(APlm.AttachableFeature):
         created = self.assureProperty(selfobj, 
             'App::PropertyEnumeration', 
             'ReferencePlacementOption', 
-            ['none', 'center', 'SpanStart', 'SpanEnd', 'at custom value', 'first placement', 'last placement'],
+            ['origin', 'center', 'SpanStart', 'SpanEnd', 'at custom value', 'first placement', 'last placement'],
             "Polar Array", 
             "Reference placement, corresponds to the original occurrence of the object to be populated."
         )
@@ -220,7 +220,7 @@ class PolarArray(APlm.AttachableFeature):
             
         # update reference placement
         ref = selfobj.ReferencePlacementOption
-        if ref == 'none':
+        if ref == 'origin':
             self.setReferencePlm(selfobj, None)
         elif ref == 'center':
             self.setReferencePlm(selfobj, App.Placement())

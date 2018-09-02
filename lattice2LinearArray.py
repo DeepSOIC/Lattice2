@@ -109,7 +109,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         created = self.assureProperty(selfobj, 
             'App::PropertyEnumeration', 
             'ReferencePlacementOption', 
-            ['none', 'SpanStart', 'SpanEnd', 'at custom value', 'first placement', 'last placement'],
+            ['origin', 'SpanStart', 'SpanEnd', 'at custom value', 'first placement', 'last placement'],
             "Lattice Array", 
             "Reference placement, corresponds to the original occurrence of the object to be populated."
         )
@@ -189,7 +189,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
 
         # update reference placement
         ref = obj.ReferencePlacementOption
-        if ref == 'none':
+        if ref == 'origin':
             self.setReferencePlm(obj, None)
         elif ref == 'SpanStart':
             self.setReferencePlm(obj, plmByVal(float(obj.SpanStart)))

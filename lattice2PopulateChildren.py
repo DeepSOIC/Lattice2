@@ -189,6 +189,11 @@ def CreateLatticePopulateChildren(name, label, shapeObj, latticeObjFrom, lattice
     FreeCADGui.doCommand("f.PlacementsTo = App.ActiveDocument."+latticeObjTo.Name)
     if latticeObjFrom is not None:
         FreeCADGui.doCommand("f.PlacementsFrom = App.ActiveDocument."+latticeObjFrom.Name)        
+    if refmode == 'Auto':
+        if lattice2BaseFeature.getReferencePlm(latticeObjTo) is not None:
+            refmode = 'Array\'s reference'
+        else:
+            refmode = 'First item'
     FreeCADGui.doCommand("f.Referencing = "+repr(refmode))
     FreeCADGui.doCommand("f.Label = " + repr(label))                         
     

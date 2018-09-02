@@ -127,6 +127,10 @@ class LatticeFeature(object):
         prop = "ExposePlacement"
         obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the placement syncronized to Placement property. This will often make this object unmoveable. Not applicable to arrays.")
 
+        #ReferencePlacement: added/removed dynamically. Abscence = global origin. The placement 
+        # value is treated "under Placement" if not exposing placement, else as "absolute".
+        # Use getReferencePlm/setReferencePlm methods to work with reference placement in a expose-placement-invariant method.
+        
         self.derivedInit(obj)
         
         obj.Proxy = self
@@ -165,7 +169,7 @@ class LatticeFeature(object):
                 plml = selfobj.ReferencePlacement
             return selfobj.Placement.multiply(plml) if in_global else plml
         else:
-            return None
+            return App.Placement() if in_global else selfobj.Placement.inverse()
     
     def derivedInit(self, obj):
         '''for overriding by derived classes'''
@@ -459,10 +463,7 @@ def getReferencePlm(feature):
     transform, src = source(feature)
     if not isObjectLattice(src):
         raise TypeError('getReferencePlm: array of placements expected, got something else.')
-    if hasattr(src, 'ReferencePlacement'):
-        return transform.multiply(src.Proxy.getReferencePlm(src))
-    else:
-        return None
+    return transform.multiply(src.Proxy.getReferencePlm(src))
     
 def source(feature):
     """source(feature): finds the original Lattice array feature from behind shapebinders and such. Returns (transform, lattice_feature).
