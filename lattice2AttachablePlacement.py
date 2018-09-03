@@ -133,10 +133,15 @@ class AttachedPlacementSubsequence(lattice2BaseFeature.LatticeFeature):
         sublinks = Subsequencer.Subsequence_auto(attacher.References, 
                                                  loop= ('Till end' if obj.CycleMode == 'Open' else 'All around'), 
                                                  index_filter= ifilt)
+        
+        deref =  obj.Base.Placement.inverse()
+        basearray = [deref.multiply(plm) for plm in lattice2BaseFeature.getPlacementsList(obj.Base)]
+        
         plms = []
         for lnkval in sublinks:
             attacher.References = lnkval
-            plms.append(attacher.calculateAttachedPlacement(screen(obj.Base).Placement))
+            attplm = attacher.calculateAttachedPlacement(obj.Base.Placement)
+            plms.extend([attplm.multiply(plm) for plm in basearray])
         return plms
 
 class ViewProviderAttachedPlacementSubsequence(lattice2BaseFeature.ViewProviderLatticeFeature):
