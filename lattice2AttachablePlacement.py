@@ -122,9 +122,21 @@ class AttachedPlacementSubsequence(lattice2BaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyLink", "Base", "Lattice Attached Placement Subsequence", "Link to Lattice Attached Placement, which is to be subsequenced.")
         obj.addProperty("App::PropertyString", "RefIndexFilter","Lattice Attached Placement Subsequence","Sets which references of attachment to cycle through children. '0000' = no cycle, '1000' = cycle only ref1. '' = cycle all if possible")
-        obj.addProperty("App::PropertyEnumeration", "CycleMode","Lattice Attached Placement Subsequence", "How to cycle through chidren. Open = advance each link till one reaches the end of array. Periodic = if array end reached, continue from begin if any children left.")
+        obj.addProperty("App::PropertyEnumeration", "CycleMode","Lattice Attached Placement Subsequence", "How to cycle through children. Open = advance each link till one reaches the end of array. Periodic = if array end reached, continue from begin if any children left.")
         obj.CycleMode = ['Open','Periodic']
-        
+    
+    def assureProperties(self, selfobj):
+        super(AttachedPlacementSubsequence, self).assureProperties(selfobj)
+        created = self.assureProperty(selfobj, 
+            'App::PropertyEnumeration', 
+            'ReferencePlacementOption', 
+            ['origin', 'inherit', 'first placement', 'last placement'],
+            "Lattice Attached Placement Subsequence", 
+            "Reference placement, corresponds to the original occurrence of the object to be populated. 'inherit' = use reference placement of the base attached placement."
+        )
+        if created:
+            selfobj.ReferencePlacementOption = 'inherit'
+    
     def derivedExecute(self,obj):
         attacher = Part.AttachEngine(screen(obj.Base).AttacherType)
         attacher.readParametersFromFeature(screen(obj.Base))
@@ -142,6 +154,20 @@ class AttachedPlacementSubsequence(lattice2BaseFeature.LatticeFeature):
             attacher.References = lnkval
             attplm = attacher.calculateAttachedPlacement(obj.Base.Placement)
             plms.extend([attplm.multiply(plm) for plm in basearray])
+        
+        #reference
+        ref = obj.ReferencePlacementOption
+        if ref == 'origin':
+            self.setReferencePlm(obj, None)
+        elif ref == 'inherit':
+            self.setReferencePlm(obj, lattice2BaseFeature.getReferencePlm(obj.Base))
+        elif ref == 'first placement':
+            self.setReferencePlm(obj, plms[0])
+        elif ref == 'last placement':
+            self.setReferencePlm(obj, plms[-1])
+        else:
+            raise NotImplementedError("Reference option not implemented: " + ref)
+        
         return plms
 
 class ViewProviderAttachedPlacementSubsequence(lattice2BaseFeature.ViewProviderLatticeFeature):
