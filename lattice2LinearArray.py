@@ -80,8 +80,6 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         obj.Step = 3.0
         obj.Count = 5.0
         
-        self.assureProperties(obj)
-
     def updateReadonlyness(self, obj):
         link = screen(obj.Link)
         obj.setEditorMode("Dir", 1 if (link and obj.DirIsDriven) else 0)
@@ -104,6 +102,8 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
                                      valuestype= "App::PropertyDistance")
         
     def assureProperties(self, selfobj):
+        super(LinearArray, self).assureProperties(selfobj)
+
         assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(screen(selfobj.Link), selfobj.LinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
 
         created = self.assureProperty(selfobj, 
@@ -119,7 +119,6 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
 
     def derivedExecute(self,obj):
         self.assureGenerator(obj)
-        self.assureProperties(obj)
         self.updateReadonlyness(obj)
 
         # Apply links

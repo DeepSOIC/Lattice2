@@ -77,7 +77,6 @@ class PolarArray(APlm.AttachableFeature):
         selfobj.addProperty('App::PropertyBool', 'FlipX', "Polar Array", "Reverses x axis of every placement.")
         selfobj.addProperty('App::PropertyBool', 'FlipZ', "Polar Array", "Reverses z axis of every placement.")
         
-        self.assureProperties(selfobj)
         self.assureGenerator(selfobj)
 
         selfobj.ValuesSource = 'Generator'
@@ -88,6 +87,8 @@ class PolarArray(APlm.AttachableFeature):
         selfobj.Count = 7
     
     def assureProperties(self, selfobj):
+        super(PolarArray, self).assureProperties(selfobj)
+
         # upgrades older versions of the feature
         created = self.assureProperty(selfobj, 
             'App::PropertyEnumeration', 

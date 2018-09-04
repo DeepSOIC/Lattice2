@@ -99,11 +99,12 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyLink","PlacementsTo","Lattice PopulateCopies", "Placement or array of placements, containing target locations.")
         obj.addProperty("App::PropertyLink","PlacementsFrom", "Lattice PopulateCopies","Placement or array of placements to be treated as origins for PlacementsTo.")
         
-        self.assureProperties(obj)
         obj.OutputCompounding = "(autosettle)" # this is default value for new features.
 
     def assureProperties(self, obj):
         '''Adds properties that might be missing, because of loaded project made with older version. Handles version compatibility.'''
+        super(LatticePopulateCopies, self).assureProperties(obj)
+
         propname = 'OutputCompounding'
         if not hasattr(obj,propname):
             obj.addProperty("App::PropertyEnumeration", propname, "Lattice PopulateCopies","In case single object copy is made, this property controls, if it's packed into compoud or not.")
@@ -114,8 +115,6 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
 
 
     def derivedExecute(self,obj):
-        self.assureProperties(obj)
-        
         # cache stuff
         objectShape = screen(obj.Object).Shape
 

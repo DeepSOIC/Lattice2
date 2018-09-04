@@ -75,8 +75,6 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         obj.EndInclusive = False
         obj.Count = 5
         
-        self.assureProperties(obj)
-
     def assureGenerator(self, obj):
         '''Adds an instance of value series generator, if one doesn't exist yet.'''
         if hasattr(self,"generator"):
@@ -97,12 +95,13 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         self.generator.updateReadonlyness()
     
     def assureProperties(self, selfobj):
+        super(PolarArray, self).assureProperties(selfobj)
+
         assureProperty(selfobj, "App::PropertyLinkSub", "AxisSubLink", sublinkFromApart(screen(selfobj.AxisLink), selfobj.AxisLinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
 
 
     def derivedExecute(self,obj):
         self.assureGenerator(obj)
-        self.assureProperties(obj)
         self.updateReadonlyness(obj)
         
         # Apply links

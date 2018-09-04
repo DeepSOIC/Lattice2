@@ -128,12 +128,18 @@ class LatticeFeature(object):
         obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the placement syncronized to Placement property. This will often make this object unmoveable. Not applicable to arrays.")
 
         #ReferencePlacement: added/removed dynamically. Abscence = global origin. The placement 
-        # value is treated "under Placement" if not exposing placement, else as "absolute".
+        # value is treated "under selfobj.Placement" if not exposing placement, else as "absolute".
         # Use getReferencePlm/setReferencePlm methods to work with reference placement in a expose-placement-invariant method.
         
+        self.assureProperties(obj)
         self.derivedInit(obj)
         
         obj.Proxy = self
+        
+    def assureProperties(self, selfobj):
+        """#overrideme Method to reconstruct missing properties, that appeared as new functionality was introduced. 
+        Auto called from __init__ (and before derivedInit), and from execute (before derivedExecute)."""
+        pass
         
     def assureProperty(self, selfobj, proptype, propname, defvalue, group, tooltip, readonly = False, hidden = False):
         """assureProperty(selfobj, proptype, propname, defvalue, group, tooltip): adds
@@ -177,6 +183,8 @@ class LatticeFeature(object):
         
     def execute(self,obj):
         # please, don't override. Override derivedExecute instead.
+        
+        self.assureProperties(obj)
 
         plms = self.derivedExecute(obj)
 
