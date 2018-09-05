@@ -155,6 +155,8 @@ class LatticeFeature(object):
         if refplm is None:
             if hasattr(selfobj, attr):
                 selfobj.removeProperty(attr)
+                if selfobj.ViewObject is not None:
+                    selfobj.ViewObject.Proxy.updateData(selfobj,'ReferencePlacement')
         else:
             if not hasattr(selfobj, attr):
                 selfobj.addProperty(
