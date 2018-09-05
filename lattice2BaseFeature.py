@@ -272,6 +272,9 @@ class ViewProviderLatticeFeature(object):
     def __init__(self,vobj):
         '''Don't override. Override derivedInit, please!'''
         vobj.Proxy = self
+        vobj.addProperty('App::PropertyString', 'Type', "Lattice", "module_name.class_name of this object, for proxy recovery", 0, True, True)
+        vobj.Type = self.__module__ + '.' + type(self).__name__
+
         
         prop = "DontUnhideOnDelete"
         vobj.addProperty("App::PropertyBool",prop,"Lattice","Makes the element be populated into object's Placement property")
