@@ -50,11 +50,10 @@ def getDefShapeColor():
     return (r/255.0, g/255.0, b/255.0, (255-o)/255.0)
     
 
-def makeLatticeFeature(name, AppClass, ViewClass, no_body = False, no_disable_attacher = False):
+def makeLatticeFeature(name, AppClass, ViewClass, no_body = False):
     '''makeLatticeFeature(name, AppClass, ViewClass, no_body = False): makes a document object for a LatticeFeature-derived object.
     
-    no_body: if False, the Lattice object will end up in an active body, and Part2DObject will be used.
-    no_disable_attacher: if True, attachment properties of Part2DObject won't be hidden'''
+    no_body: if False, the Lattice object will end up in an active body, and Part2DObject will be used.'''
     
     body = activeBody()
     if body and not no_body:
@@ -105,6 +104,8 @@ def getMarkerSizeEstimate(ListOfPlacements):
 class LatticeFeature(object):
     "Base object for lattice objects (arrays of placements)"
     
+    attachable = False
+    
     def __init__(self,obj):
         # please, don't override. Override derivedInit instead.
         obj.addProperty('App::PropertyString', 'Type', "Lattice", "module_name.class_name of this object, for proxy recovery", 0, True, True)
@@ -134,8 +135,12 @@ class LatticeFeature(object):
         self.derivedInit(obj)
         self.assureProperties(obj)
         
+        self.updateReadonlyness(obj)
+        if not self.attachable:
+            self.disableAttacher(obj)
+
         obj.Proxy = self
-        
+    
     def assureProperties(self, selfobj):
         """#overrideme Method to reconstruct missing properties, that appeared as new functionality was introduced. 
         Auto called from __init__ (and before derivedInit), and from execute (before derivedExecute)."""
@@ -357,8 +362,8 @@ class LatticeFeature(object):
                 selfobj.MapMode = selfobj.MapMode #trigger attachment, to make it update property states
     
     def onDocumentRestored(self, selfobj):
-        #override to have attachment!
-        self.disableAttacher(selfobj)
+        if not self.attachable:
+            self.disableAttacher(selfobj)
         self.assureProperties(selfobj)
         self.updateReadonlyness(selfobj)
 

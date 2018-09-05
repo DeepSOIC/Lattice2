@@ -40,7 +40,7 @@ EDIT_ATTACHMENT = 56 # Viewprovider edit mode number
 def makeAttachablePlacement(name):
     '''makeAttachablePlacement(name): makes an attachable Placement object.'''
     if Compat.attach_extension_era:
-        obj = lattice2BaseFeature.makeLatticeFeature(name, AttachablePlacement, ViewProviderAttachablePlacement, no_disable_attacher= True)
+        obj = lattice2BaseFeature.makeLatticeFeature(name, AttachablePlacement, ViewProviderAttachablePlacement)
     else:
         #obsolete!
         obj = FreeCAD.ActiveDocument.addObject("Part::AttachableObjectPython",name)
@@ -53,15 +53,12 @@ def makeAttachablePlacement(name):
 class AttachableFeature(lattice2BaseFeature.LatticeFeature):
     "Base class for attachable features"
     
+    attachable = True
+    
     def derivedInit(self,obj):
         if Compat.attach_extension_era:
             if not obj.hasExtension('Part::AttachExtension'): #PartDesign-related hack: the placement already has attachextension if created in PD
                 obj.addExtension('Part::AttachExtensionPython', None)
-        
-    def onDocumentRestored(self, selfobj):
-        #PartDesign-related hack: this dummy override disables disabling of attacher
-        pass 
-
 
 class AttachablePlacement(AttachableFeature):
     "Attachable Lattice Placement object"
