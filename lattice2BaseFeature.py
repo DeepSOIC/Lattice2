@@ -105,7 +105,8 @@ class LatticeFeature(object):
     
     def __init__(self,obj):
         # please, don't override. Override derivedInit instead.
-        self.Type = "latticeFeature"
+        obj.addProperty('App::PropertyString', 'Type', "Lattice", "module_name.class_name of this object, for proxy recovery", 0, True, True)
+        obj.Type = self.__module__ + '.' + type(self).__name__
 
         prop = "NumElements"
         obj.addProperty("App::PropertyInteger",prop,"Lattice","Info: number of placements in the array")
