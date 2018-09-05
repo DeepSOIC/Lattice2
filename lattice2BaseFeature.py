@@ -139,7 +139,8 @@ class LatticeFeature(object):
     def assureProperties(self, selfobj):
         """#overrideme Method to reconstruct missing properties, that appeared as new functionality was introduced. 
         Auto called from __init__ (and before derivedInit), and from execute (before derivedExecute)."""
-        pass
+        self.assureProperty(selfobj, 'App::PropertyLink', 'ReferencePlacementLink', None, "Lattice", "Link to placement to use as reference placement")
+        self.assureProperty(selfobj, 'App::PropertyString', 'ReferencePlacementLinkIndex', None, "Lattice", "Index of placement to take from the link. Can also be 'self.0' for own placements.")
         
     def assureProperty(self, selfobj, proptype, propname, defvalue, group, tooltip, readonly = False, hidden = False):
         """assureProperty(selfobj, proptype, propname, defvalue, group, tooltip): adds
@@ -148,7 +149,7 @@ class LatticeFeature(object):
         
         return assureProperty(selfobj, proptype, propname, defvalue, group, tooltip, readonly, hidden)
     
-    def setReferencePlm(self, selfobj, refplm):
+    def setReferencePlm(self, selfobj, refplm, in_global = False):
         """setReferencePlm(selfobj, refplm): sets reference placement, in internal CS. If refplm is None, the property is removed."""
         attr = 'ReferencePlacement'
         if refplm is None:
@@ -164,8 +165,14 @@ class LatticeFeature(object):
                     0,
                     True
                 )
-            selfobj.ReferencePlacement = refplm
-    
+            if selfobj.ExposePlacement:
+                in_global = True
+            if in_global:
+                # goal: selfobj.Placement * selfobj.ReferencePlacement == refplm
+                selfobj.ReferencePlacement = selfobj.Placement.inverse().multiply(refplm)
+            else:
+                selfobj.ReferencePlacement = refplm
+        
     def getReferencePlm(self, selfobj, in_global = False):
         """getReferencePlm(self, selfobj): Returns reference placement in internal CS, or in global CS. Returns None if reference placement is not defined."""
         if hasattr(selfobj, 'ReferencePlacement'):
@@ -176,6 +183,27 @@ class LatticeFeature(object):
             return selfobj.Placement.multiply(plml) if in_global else plml
         else:
             return App.Placement() if in_global else selfobj.Placement.inverse()
+    
+    def recomputeReferencePlm(self, selfobj, selfplacements):
+        lnk = selfobj.ReferencePlacementLink
+        strindex = selfobj.ReferencePlacementLinkIndex
+        is_selfref = lnk is None and strindex.startswith('self.') 
+        ref = selfobj if is_selfref else lnk
+        if ref is None:
+            self.setReferencePlm(selfobj, None)
+        else:
+            if is_selfref:
+                index = int(strindex[len('self.'):])
+            elif len(strindex)>0:
+                index = int(strindex)
+            else:
+                index = 0
+            if is_selfref:
+                refplm = selfplacements[index]
+                self.setReferencePlm(selfobj, refplm, in_global= False)
+            else:
+                refplm = getPlacementsList(ref)[index]
+                self.setReferencePlm(selfobj, refplm, in_global= True)
     
     def derivedInit(self, obj):
         '''for overriding by derived classes'''
@@ -228,6 +256,7 @@ class LatticeFeature(object):
             if obj.isLattice == 'Auto-Off':
                 obj.isLattice = 'Auto-On'
             
+            self.recomputeReferencePlm(obj, plms)
         else:
             # DerivedExecute didn't return anything. Thus we assume it 
             # has assigned the shape, and thus we don't do anything.
@@ -235,6 +264,7 @@ class LatticeFeature(object):
             if obj.isLattice == 'Auto-On':
                 obj.isLattice = 'Auto-Off'
                 
+            # i don't remember, wtf is going on here...
             if obj.ExposePlacement:
                 if obj.Shape.ShapeType == "Compound":
                     children = obj.Shape.childShapes()
