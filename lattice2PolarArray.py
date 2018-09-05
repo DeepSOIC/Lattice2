@@ -87,11 +87,14 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         self.updateReadonlyness(obj)
         
     def updateReadonlyness(self, obj):
+        super(PolarArray, self).updateReadonlyness(obj)
         axislink = screen(obj.AxisLink)
         obj.setEditorMode("AxisDir", 1 if (axislink and obj.AxisDirIsDriven) else 0)
         obj.setEditorMode("AxisPoint", 1 if (axislink and obj.AxisPointIsDriven) else 0)
         obj.setEditorMode("AxisDirIsDriven", 0 if axislink else 1)
         obj.setEditorMode("AxisPointIsDriven", 0 if axislink else 1)
+        
+        self.assureGenerator(obj)
         self.generator.updateReadonlyness()
     
     def assureProperties(self, selfobj):
@@ -102,7 +105,6 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
 
     def derivedExecute(self,obj):
         self.assureGenerator(obj)
-        self.updateReadonlyness(obj)
         
         # Apply links
         if screen(obj.AxisLink):

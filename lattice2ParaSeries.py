@@ -123,12 +123,16 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
         self.generator.addProperties(groupname= "Lattice ParaSeries", 
                                      groupname_gen= "Lattice ParaSeries Generator", 
                                      valuesdoc= "List of parameter values to compute object for.")
+        
+    def updateReadonlyness(self, selfobj):
+        super(LatticeParaSeries, self).updateReadonlyness(selfobj)
+        self.assureGenerator(selfobj)
         self.generator.updateReadonlyness()
+
 
     def derivedExecute(self,selfobj):
         # values generator should be functional even if recomputing is disabled, so do it first
         self.assureGenerator(selfobj)
-        self.generator.updateReadonlyness()
         self.generator.execute()
         
         if selfobj.Recomputing == "Disabled":

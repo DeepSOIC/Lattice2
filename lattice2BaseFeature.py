@@ -131,8 +131,8 @@ class LatticeFeature(object):
         # value is treated "under selfobj.Placement" if not exposing placement, else as "absolute".
         # Use getReferencePlm/setReferencePlm methods to work with reference placement in a expose-placement-invariant method.
         
-        self.assureProperties(obj)
         self.derivedInit(obj)
+        self.assureProperties(obj)
         
         obj.Proxy = self
         
@@ -141,6 +141,24 @@ class LatticeFeature(object):
         Auto called from __init__ (and before derivedInit), and from execute (before derivedExecute)."""
         self.assureProperty(selfobj, 'App::PropertyLink', 'ReferencePlacementLink', None, "Lattice", "Link to placement to use as reference placement")
         self.assureProperty(selfobj, 'App::PropertyString', 'ReferencePlacementLinkIndex', None, "Lattice", "Index of placement to take from the link. Can also be 'self.0' for own placements.")
+
+    def updateReadonlyness(self, selfobj, bypass_set = set()):
+        is_lattice = isObjectLattice(selfobj)
+        extref = 0
+        if hasattr(selfobj, 'ReferencePlacementOption'):
+            extref = 0 if selfobj.ReferencePlacementOption == 'external' else 1
+        rodict = {
+            'NumElements': 1, 
+            'MarkerSize': 0,
+            'MarkerShape': 0,
+            'ReferencePlacement': 1,
+            'ReferencePlacementLink': extref, 
+            'ReferencePlacementLinkIndex': extref,
+        }
+        for prop in rodict:
+            if prop in bypass_set: continue
+            if hasattr(selfobj, prop):
+                selfobj.setEditorMode(prop, rodict[prop] if is_lattice else 2)
         
     def assureProperty(self, selfobj, proptype, propname, defvalue, group, tooltip, readonly = False, hidden = False):
         """assureProperty(selfobj, proptype, propname, defvalue, group, tooltip): adds
@@ -278,7 +296,7 @@ class LatticeFeature(object):
                 else:
                     #nothing to do - FreeCAD will take care to make obj.Placement and obj.Shape.Placement synchronized.
                     pass
-        return
+        self.updateReadonlyness(obj)
     
     def derivedExecute(self,obj):
         '''For overriding by derived class. If this returns a list of placements,
@@ -341,6 +359,8 @@ class LatticeFeature(object):
     def onDocumentRestored(self, selfobj):
         #override to have attachment!
         self.disableAttacher(selfobj)
+        self.assureProperties(selfobj)
+        self.updateReadonlyness(selfobj)
 
     
 class ViewProviderLatticeFeature(object):

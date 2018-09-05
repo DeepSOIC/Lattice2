@@ -81,6 +81,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         obj.Count = 5.0
         
     def updateReadonlyness(self, obj):
+        super(LinearArray,self).updateReadonlyness(obj)
         link = screen(obj.Link)
         obj.setEditorMode("Dir", 1 if (link and obj.DirIsDriven) else 0)
         obj.setEditorMode("Point", 1 if (link and obj.PointIsDriven) else 0)
@@ -89,6 +90,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         obj.setEditorMode("DrivenProperty", 0 if link else 1)
         obj.setEditorMode('ReferenceValue', 0 if obj.ReferencePlacementOption == 'at custom value' else 2)
         
+        self.assureGenerator(obj)
         self.generator.updateReadonlyness()
 
     def assureGenerator(self, obj):
@@ -124,7 +126,6 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         
     def derivedExecute(self,obj):
         self.assureGenerator(obj)
-        self.updateReadonlyness(obj)
 
         # Apply links
         if screen(obj.Link):

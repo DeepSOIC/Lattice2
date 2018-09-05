@@ -45,7 +45,7 @@ V = App.Vector
 
 def make():
     '''make(): makes a PolarArray object.'''
-    obj = lattice2BaseFeature.makeLatticeFeature('PolarArray', PolarArray, ViewProviderPolarArray, no_disable_attacher= True)
+    obj = lattice2BaseFeature.makeLatticeFeature('PolarArray', PolarArray, ViewProviderPolarArray)
     return obj
     
 def fetchArc(obj, sub):
@@ -110,9 +110,11 @@ class PolarArray(APlm.AttachableFeature):
                                      groupname_gen= "Lattice Series Generator", 
                                      valuesdoc= "List of angles, in degrees.",
                                      valuestype= 'App::PropertyFloat')
-        self.updateReadonlyness(selfobj)
         
     def updateReadonlyness(self, selfobj):
+        super(PolarArray, self).updateReadonlyness(selfobj)
+        
+        self.assureGenerator(selfobj)
         self.generator.updateReadonlyness()
         
         arc = self.fetchArc(selfobj) 
