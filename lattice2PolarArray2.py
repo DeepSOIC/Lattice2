@@ -93,7 +93,7 @@ class PolarArray(APlm.AttachableFeature):
         created = self.assureProperty(selfobj, 
             'App::PropertyEnumeration', 
             'ReferencePlacementOption', 
-            ['origin', 'center', 'SpanStart', 'SpanEnd', 'at custom value', 'first placement', 'last placement'],
+            ['external', 'origin', 'center', 'SpanStart', 'SpanEnd', 'at custom value', 'first placement', 'last placement'],
             "Polar Array", 
             "Reference placement, corresponds to the original occurrence of the object to be populated."
         )
@@ -129,6 +129,11 @@ class PolarArray(APlm.AttachableFeature):
             sub = sub[0]
             #resolve the link        
             return fetchArc(lnkobj, sub)
+            
+    def recomputeReferencePlm(self, selfobj, selfplacements): #override
+        if selfobj.ReferencePlacementOption == 'external':
+            super(PolarArray, self).recomputeReferencePlm(selfobj, selfplacements)
+        #the remaining options are handled in derivedExecute
         
     def derivedExecute(self,selfobj):
         self.assureGenerator(selfobj)
@@ -221,7 +226,9 @@ class PolarArray(APlm.AttachableFeature):
             
         # update reference placement
         ref = selfobj.ReferencePlacementOption
-        if ref == 'origin':
+        if ref == 'external':
+            pass #gets done in recomputeReferencePlm
+        elif ref == 'origin':
             self.setReferencePlm(selfobj, None)
         elif ref == 'center':
             self.setReferencePlm(selfobj, App.Placement())

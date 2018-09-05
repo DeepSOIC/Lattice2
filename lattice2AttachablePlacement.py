@@ -130,12 +130,17 @@ class AttachedPlacementSubsequence(lattice2BaseFeature.LatticeFeature):
         created = self.assureProperty(selfobj, 
             'App::PropertyEnumeration', 
             'ReferencePlacementOption', 
-            ['origin', 'inherit', 'first placement', 'last placement'],
+            ['external', 'origin', 'inherit', 'first placement', 'last placement'],
             "Lattice Attached Placement Subsequence", 
             "Reference placement, corresponds to the original occurrence of the object to be populated. 'inherit' = use reference placement of the base attached placement."
         )
         if created:
             selfobj.ReferencePlacementOption = 'inherit'
+
+    def recomputeReferencePlm(self, selfobj, selfplacements): #override
+        if selfobj.ReferencePlacementOption == 'external':
+            super(AttachedPlacementSubsequence, self).recomputeReferencePlm(selfobj, selfplacements)
+        #the remaining options are handled in derivedExecute
     
     def derivedExecute(self,obj):
         attacher = Part.AttachEngine(screen(obj.Base).AttacherType)
@@ -157,7 +162,9 @@ class AttachedPlacementSubsequence(lattice2BaseFeature.LatticeFeature):
         
         #reference
         ref = obj.ReferencePlacementOption
-        if ref == 'origin':
+        if ref == 'external':
+            pass #gets done in recomputeReferencePlm
+        elif ref == 'origin':
             self.setReferencePlm(obj, None)
         elif ref == 'inherit':
             self.setReferencePlm(obj, lattice2BaseFeature.getReferencePlm(obj.Base))

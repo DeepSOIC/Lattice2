@@ -109,7 +109,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         created = self.assureProperty(selfobj, 
             'App::PropertyEnumeration', 
             'ReferencePlacementOption', 
-            ['origin', 'SpanStart', 'SpanEnd', 'at custom value', 'first placement', 'last placement'],
+            ['external', 'origin', 'SpanStart', 'SpanEnd', 'at custom value', 'first placement', 'last placement'],
             "Lattice Array", 
             "Reference placement, corresponds to the original occurrence of the object to be populated."
         )
@@ -117,6 +117,11 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
             selfobj.ReferencePlacementOption = 'SpanStart'
         self.assureProperty(selfobj, 'App::PropertyDistance', 'ReferenceValue', 0.0, "Lattice Array", "Sets the value to use for generating ReferencePlacement. This value sets, what coordinate the object to be populated corresponds to.")
 
+    def recomputeReferencePlm(self, selfobj, selfplacements): #override
+        if selfobj.ReferencePlacementOption == 'external':
+            super(LinearArray, self).recomputeReferencePlm(selfobj, selfplacements)
+        #the remaining options are handled in derivedExecute
+        
     def derivedExecute(self,obj):
         self.assureGenerator(obj)
         self.updateReadonlyness(obj)
@@ -188,7 +193,9 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
 
         # update reference placement
         ref = obj.ReferencePlacementOption
-        if ref == 'origin':
+        if ref == 'external':
+            pass
+        elif ref == 'origin':
             self.setReferencePlm(obj, None)
         elif ref == 'SpanStart':
             self.setReferencePlm(obj, plmByVal(float(obj.SpanStart)))
