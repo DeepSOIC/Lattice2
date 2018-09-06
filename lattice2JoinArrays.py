@@ -49,33 +49,60 @@ class JoinArrays(lattice2BaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyBool","Interleave","Lattice JoinArrays","If false, first go all elements of array 1, nect go all elements of array 2, so on. If true, first go all first elements from each array, then all second elements, and so on.")
         
+    def assureProperties(self, selfobj):
+        super(JoinArrays, self).assureProperties(selfobj)
+        created = self.assureProperty(selfobj, 
+            'App::PropertyEnumeration', 
+            'ReferencePlacementOption', 
+            ['external', 'origin', 'inherit 1st'],
+            "Lattice JoinArrays", 
+            "Reference placement, corresponds to the original occurrence of the object to be populated."
+        )
+        if created:
+            selfobj.ReferencePlacementOption = 'inherit 1st'
+        self.assureProperty(selfobj,
+            'App::PropertyBool',
+            'AlignReferences',
+            False,
+            "Lattice JoinArrays",
+            "If true, input arrays will be moved to make their reference placements equal, before joining."
+        )
+
+    def recomputeReferencePlm(self, selfobj, selfplacements): #override
+        pass #disables standard recompute-reference call. The recompute is handled by derivedExecute 
 
 
-    def derivedExecute(self,obj):
-        #validity check
-        nonLattices = []
-        for iArr in range(0, len(obj.Links)):
-            link = obj.Links[iArr]
-            if not lattice2BaseFeature.isObjectLattice(link):
-                nonLattices.append(link.Label)
-        if len(nonLattices) > 0:
-            lattice2Executer.warning(obj, "Only lattice objects are expected to be linked as arrays in JoinArrays. There are "
-                                    +len(nonLattices)+" objects which are not lattice objects. Results may me unexpected.")
-        
+    def derivedExecute(self, selfobj):
+        align = selfobj.AlignReferences
+        #recompute reference placement
+        ref = selfobj.ReferencePlacementOption
+        if ref == 'external':
+            super(JoinArrays, self).recomputeReferencePlm(selfobj, [])
+        elif ref == 'origin':
+            self.setReferencePlm(selfobj, None)
+        elif ref == 'inherit 1st':
+            if len(selfobj.Links)>0:
+                self.setReferencePlm(selfobj, lattice2BaseFeature.getReferencePlm(selfobj.Links[0]))
+            else:
+                self.setReferencePlm(selfobj, None)
+        else:
+            raise NotImplementedError("Reference option not implemented: " + ref)
+        refplm = self.getReferencePlm(selfobj)
+
         #extract placements
         listlistPlms = []
         lengths = []
-        for link in obj.Links:
-            leaves = LCE.AllLeaves(link.Shape)
-            listlistPlms.append([child.Placement for child in leaves])
-            lengths.append(len(leaves))
+        for link in selfobj.Links:
+            plms = lattice2BaseFeature.getPlacementsList(link, context= selfobj, dereferenced= align, torefplm = refplm)
+            listlistPlms.append(plms)
+            lengths.append(len(plms))
         
         #processing
         output = [] #list of placements
-        if obj.Interleave:
+        if selfobj.Interleave:
             for l in lengths[1:]:
                 if l != lengths[0]:
-                    lattice2Executer.warning(obj,"Array lengths are unequal: "+repr(lengths)+". Interleaving will be inconsistent.")
+                    lattice2Executer.warning(selfobj,"Array lengths are unequal: "+repr(lengths)+". Interleaving will be inconsistent.")
                     break
             
             for iItem in range(0,max(lengths)):
@@ -85,11 +112,7 @@ class JoinArrays(lattice2BaseFeature.LatticeFeature):
         else:
             for list in listlistPlms:
                 output.extend(list)
-        
-        #reference placement
-        if len(obj.Links)>0:
-            self.setReferencePlm(obj, lattice2BaseFeature.getReferencePlm(obj.Links[0]))
-        
+                
         return output
 
 class ViewProviderJoinArrays(lattice2BaseFeature.ViewProviderLatticeFeature):
@@ -130,14 +153,13 @@ class _CommandJoinArrays:
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_JoinArrays","Lattice JoinArrays: concatenate or interleave two or more arrays.")}
         
     def Activated(self):
-        if len(FreeCADGui.Selection.getSelection()) > 1 :
-            CreateJoinArrays(name = "Join")
-        else:
-            mb = QtGui.QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice2_JoinArrays", "Please select at least two lattice objects. Selected lattice objects will be concatenated or interleaved into one array.", None))
-            mb.setWindowTitle(translate("Lattice2_JoinArrays","Bad selection", None))
-            mb.exec_()
+        try:
+            if len(FreeCADGui.Selection.getSelection()) > 1 :
+                CreateJoinArrays(name = "Join")
+            else:
+                infoMessage("Please select at least two lattice objects. Selected lattice objects will be concatenated or interleaved into one array.")
+        except Exception as err:
+            msgError(err)
             
     def IsActive(self):
         if FreeCAD.ActiveDocument:
