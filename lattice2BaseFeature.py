@@ -193,6 +193,8 @@ class LatticeFeature(object):
         
     def getReferencePlm(self, selfobj, in_global = False):
         """getReferencePlm(self, selfobj): Returns reference placement in internal CS, or in global CS."""
+        if not isObjectLattice(selfobj):
+            return None
         if not hasattr(selfobj, 'ReferencePlacement'):
             return App.Placement() if in_global else selfobj.Placement.inverse()
         if in_global == selfobj.ReferencePlacementInGlobal:
@@ -475,7 +477,7 @@ class ViewProviderLatticeFeature(object):
         return True
     
     def updateData(self, obj, prop):
-        if prop in ['ReferencePlacement', 'MarkerSizeActual', 'Placement', 'ReferencePlacementInGlobal']:
+        if prop in ['ReferencePlacement', 'MarkerSizeActual', 'Placement', 'ReferencePlacementInGlobal', 'isLattice']:
             self.fixProxy(obj.ViewObject)
             self.makeRefplmVisual(obj.ViewObject)
         
