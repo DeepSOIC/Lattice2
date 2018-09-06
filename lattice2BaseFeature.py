@@ -127,10 +127,6 @@ class LatticeFeature(object):
         
         prop = "ExposePlacement"
         obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the placement syncronized to Placement property. This will often make this object unmoveable. Not applicable to arrays.")
-
-        #ReferencePlacement: added/removed dynamically. Abscence = global origin. The placement 
-        # value is treated "under selfobj.Placement" if not exposing placement, else as "absolute".
-        # Use getReferencePlm/setReferencePlm methods to work with reference placement in a expose-placement-invariant method.
         
         self.derivedInit(obj)
         self.assureProperties(obj)
@@ -146,6 +142,16 @@ class LatticeFeature(object):
         Auto called from __init__ (and before derivedInit), and from execute (before derivedExecute)."""
         self.assureProperty(selfobj, 'App::PropertyLink', 'ReferencePlacementLink', None, "Lattice", "Link to placement to use as reference placement")
         self.assureProperty(selfobj, 'App::PropertyString', 'ReferencePlacementLinkIndex', None, "Lattice", "Index of placement to take from the link. Can also be 'self.0' for own placements.")
+        self.assureProperty(selfobj, 'App::PropertyBool', 'ReferencePlacementInGlobal', True, "Lattice", "True if reference placement property is in global cs. ")
+        self.assureProperty(
+            selfobj, 
+            'App::PropertyPlacement', 
+            'ReferencePlacement', 
+            None, 
+            "Lattice", 
+            "Reference placement, used by 'Populate: build array'. For it, all placements in this array are reinterpreted as relative to this one.", 
+            readonly= True
+        )
 
     def updateReadonlyness(self, selfobj, bypass_set = set()):
         is_lattice = isObjectLattice(selfobj)
@@ -173,41 +179,29 @@ class LatticeFeature(object):
         return assureProperty(selfobj, proptype, propname, defvalue, group, tooltip, readonly, hidden)
     
     def setReferencePlm(self, selfobj, refplm, in_global = False):
-        """setReferencePlm(selfobj, refplm): sets reference placement, in internal CS. If refplm is None, the property is removed."""
+        """setReferencePlm(selfobj, refplm, in_global = False): sets reference placement, in internal CS."""
         attr = 'ReferencePlacement'
         if refplm is None:
-            if hasattr(selfobj, attr):
-                selfobj.removeProperty(attr)
-                if selfobj.ViewObject is not None:
-                    selfobj.ViewObject.Proxy.updateData(selfobj,'ReferencePlacement')
-        else:
-            if not hasattr(selfobj, attr):
-                selfobj.addProperty(
-                    'App::PropertyPlacement', 
-                    'ReferencePlacement', 
-                    "Lattice", 
-                    "Reference placement, used by 'Populate: build array'. For it, all placements in this array are reinterpreted as relative to this one. The placement is in internal coordinates, under main Placement.",
-                    0,
-                    True
-                )
-            if selfobj.ExposePlacement:
-                in_global = True
-            if in_global:
-                # goal: selfobj.Placement * selfobj.ReferencePlacement == refplm
-                selfobj.ReferencePlacement = selfobj.Placement.inverse().multiply(refplm)
-            else:
-                selfobj.ReferencePlacement = refplm
+            refplm = App.Placement()
+            in_global = True
+    
+        if selfobj.ExposePlacement:
+            in_global = True
+        selfobj.ReferencePlacementInGlobal = in_global
+        selfobj.ReferencePlacement = refplm
         
     def getReferencePlm(self, selfobj, in_global = False):
-        """getReferencePlm(self, selfobj): Returns reference placement in internal CS, or in global CS. Returns None if reference placement is not defined."""
-        if hasattr(selfobj, 'ReferencePlacement'):
-            if selfobj.ExposePlacement:
-                plml = selfobj.Placement.inverse().multiply(selfobj.ReferencePlacement) 
-            else:
-                plml = selfobj.ReferencePlacement
-            return selfobj.Placement.multiply(plml) if in_global else plml
-        else:
+        """getReferencePlm(self, selfobj): Returns reference placement in internal CS, or in global CS."""
+        if not hasattr(selfobj, 'ReferencePlacement'):
             return App.Placement() if in_global else selfobj.Placement.inverse()
+        if in_global == selfobj.ReferencePlacementInGlobal:
+            return selfobj.ReferencePlacement
+        elif in_global == True and selfobj.ReferencePlacementInGlobal == False:
+            #goal: return == selfobj.Placement * refplm
+            return selfobj.Placement.multiply(selfobj.ReferencePlacement)
+        elif in_global == False and selfobj.ReferencePlacementInGlobal == True:
+            #goal: self.Placement * return == refplm
+            return selfobj.Placement.inverse().multiply(selfobj.ReferencePlacement)
     
     def recomputeReferencePlm(self, selfobj, selfplacements):
         lnk = selfobj.ReferencePlacementLink
@@ -480,7 +474,7 @@ class ViewProviderLatticeFeature(object):
         return True
     
     def updateData(self, obj, prop):
-        if prop == 'ReferencePlacement' or prop == 'MarkerSizeActual' or prop == 'Placement':
+        if prop in ['ReferencePlacement', 'MarkerSizeActual', 'Placement', 'ReferencePlacementInGlobal']:
             self.fixProxy(obj.ViewObject)
             self.makeRefplmVisual(obj.ViewObject)
         
