@@ -97,8 +97,8 @@ class PolarArray(lattice2BaseFeature.LatticeFeature):
         self.assureGenerator(obj)
         self.generator.updateReadonlyness()
     
-    def assureProperties(self, selfobj):
-        super(PolarArray, self).assureProperties(selfobj)
+    def assureProperties(self, selfobj, creating_new = False):
+        super(PolarArray, self).assureProperties(selfobj, creating_new)
 
         assureProperty(selfobj, "App::PropertyLinkSub", "AxisSubLink", sublinkFromApart(screen(selfobj.AxisLink), selfobj.AxisLinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
 

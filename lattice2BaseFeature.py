@@ -129,7 +129,7 @@ class LatticeFeature(object):
         obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the placement syncronized to Placement property. This will often make this object unmoveable. Not applicable to arrays.")
         
         self.derivedInit(obj)
-        self.assureProperties(obj)
+        self.assureProperties(obj, creating_new= True)
         
         self.updateReadonlyness(obj)
         if not self.attachable:
@@ -137,7 +137,7 @@ class LatticeFeature(object):
 
         obj.Proxy = self
     
-    def assureProperties(self, selfobj):
+    def assureProperties(self, selfobj, creating_new = False):
         """#overrideme Method to reconstruct missing properties, that appeared as new functionality was introduced. 
         Auto called from __init__ (and before derivedInit), and from execute (before derivedExecute)."""
         self.assureProperty(selfobj, 'App::PropertyLink', 'ReferencePlacementLink', None, "Lattice", "Link to placement to use as reference placement")

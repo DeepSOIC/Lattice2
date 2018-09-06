@@ -51,8 +51,8 @@ class LatticeInvert(lattice2BaseFeature.LatticeFeature):
         obj.OrientMode = ['invert', 'keep', 'reset']
         obj.OrientMode = 'invert'
     
-    def assureProperties(self, selfobj):
-        super(LatticeInvert, self).assureProperties(selfobj)
+    def assureProperties(self, selfobj, creating_new = False):
+        super(LatticeInvert, self).assureProperties(selfobj, creating_new)
         self.assureProperty(selfobj, 'App::PropertyEnumeration', 'Referencing', ['Origin', 'Array\'s reference'], "Lattice Invert", "Sets which placement to use as origin")
         
     def derivedExecute(self,obj):

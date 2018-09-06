@@ -122,8 +122,8 @@ class AttachedPlacementSubsequence(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyEnumeration", "CycleMode","Lattice Attached Placement Subsequence", "How to cycle through children. Open = advance each link till one reaches the end of array. Periodic = if array end reached, continue from begin if any children left.")
         obj.CycleMode = ['Open','Periodic']
     
-    def assureProperties(self, selfobj):
-        super(AttachedPlacementSubsequence, self).assureProperties(selfobj)
+    def assureProperties(self, selfobj, creating_new = False):
+        super(AttachedPlacementSubsequence, self).assureProperties(selfobj, creating_new)
         created = self.assureProperty(selfobj, 
             'App::PropertyEnumeration', 
             'ReferencePlacementOption', 

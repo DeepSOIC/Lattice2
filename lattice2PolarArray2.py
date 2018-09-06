@@ -86,8 +86,8 @@ class PolarArray(APlm.AttachableFeature):
         selfobj.Step = 55
         selfobj.Count = 7
     
-    def assureProperties(self, selfobj):
-        super(PolarArray, self).assureProperties(selfobj)
+    def assureProperties(self, selfobj, creating_new = False):
+        super(PolarArray, self).assureProperties(selfobj, creating_new)
 
         # upgrades older versions of the feature
         created = self.assureProperty(selfobj, 

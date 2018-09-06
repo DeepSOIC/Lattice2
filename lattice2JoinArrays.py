@@ -49,8 +49,8 @@ class JoinArrays(lattice2BaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyBool","Interleave","Lattice JoinArrays","If false, first go all elements of array 1, nect go all elements of array 2, so on. If true, first go all first elements from each array, then all second elements, and so on.")
         
-    def assureProperties(self, selfobj):
-        super(JoinArrays, self).assureProperties(selfobj)
+    def assureProperties(self, selfobj, creating_new = False):
+        super(JoinArrays, self).assureProperties(selfobj, creating_new = False)
         created = self.assureProperty(selfobj, 
             'App::PropertyEnumeration', 
             'ReferencePlacementOption', 

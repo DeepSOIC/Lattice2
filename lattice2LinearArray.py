@@ -103,8 +103,8 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
                                      valuesdoc= "List of distances. Distance is measured from Point, along Dir, in millimeters.",
                                      valuestype= "App::PropertyDistance")
         
-    def assureProperties(self, selfobj):
-        super(LinearArray, self).assureProperties(selfobj)
+    def assureProperties(self, selfobj, creating_new = False):
+        super(LinearArray, self).assureProperties(selfobj, creating_new)
 
         assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(screen(selfobj.Link), selfobj.LinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
 

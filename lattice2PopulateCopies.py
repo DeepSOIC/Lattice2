@@ -98,18 +98,20 @@ class LatticePopulateCopies(lattice2BaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyLink","PlacementsTo","Lattice PopulateCopies", "Placement or array of placements, containing target locations.")
         obj.addProperty("App::PropertyLink","PlacementsFrom", "Lattice PopulateCopies","Placement or array of placements to be treated as origins for PlacementsTo.")
-        
-        obj.OutputCompounding = "(autosettle)" # this is default value for new features.
 
-    def assureProperties(self, obj):
+    def assureProperties(self, obj, creating_new = False):
         '''Adds properties that might be missing, because of loaded project made with older version. Handles version compatibility.'''
-        super(LatticePopulateCopies, self).assureProperties(obj)
+        super(LatticePopulateCopies, self).assureProperties(obj, creating_new)
 
         propname = 'OutputCompounding'
         if not hasattr(obj,propname):
             obj.addProperty("App::PropertyEnumeration", propname, "Lattice PopulateCopies","In case single object copy is made, this property controls, if it's packed into compoud or not.")
             setattr(obj,propname,["(autosettle)","always", "only if many"])
-            setattr(obj,propname,"always") # this is to match the old behavior. This is not the default setting for new features.
+            if creating_new:
+                obj.OutputCompounding = "(autosettle)" # this is default value for new features.
+            else:
+                setattr(obj,propname,"always") # this is to match the old behavior. This is not the default setting for new features.
+            
         if self.assureProperty(obj, "App::PropertyEnumeration","Copying", ShapeCopy.copy_types, "Lattice PopulateChildren", "Sets, what method to use for copying shapes."):
             self.Copying = ShapeCopy.copy_types[0]
 
@@ -247,72 +249,83 @@ def CreateLatticePopulateCopies(name, label, shapeObj, latticeObjFrom, latticeOb
 def throwBody():
     raise SelectionError("PartDesign mode", "You can't use population tools on shapes in partdesign body. Use Lattice PartDesign Pattern instead. Or deactivate active body to use populate tools on shapes.")
 
-def cmdPopulate_shapes_nonFromTo(refmode):
+def cmdPopulateCopies():
     sel = FreeCADGui.Selection.getSelectionEx()
     (lattices, shapes) = lattice2BaseFeature.splitSelection(sel)
     if activeBody() and len(shapes)>0:
         throwBody()
-    if len(shapes) > 0 and len(lattices) == 1:
-        FreeCAD.ActiveDocument.openTransaction("Populate with copies")
-        lattice = lattices[0]
-        for shape in shapes:
-            CreateLatticePopulateCopies("Populate",u"Populate "+lattice.Object.Label+u" with "+shape.Object.Label,shape.Object,None,lattice.Object,refmode)
-        deselect(sel)
-        FreeCAD.ActiveDocument.commitTransaction()
-    elif len(shapes) == 1 and len(lattices) > 1:
-        shape = shapes[0]
-        FreeCAD.ActiveDocument.openTransaction("Populate with copies")
-        for lattice in lattices:
-            CreateLatticePopulateCopies("Populate",u"Populate "+lattice.Object.Label+u" with "+shape.Object.Label,shape.Object,None,lattice.Object,refmode)
-        deselect(sel)
-        FreeCAD.ActiveDocument.commitTransaction()
-    elif len(shapes) == 0 and len(lattices) == 2:
-        shape = lattices[0]
-        lattice = lattices[1]
-        FreeCAD.ActiveDocument.openTransaction("Populate with copies")
-        CreateLatticePopulateCopies("Populate",u"Populate "+lattice.Object.Label+u" with "+shape.Object.Label,shape.Object,None,lattice.Object,refmode)
-        deselect(sel)
-        FreeCAD.ActiveDocument.commitTransaction()        
-    else:
-        raise SelectionError("Bad selection","Please select some shapes and some arrays, first. You can select multiple shapes and one array, or multiple arrays and one shape.")
-    
-def cmdPopulate_shapes_FromTo():
-    sel = FreeCADGui.Selection.getSelectionEx()
-    (lattices, shapes) = lattice2BaseFeature.splitSelection(sel)
-    if activeBody() and len(shapes)>0:
-        throwBody()
-    if len(shapes) == 0 and len(sel) >= 3:
-        shapes = sel[:-2]
-        lattices = sel[-2:]
     if len(shapes) > 0 and len(lattices) == 2:
-        FreeCAD.ActiveDocument.openTransaction("Populate with copies")
+        # move shapes from to
+        FreeCAD.ActiveDocument.openTransaction("Transport")
         latticeFrom = lattices[0]
         latticeTo = lattices[1]
         for shape in shapes:
-            CreateLatticePopulateCopies("Populate",u"Moved "+shape.Object.Label, shape.Object, latticeFrom.Object, latticeTo.Object,"Use PlacementsFrom")
+            CreateLatticePopulateCopies("Populate",u"Moved "+shape.Object.Label, shape.Object, latticeFrom.Object, latticeTo.Object,'Use PlacementsFrom')
         deselect(sel)
         FreeCAD.ActiveDocument.commitTransaction()
+    elif len(shapes) == 0 and len(lattices) == 3:
+        # move array from to
+        FreeCAD.ActiveDocument.openTransaction("Transport")
+        shape = lattices[0]
+        latticeFrom = lattices[1]
+        latticeTo = lattices[2]
+        for shape in shapes:
+            CreateLatticePopulateCopies("Populate",u"Moved "+shape.Object.Label, shape.Object, latticeFrom.Object, latticeTo.Object,'Use PlacementsFrom')
+        deselect(sel)
+        FreeCAD.ActiveDocument.commitTransaction()
+    elif len(shapes) > 0 and len(lattices) == 1:
+        # populate shapes
+        FreeCAD.ActiveDocument.openTransaction("Populate with copies")
+        lattice = lattices[0]
+        for shape in shapes:
+            CreateLatticePopulateCopies("Populate",u"Populate "+lattice.Object.Label+u" with "+shape.Object.Label,shape.Object,None,lattice.Object,'Auto')
+        deselect(sel)
+        FreeCAD.ActiveDocument.commitTransaction()
+    elif len(shapes) == 0 and (len(lattices) == 2 or len(lattices) > 3):
+        # populate placements
+        FreeCAD.ActiveDocument.openTransaction("Populate with copies")
+        shapes = lattices[:-1]
+        lattice = lattices[-1]
+        for shape in shapes:
+            CreateLatticePopulateCopies("Populate",u"Populate "+lattice.Object.Label+u" with "+shape.Object.Label, shape.Object, None, lattice.Object,'Auto')
+        deselect(sel)
+        FreeCAD.ActiveDocument.commitTransaction()        
     else:
-        raise SelectionError("Bad selection","Please select either:\n one or more shapes, and two placements/arrays \nor\nthree placements/arrays")
+        raise SelectionError("Bad selection",
+            "You selected {n_lattices} arrays of placements and {n_shapes} shapes. This is not supported.\n\n"
+            "You can select:\n"
+            " * N shapes and 1 array, to populate that array with the shapes\n"
+            " * N shapes and 2 arrays, to move shapes from array1 to array2\n"
+            " * 2 arrays, to populate array2 with array1\n"
+            " * 3 arrays, to move array1 from array2 to array3\n"
+            " * 4 or more arrays, to populate last array with all other arrays"
+            .format(n_lattices= len(lattices), n_shapes= len(shapes))
+        )
 
 
-class _CommandLatticePopulateCopies_Normal:
+class CommandLatticePopulateCopies:
     "Command to create LatticePopulateCopies feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice2_PopulateCopies_Normal.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_PopulateCopies","Populate with copies"),
+        return {'Pixmap'  : getIconPath("Lattice2_PopulateCopies.svg"),
+                'MenuText': "Populate with copies",
                 'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_PopulateCopies","Populate with copies: put copies of an object at every placement in an array. Select the object(s) to be copied, and the placement/array.")}
+                'ToolTip': "Populate with copies: put copies of an object at every placement in an array. Select the object(s) to be copied, and the placement/array."}
         
     def Activated(self):
         try:
             if len(FreeCADGui.Selection.getSelection())==0:
                 infoMessage("Populate with copies",
-                    "Populate with copies command. Places a copy of a selected object placed under selected placement.\n\n"+
+                    "Populate with copies command. Places a copy of a selected object at every placement in an array of placements.\n\n"+
                     "Please select some objects, and a placement/an array of placements. Then invoke the command.\n\n"+
-                    "A copy of object will pe made and placed in local coordinate system of each placement in an array. Placement of the object is taken into account, and becomes a placement in local coordinates of a placement of the array item.")
+                    "You can select:\n"
+                    " * N shapes and 1 array, to populate that array with the shapes\n"
+                    " * N shapes and 2 arrays, to move shapes from array1 to array2\n"
+                    " * 2 arrays, to populate array2 with array1\n"
+                    " * 3 arrays, to move array1 from array2 to array3\n"
+                    " * 4 or more arrays, to populate last array with all other arrays"
+                )
                 return
-            cmdPopulate_shapes_nonFromTo("Origin")
+            cmdPopulateCopies()
         except Exception as err:
             msgError(err)
             
@@ -323,85 +336,9 @@ class _CommandLatticePopulateCopies_Normal:
             return False
             
 if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Lattice2_PopulateCopies_Normal', _CommandLatticePopulateCopies_Normal())
+    FreeCADGui.addCommand('Lattice2_PopulateCopies', CommandLatticePopulateCopies())
 
-class _CommandLatticePopulateCopies_Array:
-    "Command to create LatticePopulateCopies feature"
-    def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice2_PopulateCopies_Array.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_PopulateCopies","Populate with copies: Build Array"),
-                'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_PopulateCopies","Populate with copies: Build Array: poplate placements with copies so that the array passes through original shape. Select the object(s) to be copied, and the placement/array.")}
-        
-    def Activated(self):
-        try:
-            if len(FreeCADGui.Selection.getSelection())==0:
-                infoMessage("Populate with copies: Build Array",
-                    "Populate with copies: Build Array command. Creates an array of shapes.\n\n"+
-                    "Please select some objects, and the array of placements. Then invoke the command. Object can also be a placement/array.\n\n"+
-                    "Compared to plain 'Populate With copies' command, the placements are treated as being relative to the first placement in the array. As a result, the array built always includes the original object as-is.")
-                return
-            cmdPopulate_shapes_nonFromTo("Auto")
-        except Exception as err:
-            msgError(err)
-            
-    def IsActive(self):
-        if FreeCAD.ActiveDocument:
-            return True
-        else:
-            return False
-            
-if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Lattice2_PopulateCopies_Array', _CommandLatticePopulateCopies_Array())
-
-class _CommandLatticePopulateCopies_Move:
-    "Command to create LatticePopulateCopies feature"
-    def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice2_PopulateCopies_Move.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_PopulateCopies","Moved object"),
-                'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_PopulateCopies","Moved object: move object from one placement to another placement. Select the object, placement to move from, and placement to move to. Arrays of placements are accepted.")}
-        
-    def Activated(self):
-        try:
-            if len(FreeCADGui.Selection.getSelection())==0:
-                infoMessage("Moved Object",
-                    "Moved Object command. Creates a moved copy of a shape.\n\n"+
-                    "The shape is moved from one placement to another placement. Please select some shapes, then placement to move from, and placement to move to (order matters).\n"+
-                    "Placement 'to' can be an array of placements; the array of objects will be created in this case. If 'to' is an array, 'from' can be either a single placement, or an array of matching length.\n\n"+
-                    "Object can itself be an array of placements.")
-                return
-            cmdPopulate_shapes_FromTo()
-        except Exception as err:
-            msgError(err)
-            
-    def IsActive(self):
-        if FreeCAD.ActiveDocument:
-            return True
-        else:
-            return False
-            
-if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Lattice2_PopulateCopies_Move', _CommandLatticePopulateCopies_Move())
-
-class _CommandLatticePopulateCopiesGroup:
-    def GetCommands(self):
-        return ("Lattice2_PopulateCopies_Normal","Lattice2_PopulateCopies_Array","Lattice2_PopulateCopies_Move") 
-
-    def GetDefaultCommand(self): # return the index of the tuple of the default command. 
-        return 0
-
-    def GetResources(self):
-        return { 'MenuText': 'Populate with copies:', 
-                 'ToolTip': 'Populate with copies: put a copy of an object at every placement in an array of placements.'}
-        
-    def IsActive(self): # optional
-        return True
-        
-if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Lattice2_PopulateCopiesGroupCommand',_CommandLatticePopulateCopiesGroup())
-
-exportedCommands = ['Lattice2_PopulateCopiesGroupCommand']
+exportedCommands = ['Lattice2_PopulateCopies']
 
 # -------------------------- /Gui command --------------------------------------------------
 
