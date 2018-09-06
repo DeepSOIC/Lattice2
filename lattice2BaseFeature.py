@@ -142,7 +142,7 @@ class LatticeFeature(object):
         Auto called from __init__ (and before derivedInit), and from execute (before derivedExecute)."""
         self.assureProperty(selfobj, 'App::PropertyLink', 'ReferencePlacementLink', None, "Lattice", "Link to placement to use as reference placement")
         self.assureProperty(selfobj, 'App::PropertyString', 'ReferencePlacementLinkIndex', None, "Lattice", "Index of placement to take from the link. Can also be 'self.0' for own placements.")
-        self.assureProperty(selfobj, 'App::PropertyBool', 'ReferencePlacementInGlobal', True, "Lattice", "True if reference placement property is in global cs. ")
+        self.assureProperty(selfobj, 'App::PropertyBool', 'ReferencePlacementInGlobal', True, "Lattice", "True if reference placement property is in global cs. ", readonly= True)
         self.assureProperty(
             selfobj, 
             'App::PropertyPlacement', 
@@ -165,6 +165,7 @@ class LatticeFeature(object):
             'ReferencePlacement': 1,
             'ReferencePlacementLink': extref, 
             'ReferencePlacementLinkIndex': extref,
+            'ReferencePlacementInGlobal': 1,
         }
         for prop in rodict:
             if prop in bypass_set: continue
