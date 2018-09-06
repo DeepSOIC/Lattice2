@@ -70,6 +70,20 @@ class LatticeArrayFilter(lattice2BaseFeature.LatticeFeature):
         
         obj.Proxy = self
         
+    def updateReadonlyness(self, selfobj, bypass_set = set()):
+        my_hidden = set([
+            'ReferencePlacement',
+            'ReferencePlacementLink', 
+            'ReferencePlacementLinkIndex',
+        ])
+        super(LatticeArrayFilter, self).updateReadonlyness(selfobj, bypass_set | my_hidden)
+        for prop in my_hidden:
+            if prop in bypass_set: continue
+            if hasattr(selfobj, prop):
+                selfobj.setEditorMode(prop, 2)
+    
+    def recomputeReferencePlm(self, selfobj, selfplacements):
+        pass #suppress standard refplm recompute
 
     def derivedExecute(self,obj):
         #validity check
