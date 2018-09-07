@@ -84,10 +84,6 @@ class LatticeProjectArray(lattice2BaseFeature.LatticeFeature):
         #the remaining options are handled in derivedExecute
 
     def derivedExecute(self,obj):
-        #validity check
-        if not lattice2BaseFeature.isObjectLattice(screen(obj.Base)):
-            lattice2Executer.warning(obj,"A lattice object is expected as Base, but a generic shape was provided. It will be treated as a lattice object; results may be unexpected.")
-        
         toolShape = screen(obj.Tool).Shape
         if lattice2BaseFeature.isObjectLattice(screen(obj.Tool)):
             lattice2Executer.warning(obj, "A lattice object was provided as Tool. It will be converted into points; orientations will be ignored.")
