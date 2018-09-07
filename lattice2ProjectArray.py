@@ -64,7 +64,24 @@ class LatticeProjectArray(lattice2BaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyEnumeration","Multisolution","Lattice ProjectArray","Specify the way of dealing with multiple solutions of projection")
         obj.Multisolution = ['use first','use all']
-                
+        
+    def assureProperties(self, selfobj, creating_new = False):
+        super(LatticeProjectArray, self).assureProperties(selfobj, creating_new)
+
+        created = self.assureProperty(selfobj, 
+            'App::PropertyEnumeration', 
+            'ReferencePlacementOption', 
+            ['external', 'origin', 'inherit', 'projected'],
+            "Lattice Array", 
+            "Reference placement, corresponds to the original occurrence of the object to be populated."
+        )
+        if created:
+            selfobj.ReferencePlacementOption = 'inherit'
+
+    def recomputeReferencePlm(self, selfobj, selfplacements): #override
+        if selfobj.ReferencePlacementOption == 'external':
+            super(LinearProjectArray, self).recomputeReferencePlm(selfobj, selfplacements)
+        #the remaining options are handled in derivedExecute
 
     def derivedExecute(self,obj):
         #validity check
@@ -73,13 +90,16 @@ class LatticeProjectArray(lattice2BaseFeature.LatticeFeature):
         
         toolShape = screen(obj.Tool).Shape
         if lattice2BaseFeature.isObjectLattice(screen(obj.Tool)):
-            lattice2Executer.warning(obj,"A lattice object was provided as Tool. It will be converted into points; orientations will be ignored.")
-            leaves = LCE.AllLeaves(toolShape)
-            points = [Part.Vertex(leaf.Placement.Base) for leaf in leaves]
+            lattice2Executer.warning(obj, "A lattice object was provided as Tool. It will be converted into points; orientations will be ignored.")
+            plms = lattice2BaseFeature.getPlacementsList(obj.Tool)
+            points = [Part.Vertex(plm.Base) for plm in plms]
             toolShape = Part.makeCompound(points)
 
-        leaves = LCE.AllLeaves(screen(obj.Base).Shape)
-        input = [leaf.Placement for leaf in leaves]
+        ref = obj.ReferencePlacementOption
+
+        input = lattice2BaseFeature.getPlacementsList(obj.Base, obj)
+        if ref == 'projected':
+            input.append(lattice2BaseFeature.getReferencePlm(obj.Base))
 
         output = [] #variable to receive the final list of placements
         
@@ -170,6 +190,17 @@ class LatticeProjectArray(lattice2BaseFeature.LatticeFeature):
                 if not isMultiSol:
                     break
         
+        if ref == 'external':
+            pass
+        elif ref == 'origin':
+            self.setReferencePlm(obj, None)
+        elif ref == 'inherit':
+            self.setReferencePlm(obj, lattice2BaseFeature.getReferencePlm(obj.Base))
+        elif ref == 'projected':
+            self.setReferencePlm(obj, output.pop())
+        else:
+            raise NotImplementedError("Reference option not implemented: " + ref)
+
         return output
         
         
@@ -189,7 +220,7 @@ def CreateLatticeProjectArray(name):
     iLtc = 0 #index of lattice object in selection
     iStc = 1 #index of stencil object in selection
     for i in range(0,len(sel)):
-        if lattice2BaseFeature.isObjectLattice(sel[i]):
+        if lattice2BaseFeature.isObjectLattice(sel[i].Object):
             iLtc = i
             iStc = i-1 #this may give negative index, but python accepts negative indexes
             break
