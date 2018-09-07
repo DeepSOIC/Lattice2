@@ -72,7 +72,7 @@ class LatticeProjectArray(lattice2BaseFeature.LatticeFeature):
             'App::PropertyEnumeration', 
             'ReferencePlacementOption', 
             ['external', 'origin', 'inherit', 'projected'],
-            "Lattice Array", 
+            "Lattice ProjectArray", 
             "Reference placement, corresponds to the original occurrence of the object to be populated."
         )
         if created:
