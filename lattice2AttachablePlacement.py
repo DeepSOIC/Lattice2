@@ -79,8 +79,9 @@ class AttachablePlacement(AttachableFeature):
 
 class ViewProviderAttachableFeature(lattice2BaseFeature.ViewProviderLatticeFeature):
     always_edit_attachment = False
+    
     def setEdit(self,vobj,mode):
-        if not (mode == EDIT_ATTACHMENT or (mode == 0 and always_edit_attachment)): raise NotImplementedError()
+        if not (mode == EDIT_ATTACHMENT or (mode == 0 and self.always_edit_attachment)): raise NotImplementedError()
         import PartGui
         import FreeCADGui as Gui
         PartGui.AttachmentEditor.editAttachment(self.Object, 
