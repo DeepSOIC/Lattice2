@@ -69,7 +69,7 @@ class ViewportInfo(object):
     camera_placement = App.Placement(App.Vector(0,0,1), App.Rotation())
     camera_focalplacement = App.Placement()
     camera_focaldist = 1.0
-    camera_heightangle = radians(60) #total horizontal view angle, in radians (for perspective camera)
+    camera_heightangle = radians(45) #total horizontal view angle, in radians (for perspective camera)
     camera_height = 1 #screen height in model space (mm), for orthographic camera
     viewport_size_px = (1800,1000) #width, height of viewport, in pixels
     viewport_size_mm = (1.8,1.0) #width, height of viewport (on focal plane), in mm
@@ -106,6 +106,7 @@ class ViewportInfo(object):
                 self.camera_height = math.tan(self.camera_heightangle / 2) * self.camera_focaldist * 2 
             else:
                 self.camera_height = cam.height.getValue()
+                self.camera_focaldist = self.camera_height / 2 / math.tan(radians(45)/2) #in parallel projection, focal distance has strange values. Reconstructing a focal distance for a typical perspective camera...
 
             self.false_viewport = False
     
@@ -154,7 +155,6 @@ class Autosize(ViewportInfo):
             result =  App.Vector(
                 [Rounder.roundToPrecision(coord, roundfocal) for coord in tuple(self.camera_focalplacement.Base)]
             )
-            print result
             return result
     
     def _convenientModelWidth(self):
@@ -195,10 +195,10 @@ class Autosize(ViewportInfo):
         """isPointInWorkingArea(): returns True if point is not far from the visible area of focal plane. Point should be given in document coordinate system."""
         p_foc = self.camera_focalplacement.inverse().multVec(point)
         #p_foc is point in focal-plane CS. X and Y are along focal plane. Z is against view direction (positive = towards the camera).
-        msize = self._convenientModelSize()
-        mwidth = self._convenientModelWidth()
+        mheight = self.viewport_size_mm[1]*0.8
+        mwidth = self.viewport_size_mm[0]*0.8
         f = self.camera_focaldist
-        if abs(p_foc.x) > mwidth*0.5 or abs(p_foc.y) > msize*0.5 or p_foc.z > f*0.5 or p_foc.z < -2*f:
+        if abs(p_foc.x) > mwidth*0.5 or abs(p_foc.y) > mheight*0.5 or p_foc.z > f*0.5 or p_foc.z < -2*f:
             return False
         else:
             return True
