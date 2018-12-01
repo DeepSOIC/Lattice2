@@ -230,6 +230,7 @@ def CreatePolarArray(genmode = 'SpanN'):
     FreeCAD.ActiveDocument.openTransaction("Create PolarArray")
     FreeCADGui.addModule('lattice2PolarArray2')
     FreeCADGui.addModule('lattice2Executer')
+    FreeCADGui.addModule("lattice2Base.Autosize")
     FreeCADGui.doCommand('f = lattice2PolarArray2.make()')
     FreeCADGui.doCommand("f.GeneratorMode = {mode}".format(mode= repr(genmode)))
     attached = False
@@ -250,6 +251,9 @@ def CreatePolarArray(genmode = 'SpanN'):
                 .format(lnk= lnk.Name, sub= repr(sub), usearcrange= repr(usearcrange), endinclusive= repr(endinclusive))
             )
             attached = True
+    if not attached:
+        FreeCADGui.doCommand("f.Placement.Base = lattice2Base.Autosize.convenientPosition()")    
+        FreeCADGui.doCommand("f.Radius = lattice2Base.Autosize.convenientModelSize()/2")
     FreeCADGui.doCommand('lattice2Executer.executeFeature(f)')
     if len(sublinks) > 0 and not attached:
         FreeCADGui.addModule('lattice2AttachablePlacement')

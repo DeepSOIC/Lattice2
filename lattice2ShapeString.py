@@ -219,8 +219,10 @@ class LatticeShapeString:
                 scale = 1.0
             obj.Shape = markers.getNullShapeShape(scale)
             raise ValueError('No strings were converted into shapes') #Feeding empty compounds to FreeCAD seems to cause rendering issues, otherwise it would have been a good idea to output nothing.
-
-        obj.Shape = Part.makeCompound(shapes)
+        result = Part.makeCompound(shapes)
+        result.Placement = obj.Placement
+        obj.Shape = result
+        
 
     def __getstate__(self):
         return None
@@ -254,9 +256,13 @@ def CreateLatticeShapeString(name):
     FreeCAD.ActiveDocument.openTransaction("Create LatticeShapeString")
     FreeCADGui.addModule("lattice2ShapeString")
     FreeCADGui.addModule("lattice2Executer")
+    FreeCADGui.addModule("lattice2Base.Autosize")
     FreeCADGui.doCommand("f = lattice2ShapeString.makeLatticeShapeString(name='"+name+"')")
     if len(sel) == 1:
         FreeCADGui.doCommand("f.ArrayLink = FreeCADGui.Selection.getSelection()[0]")
+    else:
+        FreeCADGui.doCommand("f.Placement.Base = lattice2Base.Autosize.convenientPosition()")
+    FreeCADGui.doCommand("f.Size = lattice2Base.Autosize.convenientModelSize()/10")
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCADGui.doCommand("f = None")
     FreeCAD.ActiveDocument.commitTransaction()

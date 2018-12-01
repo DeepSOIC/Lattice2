@@ -196,12 +196,16 @@ def CreateLinearArray(name, mode):
     FreeCAD.ActiveDocument.openTransaction("Create LinearArray")
     FreeCADGui.addModule("lattice2LinearArray")
     FreeCADGui.addModule("lattice2Executer")
+    FreeCADGui.addModule("lattice2Base.Autosize")
     FreeCADGui.doCommand("f = lattice2LinearArray.makeLinearArray(name='"+name+"')")
     if len(sel) == 1:
         FreeCADGui.doCommand("f.Link = App.ActiveDocument."+sel[0].ObjectName)
         if sel[0].HasSubObjects:
             FreeCADGui.doCommand("f.LinkSubelement = '"+sel[0].SubElementNames[0]+"'")
     FreeCADGui.doCommand("f.GeneratorMode = {mode}".format(mode= repr(mode)))
+    FreeCADGui.doCommand("f.Placement.Base = lattice2Base.Autosize.convenientPosition()")
+    FreeCADGui.doCommand("f.SpanEnd = lattice2Base.Autosize.convenientModelSize()")
+    FreeCADGui.doCommand("f.Step = lattice2Base.Autosize.convenientMarkerSize()")
     FreeCADGui.doCommand("lattice2Executer.executeFeature(f)")
     FreeCAD.ActiveDocument.commitTransaction()
     
