@@ -64,6 +64,12 @@ def getLocalOriginPosition():
     else:
         return Containers.Container(ac).getFullTransform().Base
 
+def _printTraceback(err):
+    import traceback
+    tb = traceback.format_exc()
+    App.Console.PrintError("Lattice Autosize error: {err}\n{tb}\n\n".format(err= str(err), tb= tb))
+
+
 class ViewportInfo(object):
     camera_type = 'perspective' #string: perspective or orthographic
     camera_placement = App.Placement(App.Vector(0,0,1), App.Rotation())
@@ -133,29 +139,57 @@ class Autosize(ViewportInfo):
     
     def convenientModelWidth(self):
         """convenientModelWidth(): returns a size that will conveniently fit in the width of screen"""
-        return Rounder.roundToNiceValue(self._convenientModelWidth())
+        try:
+            return Rounder.roundToNiceValue(self._convenientModelWidth())
+        except Exception as err:
+            _printTraceback(err)
+            return 10.0
+            
     def convenientModelSize(self):
         """convenientModelSize(): returns a size of a box that will conveniently fit in the screen"""
-        return Rounder.roundToNiceValue(self._convenientModelSize())
+        try:
+            return Rounder.roundToNiceValue(self._convenientModelSize())
+        except Exception as err:
+            _printTraceback(err)
+            return 10.0
+
     def minimalSize(self):
         """minimalSize(): returns a size that will be barely recognizable on the screen (it is a rounded pick radius in model space)"""
-        return Rounder.roundToNiceValue(self._minimalSize())
+        try:
+            return Rounder.roundToNiceValue(self._minimalSize())
+        except Exception as err:
+            _printTraceback(err)
+            return 0.1
+
     def convenientMarkerSize(self):
         """convenientMarkerSize(): size of object to be able to comfortably select faces"""
-        return Rounder.roundToNiceValue(self._convenientMarkerSize())
+        try:
+            return Rounder.roundToNiceValue(self._convenientMarkerSize())
+        except Exception as err:
+            _printTraceback(err)
+            return 1.0
+
     def convenientFeatureSize(self):
         """convenientFeatureSize(): size in between marker size and model size. Should be reasonable to edit, but not fill the whole screen."""
-        return Rounder.roundToNiceValue(self._convenientFeatureSize())
+        try:
+            return Rounder.roundToNiceValue(self._convenientFeatureSize())
+        except Exception as err:
+            _printTraceback(err)
+            return 5.0
     
     def convenientPosition(self):
-        if self.isPointInWorkingArea(getLocalOriginPosition()):
+        try:
+            if self.isPointInWorkingArea(getLocalOriginPosition()):
+                return App.Vector()
+            else:
+                roundfocal = Rounder.roundToNiceValue(self.camera_focaldist*0.5)
+                result =  App.Vector(
+                    [Rounder.roundToPrecision(coord, roundfocal) for coord in tuple(self.camera_focalplacement.Base)]
+                )
+                return result
+        except Exception as err:
+            _printTraceback(err)
             return App.Vector()
-        else:
-            roundfocal = Rounder.roundToNiceValue(self.camera_focaldist*0.5)
-            result =  App.Vector(
-                [Rounder.roundToPrecision(coord, roundfocal) for coord in tuple(self.camera_focalplacement.Base)]
-            )
-            return result
     
     def _convenientModelWidth(self):
         if self.false_viewport:
