@@ -77,6 +77,8 @@ def isObjectLattice(documentObject):
     if hasattr(documentObject,"isLattice"):
         if 'On' in documentObject.isLattice:
             ret = True
+    if documentObject.isDerivedFrom('App::Placement') or documentObject.isDerivedFrom('PartDesign::CoordinateSystem'):
+        ret = True
     if documentObject.isDerivedFrom('PartDesign::ShapeBinder'):
         if len(documentObject.Support) == 1 and documentObject.Support[0][1] == ('',):
             ret = isObjectLattice(documentObject.Support[0][0])
@@ -355,6 +357,8 @@ def getPlacementsList(documentObject, context = None, suppressWarning = False):
     if not isObjectLattice(documentObject):
         if not suppressWarning:
             lattice2Executer.warning(context, documentObject.Name + " is not a placement or an array of placements. Results may be unexpected.")
+    if documentObject.isDerivedFrom('App::Placement') or documentObject.isDerivedFrom('PartDesign::CoordinateSystem'):
+        return [documentObject.Placement]
     leaves = LCE.AllLeaves(documentObject.Shape)
     return [leaf.Placement for leaf in leaves]
 
