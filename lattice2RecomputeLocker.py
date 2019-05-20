@@ -407,8 +407,14 @@ exportedCommands = [
     "Lattice2_RecomputeLocker_ForceRecompute",
     "Lattice2_RecomputeLocker_Touch"
     ]
-if int(App.Version()[1]) >= 17:
+try:
+    if float(App.Version()[1]) >= 17.0:
+        exportedCommands.remove("Lattice2_RecomputeLocker_MakeFeature")
+except Exception as err:
+    App.Console.PrintWarning("Failed to parse version string: {v}".format(v= App.Version()[1]))
+    #assume modern
     exportedCommands.remove("Lattice2_RecomputeLocker_MakeFeature")
+
     
 class CommandRecomputeGroup:
     def GetCommands(self):
