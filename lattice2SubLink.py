@@ -58,7 +58,7 @@ class LatticeSubLink:
         self.assureProperties(obj)
         
     def assureProperties(self, selfobj):
-        assureProperty(selfobj, "App::PropertyEnumeration","Looping", ["Single"] + LSS.LOOP_MODES, "Lattice SubLink", "Sets wether to collect just the element, or all similar from array.")
+        assureProperty(selfobj, "App::PropertyEnumeration","Looping", ["Single"] + LSS.LOOP_MODES, "Lattice SubLink", "Sets whether to collect just the element, or all similar from array.")
         assureProperty(selfobj, "App::PropertyEnumeration","CompoundTraversal", LSS.TRAVERSAL_MODES, "Lattice SubLink", "Sets how to unpack compounds if Looping is not 'Single'.")
         assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(screen(selfobj.Object), selfobj.SubNames), "Lattice SubLink", "Mirror of Object+SubNames properties")
 

@@ -60,9 +60,9 @@ class LatticeArrayFilter(lattice2BaseFeature.LatticeFeature):
 
         obj.addProperty("App::PropertyLink","Stencil","Lattice ArrayFilter","Object that defines filtering")
         
-        obj.addProperty("App::PropertyLength","WindowFrom","Lattice ArrayFilter","Elements closer to stencil than this vaule are rejected by the filter.")
+        obj.addProperty("App::PropertyLength","WindowFrom","Lattice ArrayFilter","Elements closer to stencil than this value are rejected by the filter.")
         obj.WindowFrom = 0.0
-        obj.addProperty("App::PropertyLength","WindowTo","Lattice ArrayFilter","Elements farther from stencil than this vaule are rejected by the filter.")
+        obj.addProperty("App::PropertyLength","WindowTo","Lattice ArrayFilter","Elements farther from stencil than this value are rejected by the filter.")
         obj.WindowTo = 1.0
         
         obj.addProperty("App::PropertyBool","Invert","Lattice ArrayFilter","Output elements that are rejected by filter, instead")
@@ -188,7 +188,7 @@ def makeItemListFromSelection(sel, bMakeString = True):
 def CreateLatticeArrayFilter(name,mode):
     sel = FreeCADGui.Selection.getSelectionEx()
     
-    # selection order independece logic (lattice object and generic shape stencil can be told apart)
+    # selection order independence logic (lattice object and generic shape stencil can be told apart)
     iLtc = 0 #index of lattice object in selection
     iStc = 1 #index of stencil object in selection
     for i in range(0,len(sel)):
@@ -301,7 +301,7 @@ class GroupCommandLatticeArrayFilter:
 
     def GetResources(self):
         return { 'MenuText': 'Array filter:', 
-                 'ToolTip': 'Array filter: tool to exctract specific elements from lattice2 arrays.'}
+                 'ToolTip': 'Array filter: tool to extract specific elements from lattice2 arrays.'}
         
     def IsActive(self): # optional
         return bool(App.ActiveDocument)

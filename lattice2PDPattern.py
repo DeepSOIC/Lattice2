@@ -47,7 +47,7 @@ class ScopeError(RuntimeError):
 
 
 class MultiTransformSettings(object):
-    selfintersections = False #if True, take care of intersections between occurences. If False, optimize assuming occurences do not intersect.
+    selfintersections = False #if True, take care of intersections between occurrences. If False, optimize assuming occurrences do not intersect.
     sign_override = +1 #+1 for keep sign, -1 for invert, +2 for force positive, -2 for force negative
 
 
@@ -160,7 +160,7 @@ def applyFeature(baseshape, feature, transforms, mts):
         if mts.selfintersections:
             pass #to fuse the shapes to baseshape one by one
         else:
-            actionshapes = [Part.Compound(actionshapes)] #to fuse all at once, saving for computing intersections between the occurences of the feature
+            actionshapes = [Part.Compound(actionshapes)] #to fuse all at once, saving for computing intersections between the occurrences of the feature
             
         for actionshape in actionshapes:
             assert(sign != 0)
@@ -190,7 +190,7 @@ class LatticePDPattern(object):
         obj.addProperty('App::PropertyEnumeration', 'SignOverride', "Lattice Pattern", "Use it to change Pockets into Pads.")
         obj.SignOverride = ['keep', 'invert', 'as additive', 'as subtractive']
         
-        obj.addProperty('App::PropertyBool', 'Selfintersections', "Lattice Pattern", "If True, take care of intersections between occurences. If False, you get a slight speed boost.")
+        obj.addProperty('App::PropertyBool', 'Selfintersections', "Lattice Pattern", "If True, take care of intersections between occurrences. If False, you get a slight speed boost.")
         
         obj.addProperty('App::PropertyBool', 'Refine', "PartDesign", "If True, remove redundant edges after this operation.")
         obj.Refine = getParamPDRefine()

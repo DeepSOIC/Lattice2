@@ -105,7 +105,7 @@ class CommandSubstituteObject:
             except Exception as err:
                 mb = QtGui.QMessageBox()
                 mb.setIcon(mb.Icon.Warning)
-                mb.setText(translate("Lattice2_SubstituteObject", "An error occured while substituting object:", None)+ u"\n"
+                mb.setText(translate("Lattice2_SubstituteObject", "An error occurred while substituting object:", None)+ u"\n"
                                + str(err))
                 mb.setWindowTitle(translate("Lattice2_SubstituteObject","Error", None))
                 mb.exec_()

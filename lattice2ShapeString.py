@@ -38,7 +38,7 @@ __url__ = ""
 
 
 def findFont(font_file_name):
-    '''checks for existance of the file in a few locations and returns the full path of the first one found'''
+    '''checks for existence of the file in a few locations and returns the full path of the first one found'''
     
     import os
 
@@ -105,7 +105,7 @@ class LatticeShapeString:
         self.makeFoolObj(obj)
         foolObj = self.foolObj
         
-        #add Draft ShapeString's properties to document object in posession of our LatticeShapeString
+        #add Draft ShapeString's properties to document object in possession of our LatticeShapeString
         for (proptype, propname, group, hint) in foolObj.properties:
             if propname != "String": #we'll define our own string property
                 obj.addProperty(proptype,propname,"Lattice ShapeString",hint)

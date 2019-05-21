@@ -23,7 +23,7 @@
 
 __title__= "Lattice ShapeInfo feature for FreeCAD"
 __author__ = "DeepSOIC"
-__doc__ = "Shape info feature is for getting info on a shape and exposing it in form of properties, that are useable from expressions."
+__doc__ = "Shape info feature is for getting info on a shape and exposing it in form of properties, that are usable from expressions."
 
 from lattice2Common import *
 import lattice2BaseFeature as LBF

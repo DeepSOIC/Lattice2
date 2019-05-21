@@ -286,7 +286,7 @@ class _CommandLatticePopulateChildren_Array:
                 infoMessage("Populate with Children: Build Array",
                     "Populate with Children: Build Array command. Creates an array from children packed into a compound.\n\n"+
                     "Please select a compound, and an array of placements. Then invoke the command. It is also allowed to use another array of placements instead of compound.\n\n"+
-                    "Compared to plain 'Populate With Children' command, the placements are treated as being relative to the first placement in the array. As a result, the first child always remains wher it was.")
+                    "Compared to plain 'Populate With Children' command, the placements are treated as being relative to the first placement in the array. As a result, the first child always remains where it was.")
                 return
             cmdPopulate_shapes_nonFromTo("First item")
         except Exception as err:

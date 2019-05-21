@@ -106,7 +106,7 @@ class LatticeResample(lattice2BaseFeature.LatticeFeature):
                 QArrays[iQ].append( Q[iQ] ) 
             prevQ = Q
         
-        #  constuct function objects
+        #  construct function objects
         if posIsInterpolate:
             FX = LIU.InterpolateF(IArray,XArray)
             FY = LIU.InterpolateF(IArray,YArray)

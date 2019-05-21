@@ -88,7 +88,7 @@ element_extractors = {
         
 def getIndexesIntoList(element, list_of_shapes):
     """Finds this element in shapes in list_of_shapes. This is a generator function (to be
-    used if there are multiple occurences of the element). 
+    used if there are multiple occurrences of the element). 
     [(index_into_list, element_type_string, subelement_index), ...]"""
     
     element_type_string = element.ShapeType
