@@ -107,7 +107,7 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyEnumeration","ParameterType","Lattice ParaSeries","Data type of parameter to vary.")
         obj.ParameterType = ['float','int','string']
         
-        obj.addProperty("App::PropertyString","ParameterRef","Lattice ParaSeries","Reference to the parameter to vary. Syntax: ObjectName.Property. Examples: 'Box.Height'; 'Sketch.Constaints.myLength'.")
+        obj.addProperty("App::PropertyString","ParameterRef","Lattice ParaSeries","Reference to the parameter to vary. Syntax: ObjectName.Property. Examples: 'Box.Height'; 'Sketch.Constraints.myLength'.")
                         
         obj.addProperty("App::PropertyEnumeration","Recomputing","Lattice ParaSeries","Sets recomputing policy.")
         obj.Recomputing = ["Disabled", "Recompute Once", "Enabled"]

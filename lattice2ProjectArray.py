@@ -185,7 +185,7 @@ class ViewProviderProjectArray(lattice2BaseFeature.ViewProviderLatticeFeature):
 def CreateLatticeProjectArray(name):
     sel = FreeCADGui.Selection.getSelectionEx()
     
-    # selection order independece logic (lattice object and generic shape stencil can be told apart)
+    # selection order independence logic (lattice object and generic shape stencil can be told apart)
     iLtc = 0 #index of lattice object in selection
     iStc = 1 #index of stencil object in selection
     for i in range(0,len(sel)):

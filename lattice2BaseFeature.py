@@ -125,7 +125,7 @@ class LatticeFeature(object):
         # Auto-On an Auto-Off can be modified when recomputing. Force values are going to stay.
         
         prop = "ExposePlacement"
-        obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the placement syncronized to Placement property. This will oftem make this object unmoveable. Not applicable to arrays.")
+        obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the placement synchronized to Placement property. This will oftem make this object unmoveable. Not applicable to arrays.")
 
         self.derivedInit(obj)
         
@@ -366,7 +366,7 @@ def splitSelection(sel):
     '''splitSelection(sel): splits sel (use getSelectionEx()) into lattices and non-lattices.
     returns a tuple: (lattices, shapes). lattices is a list, containing all objects 
     that are lattices (placements of arrays of placements). shapes contains all 
-    the rest. The lists conain SelectionObjects, not the actual document objects.'''
+    the rest. The lists contain SelectionObjects, not the actual document objects.'''
     lattices = []
     shapes = []
     for selobj in sel:

@@ -235,7 +235,7 @@ class CommandAttachedPlacementSubsequence:
                             "\n\nPlease select an attached placement object, first. Then invoke this tool. Adjust the properties of the created object if necessary."                          )
             else:
                 if len(sel)!=1:
-                    raise SelectionError("PlacementSubsequence", "Please select just one object, an attached placement. You have seleced {num}.".format(num= len(sel)))
+                    raise SelectionError("PlacementSubsequence", "Please select just one object, an attached placement. You have selected {num}.".format(num= len(sel)))
                 cmdCreateAttachedPlacementSubsequence(name= "PlacementSubsequence")
         except Exception as err:
             msgError(err)

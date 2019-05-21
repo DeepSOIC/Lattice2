@@ -179,7 +179,7 @@ class _BoundBox:
             # rotations, some of first three values will be nonzero, and fourth value will 
             # not be equal to 1. While it's enough to compare absolute value of fourth value
             # to 1, precision is seriously lost in such comparison, so we are checking if 
-            # fisrt three values are zero instead.
+            # first three values are zero instead.
             if abs(Q[0])+abs(Q[1])+abs(Q[2]) < ParaConfusion:
                 orients[i] = None
         
