@@ -90,7 +90,7 @@ class ViewProviderAttachableFeature(lattice2BaseFeature.ViewProviderLatticeFeatu
         return True
     
     def unsetEdit(self,vobj,mode):
-        if not (mode == EDIT_ATTACHMENT or (mode == 0 and always_edit_attachment)): raise NotImplementedError()
+        if not (mode == EDIT_ATTACHMENT or (mode == 0 and self.always_edit_attachment)): raise NotImplementedError()
         import FreeCADGui as Gui
         Gui.Control.closeDialog()
         return True
