@@ -94,6 +94,7 @@ class Lattice2Workbench (Workbench):
         cmdsGuiTools = ([]
             + Lattice2.GuiTools.Inspect.exportedCommands
             + Lattice2.GuiTools.SubstituteObject.exportedCommands
+            + Lattice2.GuiTools.ViewFromPlacement.exportedCommands
         )
         self.appendToolbar('Lattice2GuiTools', cmdsGuiTools)
         self.appendMenu('Lattice2', cmdsGuiTools + Lattice2.GuiTools.ExposeLinkSub.exportedCommands)
