@@ -67,5 +67,6 @@
 		<file>icons/Lattice2_SubLinkSubsequence_Vertex.svg</file>        
 		<file>icons/Lattice2_SubstituteObject.svg</file>
         <file>icons/Lattice2_TopoSeries.svg</file>
+        <file>icons/Lattice2_ViewFromPlacement.svg</file>
     </qresource>
 </RCC> 
