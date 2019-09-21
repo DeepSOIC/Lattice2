@@ -169,7 +169,7 @@ class CommandViewFromPlacement:
                 cam.position = tuple(plm.Base)
                 rot = App.Rotation(V(), -OZ, -OX,'ZYX')
                 cam.orientation = tuple(rot.Q)
-                cam.heightAngle = -cam.heightAngle.getValue() #reversing hight angle inverts the image. Using it in conjunction with upside-down camera to effectively reverse how view reacts to mouse.
+                cam.heightAngle = -cam.heightAngle.getValue() #reversing height angle inverts the image. Using it in conjunction with upside-down camera to effectively reverse how view reacts to mouse.
                 cam.focalDistance = 1e-5 #small focal distance makes camera spin about itself
                 
                 #all done, remember.
