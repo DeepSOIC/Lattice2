@@ -60,8 +60,15 @@ There are several options to automate installation of this workbench.
 **Note:** Any of the above options will require a restart of FreeCAD in order for the workbench to function.
 
 ### Manual install
-1. Scroll to the top of the page, and click 'clone or download' -> 'download zip' button or you can run: `wget https://github.com/DeepSOIC/Lattice2  
-2. Unpack the contents into a "Lattice2" subfolder within your default FreeCAD install directory.
+
+<details>
+  <summary>Expand this section if you prefer to manually install Lattice2</summary>
+  
+1. Download the workbench. There are several ways to do this, you can choose either:  
+  * Scroll to the top of the page, and click 'clone or download' -> 'download zip' button  
+  * `git clone https://github.com/DeepSOIC/Lattice2`
+2. If you downloaded the .zip, unpack the archive and rename it to `Lattice2`. If you used `git clone` then ignore this step. 
+3. Move the newly created `Lattice2` directory to where your default FreeCAD install directory is located:  
   * Windows: (sytem-wide install) `%AppData%\FreeCAD\Mod\Lattice2`  
   * Windows: (for individual installs)
     `C:\Program Files\FreeCAD\Mod\Lattice2`
@@ -69,29 +76,35 @@ There are several options to automate installation of this workbench.
   * MacOS: `~/.FreeCAD/Mod/Lattice2`  
 3. Restart FreeCAD  
 
-**Important Note:** Make sure that `InitGui.py` (and the rest of `.py` files)  end up directly under `Mod\Lattice2` directory (not under nested directory like `Mod\Lattice2\Lattice2`).
+**Important Note:** Make sure that `InitGui.py` (and the rest of `.py` files) end up directly under `Mod\Lattice2` directory (**not** under nested directory like `Mod\Lattice2\Lattice2`).
 
-Usage: 
-After installing the workbench and restarting FC, Lattice2 should now appear in the workbench dropdown menu. It will be listed down towards the bottom of list. You can learn Lattice2 through the [Basic Tutorial](https://github.com/DeepSOIC/Lattice2/wiki/Basic-Tutorial) now.
+</details>
+
+## Usage
+
+After installing the workbench and restarting FC, Lattice2 should now appear in the workbench dropdown menu. It will be listed down towards the bottom of list. Now, you can familiarize yourself with Lattice2 through the [Basic Tutorial](https://github.com/DeepSOIC/Lattice2/wiki/Basic-Tutorial).
 
 Side Note: If you want to install the workbench for development, `git clone` the repository wherever you like, and make a symlink in where FreeCAD can pick it up as an add-on. 
 
-# Status
+## Status
 
 The workbench is stable. I will take care to not make breaking changes, and some new functionality may keep coming.
 
 If you make your FreeCAD project using Lattice2, all further changes to the project must be done with Lattice2 installed, even if you don't touch the relevant features. Otherwise, the parametric features in the project will lose their bound functionality, and will not recompute, even if you install Lattice2 later. This is the case for all add-ons in FreeCAD, not just Lattice2.
 
-# Getting Help
+## Getting Help
 
-Documentation: see [Lattice2 wiki](https://github.com/DeepSOIC/Lattice2/wiki) on Github. As the word "wiki" suggests, you can help by editing the documentation.
+For Documentation see the [Lattice2 wiki](https://github.com/DeepSOIC/Lattice2/wiki) on Github. As the word "wiki" suggests, you can help by editing the documentation.
 
-If you need help on something specific, you can ask a question on [FreeCAD forum](http://forum.freecadweb.org/) (there is no Lattice forum yet...). You can also ask me directly. If you post to the forum, please add this to your post so that I get a notification: `[quote=DeepSOIC user_id=3888]Ding![/quote]`
+If you need help on something specific, you can ask a question on [FreeCAD forum](http://forum.freecadweb.org/) (there is no Lattice forum yet...). You can also ask me directly. **Note:** If you post to the forum, please add this to your post so that I get a notification:  
+`[quote=DeepSOIC user_id=3888]Ding![/quote]`
 
-If you have found a bug, report it [here, in Github's issue tracker for Lattice2](https://github.com/DeepSOIC/Lattice2/issues). You can also post ideas for new features there, as well as plain questions.
+## Contributing
 
-If you have fixed a bug, or implemented a new feature you think suits the workbench, or whatever - feel free to make a pull-request here on Github.
+If you have found a bug or are requesting a new feature, please first check to see if it has been previously reported already on the [Lattice2 Github repo issue tracker](https://github.com/DeepSOIC/Lattice2/issues). If not, feel free to open a ticket.
 
-# License
+If you have fixed a bug or implemented a new feature you think suits the workbench, feel free to make a pull-request on Github.
+
+## License
 
 Lattice workbench is licensed under LGPL V2, just like FreeCAD. For more info, see [copying.lib](copying.lib) file in this repository.
