@@ -92,7 +92,7 @@ class LatticeScLERP(lattice2BaseFeature.LatticeFeature):
         #  prepare lists of input samples
                 
         def plmByVal(val):
-            return plm1.sclerp(val, plm2, host.Shorten)
+            return plm1.sclerp(plm2, val, host.Shorten)
 
         output = [plmByVal(val) for val in values]
 
