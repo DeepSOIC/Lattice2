@@ -315,7 +315,7 @@ class _CommandLatticePopulateChildren_Move:
                 infoMessage("Move children",
                     "Moved Children command. Creates a compound from another compound, by moving its children.\n\n"+
                     "Each child is moved from one placement to another placement. Please select a compound, then a placement/array to move from, and  an array of placements to move to (order matters).\n"+
-                    "An array of placements can be used insead of a compound.")
+                    "An array of placements can be used instead of a compound.")
                 return
             cmdPopulate_shapes_FromTo()
         except Exception as err:
@@ -350,4 +350,3 @@ if FreeCAD.GuiUp:
 exportedCommands = ['Lattice2_PopulateChildrenGroupCommand']
 
 # -------------------------- /Gui command --------------------------------------------------
-
