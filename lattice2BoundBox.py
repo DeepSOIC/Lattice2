@@ -113,7 +113,7 @@ class _BoundBox:
         obj.CompoundTraversal = ["Use as a whole","Direct children only","Recursive"]
         obj.CompoundTraversal = "Use as a whole"
 
-        obj.addProperty("App::PropertyBool","Precision","BoundBox","Use precise alorithm (slower).")
+        obj.addProperty("App::PropertyBool","Precision","BoundBox","Use precise algorithm (slower).")
         obj.Precision = True
         
         obj.addProperty("App::PropertyEnumeration","OrientMode","BoundBox","Choose the orientation of bounding boxes to be made.")
