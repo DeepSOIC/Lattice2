@@ -125,7 +125,7 @@ class LatticeFeature(object):
         # Auto-On an Auto-Off can be modified when recomputing. Force values are going to stay.
         
         prop = "ExposePlacement"
-        obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the placement synchronized to Placement property. This will oftem make this object unmovable. Not applicable to arrays.")
+        obj.addProperty("App::PropertyBool",prop,"Lattice","Makes the placement synchronized to Placement property. This will often make this object unmovable. Not applicable to arrays.")
 
         self.derivedInit(obj)
         
