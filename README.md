@@ -1,4 +1,6 @@
 # Lattice2 Workbench
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/DeepSOIC/Lattice2.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/DeepSOIC/Lattice2/alerts/) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/DeepSOIC/Lattice2.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/DeepSOIC/Lattice2/context:python)  
+
 Lattice Workbench is a plug-in module/addon (workbench) for FreeCAD.
 
 It's purpose is working with placements and arrays of placements. It functions similar to what an Assembly workbench does, but with emphasis on arrays. There are **no** constraints and relations, there are just arrays of placements that can be generated, combined, transformed, superimposed, and populated with shapes. 
