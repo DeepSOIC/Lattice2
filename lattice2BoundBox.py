@@ -114,7 +114,7 @@ class _BoundBox:
         obj.CompoundTraversal = "Use as a whole"
 
         obj.addProperty("App::PropertyBool","Precision","BoundBox","Use precise algorithm (slower).")
-        obj.Precision = True
+        obj.Precision = False
         
         obj.addProperty("App::PropertyEnumeration","OrientMode","BoundBox","Choose the orientation of bounding boxes to be made.")
         obj.OrientMode = ["global","local of compound","local of child","use OrientLink"]
@@ -254,7 +254,7 @@ class _ViewProviderBoundBox:
 
 def CreateBoundBox(ShapeLink, 
                    CompoundTraversal = "Use as a whole", 
-                   Precision = True, 
+                   Precision = False, 
                    OrientMode = "global",
                    OrientLink = None):
     
