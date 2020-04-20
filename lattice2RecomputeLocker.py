@@ -365,7 +365,6 @@ class _CommandTouch:
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_Touch.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Touch selected features"),
-                'Accel': "Shift+F5",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Touch selected features: mark selected features as needing recomputing."),
                 'CmdType':"ForEdit"}
         
