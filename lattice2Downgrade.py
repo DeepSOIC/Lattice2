@@ -22,10 +22,10 @@
 #***************************************************************************
 
 from lattice2Common import *
+from lattice2Utils import getAnnotatedShapes
 import lattice2Markers as markers
 import lattice2CompoundExplorer as LCE
 from lattice2BaseFeature import assureProperty #assureProperty(self, selfobj, proptype, propname, defvalue, group, tooltip)
-import re
 import logging
 
 import math
@@ -70,40 +70,47 @@ example = """
 # In the stack representations below, the topmost element is on the right.
 
 # <instruction> : <stack before> : <stack after> : description
-# QUOTE         : ...              : ... closure     : quotes the following instructions until "QUOTE END" for later use via CALL, PARTIAL or a higher-order function like MAP
-# END QUOTE                                      : ends quotation mode
-# CALL          : ... closure      : ...UpdatedStack : calls the closure and lets it manipulate the stack (no protection). The closure's saved stack is appended, so its instructions start executing with the stack "... saved"
-# PARTIAL       : ... arg closure  : ... closure'    : adds the arg on top of the saved stack of the closure
-# DEBUG         : ...              : ...             : prints the current stack
-# MAP           : ... list closure : ... list'       : calls the closure for each of the elements of the list. The closure's instructions are executed with the stack "... saved elt". After each call, the top of the stack is popped and stored in a list. This list is left as the top of the stack at the end
-# FILTER        : ... list closure : ... list'       : calls the closure for each of the elements of the list. The closure's instructions are executed with the stack "... saved elt". After each call, the top of the stack is popped and if it is true, the original element is added to a list. This list is left as the top of the stack at the end
-# STR some text : ...              : ... string      : pushes "some text" on the stack. The entire line is pushed after removing the first four characters "STR "
-# FLOAT 3.14    : ...              : ... float       : pushes 3.14 on the stack
-# INT 123       : ...              : ... int         : pushes 123 on the stack
-# BOOL True     : ...              : ... bool        : pushes True on the stack. Booleans are True or False
-# NOT           : ... bool         : ... bool        : pops the top of the stack which must be a boolean, and pushes back its negation
-# EQUAL         : ... t t          : ... bool        : pops two elements, pushes True if top == bot, False otherwise. Comparing elements of different types will always return False.
-# LT            : ... t t          : ... bool        : pops two elements, pushes True if top <  bot, False otherwise. Comparing elements of different types will always return False.
-# GT            : ... t t          : ... bool        : pops two elements, pushes True if top >  bot, False otherwise. Comparing elements of different types will always return False.
-# LE            : ... t t          : ... bool        : pops two elements, pushes True if top <= bot, False otherwise. Comparing elements of different types will always return False.
-# GE            : ... t t          : ... bool        : pops two elements, pushes True if top >= bot, False otherwise. Comparing elements of different types will always return False.
-# DROP          : ... t            : ...             : pops the top of the stack and discards it
-# DUP           : ... t            : ... t t         : pops the top of the stack, and pushes it back twice (duplication of the top of the stack)
-# SWAP          : ... t u          : ... u t         : pops two elements, and pushes them back in reverse order
-# PAIR          : ... t u          : ... pair        : pops two elements, and pushes a pair containing these two elements
-# UNPAIR        : ... pair         : ... t u         : pops a pair and pushes its two elements back onto the stack
-# NIL           : ...              : ... list        : pushes the empty list onto the stack
-# CONS          : ... list t       : ... list        : pops two elements, adds the top at the head of the bot, and pushes back the new list
-# UNCONS        : ... list         : ... list t      : pops the top of the stack which must be a list, and pushes back the tail of the list and its first element
-# NOP           : ...              : ...             : No operation (NOOP is also accepted)
-# SET xyz       : ... t            : ...             : pops the top of the stack, and saves it as a global variable named xyz
-# GET xyz       : ...              : ... t           : pushes the contents of the global variable xyz on top of the stack
-# .Annotation   : ... geometry     : ... string      : gets the annotation from the given geometry element. Annotations are stored as dummy de-activated Block constraints named __theannotation.123 (where 123 is the constraint's ID). A separate macro allows setting these annotations.
-# .attribute    : ... t            : ... u           : gets the attribute from the object on the top of the stack. Allowed attributes are {allowed_attributes}
+# QUOTE            : ...                 : ... closure     : quotes the following instructions until "QUOTE END" for later use via CALL, PARTIAL or a higher-order function like MAP
+# END QUOTE                                             : ends quotation mode
+# CALL             : ... closure         : ...UpdatedStack : calls the closure and lets it manipulate the stack (no protection). The closure's saved stack is appended, so its instructions start executing with the stack "... saved"
+# PARTIAL          : ... arg closure     : ... closure'    : adds the arg on top of the saved stack of the closure
+# DEBUG            : ...                 : ...             : prints the current stack
+# MAP              : ... list closure    : ... list'       : calls the closure for each of the elements of the list. The closure's instructions are executed with the stack "... saved elt". After each call, the top of the stack is popped and stored in a list. This list is left as the top of the stack at the end
+# FILTER           : ... list closure    : ... list'       : calls the closure for each of the elements of the list. The closure's instructions are executed with the stack "... saved elt". After each call, the top of the stack is popped and if it is true, the original element is added to a list. This list is left as the top of the stack at the end
+# STR some text    : ...                 : ... string      : pushes "some text" on the stack. The entire line is pushed after removing the first four characters "STR "
+# FLOAT 3.14       : ...                 : ... float       : pushes 3.14 on the stack
+# INT 123          : ...                 : ... int         : pushes 123 on the stack
+# BOOL True        : ...                 : ... bool        : pushes True on the stack. Booleans are True or False
+# NOT              : ... bool            : ... bool        : pops the top of the stack which must be a boolean, and pushes back its negation
+# EQUAL            : ... t t             : ... bool        : pops two elements, pushes True if top == bot, False otherwise. Comparing elements of different types will always return False.
+# LT               : ... t t             : ... bool        : pops two elements, pushes True if top <  bot, False otherwise. Comparing elements of different types will always return False.
+# GT               : ... t t             : ... bool        : pops two elements, pushes True if top >  bot, False otherwise. Comparing elements of different types will always return False.
+# LE               : ... t t             : ... bool        : pops two elements, pushes True if top <= bot, False otherwise. Comparing elements of different types will always return False.
+# GE               : ... t t             : ... bool        : pops two elements, pushes True if top >= bot, False otherwise. Comparing elements of different types will always return False.
+# AND              : ... bool bool       : ... bool        : pops two booleans, pushes (top and bot)
+# OR               : ... bool bool       : ... bool        : pops two booleans, pushes (top or bot)
+# XOR              : ... bool bool       : ... bool        : pops two booleans, pushes (top xor bot)
+# NAND             : ... bool bool       : ... bool        : pops two booleans, pushes (top nand bot)
+# NOR              : ... bool bool       : ... bool        : pops two booleans, pushes (top nor bot)
+# NXOR             : ... bool bool       : ... bool        : pops two booleans, pushes (top nxor bot)
+# DROP             : ... t               : ...             : pops the top of the stack and discards it
+# DUP              : ... t               : ... t t         : pops the top of the stack, and pushes it back twice (duplication of the top of the stack)
+# SWAP             : ... t u             : ... u t         : pops two elements, and pushes them back in reverse order
+# PAIR             : ... t u             : ... pair        : pops two elements, and pushes a pair containing these two elements
+# UNPAIR           : ... pair            : ... t u         : pops a pair and pushes its two elements back onto the stack
+# NIL              : ...                 : ... list        : pushes the empty list onto the stack
+# CONS             : ... list t          : ... list        : pops two elements, adds the top at the head of the bot, and pushes back the new list
+# UNCONS           : ... list            : ... list t      : pops the top of the stack which must be a list, and pushes back the tail of the list and its first element
+# NOP              : ...                 : ...             : No operation (NOOP is also accepted)
+# SET xyz          : ... t               : ...             : pops the top of the stack, and saves it as a global variable named xyz
+# GET xyz          : ...                 : ... t           : pushes the contents of the global variable xyz on top of the stack
+# .Annotations.xyz : ... annotated_shape : ... string      : gets the annotation from the given geometry element. Annotations are stored as dummy de-activated Block constraints named __theannotation.123 (where 123 is the constraint's ID) and some extra annotations are supplied by some Python objects (e.g. .Annotations.Geometry for sketches). A separate macro allows setting these annotations.
+# .attribute       : ... geometry        : ... u           : gets the attribute from the object on the top of the stack. Allowed attributes are {allowed_attributes}
 
 # The initial stack contains a list of sketch geometry elements.
 
 QUOTE
+  .Annotations.Geometry
   .Construction
   NOT
 END QUOTE
@@ -111,18 +118,18 @@ FILTER
 """
 example = example.format(allowed_attributes=",".join(sorted(["%s (%s)" % (k,v) for k,v in allowed_attributes.items()])))
 
-def interpret_map(stack, env, closure, lst, edge_annotations):
+def interpret_map(stack, env, closure, lst):
   result = []
   for elt in lst:
-     stack, env = interpret(stack + closure[1] + [elt], env, closure[0], edge_annotations)
+     stack, env = interpret(stack + closure[1] + [elt], env, closure[0])
      result.append(stack[-1])
      stack = stack[:-1]
   return (stack + [('list', result)], env)
 
-def interpret_filter(stack, env, closure, lst, edge_annotations):
+def interpret_filter(stack, env, closure, lst):
   result = []
   for elt in lst:
-     stack, env = interpret(stack + closure[1] + [elt], env, closure[0], edge_annotations)
+     stack, env = interpret(stack + closure[1] + [elt], env, closure[0])
      if stack[-1][0] != 'bool':
        raise ValueError("closure passed as an argument to filter should return a bool, but it returned a " + str(stack[-1][0]))
      if stack[-1][1] == True:
@@ -134,30 +141,44 @@ def interpret_filter(stack, env, closure, lst, edge_annotations):
      stack = stack[:-1]
   return (stack + [('list', result)], env)
 
-def interpret(stack, env, program, edge_annotations):
-  quoting = False
+boolOperations = {
+  'AND':  (lambda x, y: x and y),
+  'OR':   (lambda x, y: x or  y),
+  'XOR':  (lambda x, y: (x or y) and (not (x and y))),
+  'NAND': (lambda x, y: not (x and y)),
+  'NOR':  (lambda x, y: not (x or  y)),
+  'NXOR': (lambda x, y: (x and y) or (not (x or y)))
+}
+
+def interpret(stack, env, program):
+  quoting = 0
   for line in program:
     if line.strip() == '':
       pass # no-op
 
     # quotations
-    elif quoting and line == 'END QUOTE':
-      quoting = False
-    elif quoting and line == 'QUOTE':
-      raise ValueError("nested quotes are not allowed, use PARTIAL instead")
-    elif quoting:
+    elif quoting > 0:
       if stack[-1][0] != 'closure':
         raise ValueError("while in quote mode the top of the stack should be a closure")
-      stack[-1] = ('closure', (stack[-1][1][0] + [line], stack[-1][1][1]))
+      if line == 'END QUOTE':
+        quoting = quoting - 1
+      elif line == 'QUOTE':
+        quoting = quoting + 1
+
+      if quoting > 0: # if this wasn't the last 'END QUOTE', i.e. after decrementing we're still quoting, then add the instruction to the closure
+        stack[-1] = ('closure', (stack[-1][1][0] + [line], stack[-1][1][1]))
+      else:
+        pass
+
     elif line == 'QUOTE':
       stack.append(('closure', ([],[])))
-      quoting = True
+      quoting = 1
 
     # functions
     elif line == 'CALL':
       if stack[-1][0] != "closure":
         raise ValueError("CALL expected a closure")
-      stack, env = interpret(stack[:-1] + stack[-1][1][1], env, stack[-1][1][0], edge_annotations)
+      stack, env = interpret(stack[:-1] + stack[-1][1][1], env, stack[-1][1][0])
     elif line == 'PARTIAL':
       # push stack[-2] onto the closure's stack
       if stack[-1][0] != "closure":
@@ -169,14 +190,14 @@ def interpret(stack, env, program, edge_annotations):
       if stack[-2][0] != "list":
         raise ValueError("MAP expected a list as the second (deeper) element on the stack")
       closure = stack[-1][1]
-      stack, env = interpret_map(stack[:-2], env, stack[-1][1], stack[-2][1], edge_annotations)
+      stack, env = interpret_map(stack[:-2], env, stack[-1][1], stack[-2][1])
     elif line == 'FILTER':
       if stack[-1][0] != "closure":
         raise ValueError("FILTER expected a closure at the top of the stack")
       if stack[-2][0] != "list":
         raise ValueError("FILTER expected a list as the second (deeper) element on the stack")
       closure = stack[-1][1]
-      stack, env = interpret_filter(stack[:-2], env, stack[-1][1], stack[-2][1], edge_annotations)
+      stack, env = interpret_filter(stack[:-2], env, stack[-1][1], stack[-2][1])
 
     elif line == 'DEBUG':
       print('stack:')
@@ -207,6 +228,12 @@ def interpret(stack, env, program, edge_annotations):
       stack = stack[:-2] + [("bool", stack[-1] <= stack[-2])]
     elif line == 'GE':
       stack = stack[:-2] + [("bool", stack[-1] >= stack[-2])]
+    elif line in boolOperations:
+      if stack[-1][0] != "bool":
+        raise ValueError(line + " expected a boolean at the top of the stack")
+      if stack[-2][0] != "bool":
+        raise ValueError(line + " expected a boolean as the second (deeper) element on the stack")
+      stack = stack[:-2] + [("bool", boolOperations[line](stack[-1], stack[-2]))]
     elif line == 'DROP':
       stack = stack[:-1]
     elif line == 'DUP':
@@ -236,33 +263,32 @@ def interpret(stack, env, program, edge_annotations):
       stack = stack[:-1]
     elif line.startswith('GET '):
       stack.append(env[line[len('GET '):]])
-    elif line == '.Annotation':
-      if stack[-1][0] != "geometry":
-        raise ValueError(".Annotation expected a geometry elemnt")
-      stack = stack[:-1] + [('string', edge_annotations.get(stack[-1][1][0], None))]
+    elif line.startswith('.Annotations.'):
+      annotationName = line[len('.Annotations.'):]
+      if stack[-1][0] != "annotated_shape":
+        raise ValueError(".Annotations expected an annotated shape")
+      stack = stack[:-1] + [stack[-1][1][1].get(annotationName, ('none', None))]
     elif line in allowed_attributes.keys():
       if stack[-1][0] != "geometry":
         raise ValueError(line + " expected a geometry elemnt")
       stack = stack[:-1] + [(allowed_attributes[line], getattr(stack[-1][1][1], line[1:]))]
     else:
-      raise ValueError('Unknown operation: "' + line + '"' + repr(line) + ". " + str(line.strip() == '') + "; " + str(len(line)))
+      raise ValueError('Unknown operation: "' + line + '", repr=' + repr(line) + ". empty after strip=" + str(line.strip() == '') + ", len=" + str(len(line)))
   return stack, env
 
 def user_filter(filter, sketch):
   filter = [line.lstrip() for line in filter]
   filter = [line for line in filter if not line.startswith('#')]
-  constraint_re_matches = [(c,re.match(r"^__(.*)\.[0-9]+$", c.Name)) for c in sketch.Constraints]
-  edge_annotations = dict((c.First,match.group(1)) for c,match in constraint_re_matches if match)
-  stack = [('list', [('geometry', (i, g)) for i, g in enumerate(sketch.Geometry)])]
-  stack, env = interpret(stack, {}, filter, edge_annotations)
+  stack = [('list', [('annotated_shape', sh) for sh in getAnnotatedShapes(sketch)])]
+  stack, env = interpret(stack, {}, filter)
   if len(stack) != 1:
     raise ValueError("The stack should contain a single element after applying the filter's operations.")
   if stack[0][0] != 'list':
     raise ValueError("The stack should contain a list after applying the filter's operations.")
   for i, (type, g) in enumerate(stack[0][1]):
-    if type != 'geometry':
-      raise ValueError("The stack should contain a list of geometry elemnents after applying the filter's operations, wrong type for list element " + str(i) + " : " + str(type))
-  return [g for type,(id,g) in stack[0][1]]
+    if type != 'annotated_shape':
+      raise ValueError("The stack should contain a list of annotated shape elemnents after applying the filter's operations, wrong type for list element " + str(i) + " : " + str(type))
+  return [shape for type,(shape,annotations) in stack[0][1]]
 
 
 class _latticeDowngrade:
@@ -318,7 +344,6 @@ class _latticeDowngrade:
             rst = shp.Edges
         elif obj.Mode == 'SketchEdges':
             rst = user_filter(obj.Filter, obj.Base)
-            rst = [g.toShape() for g in rst]
         elif obj.Mode == 'Seam edges':
             rst = getAllSeams(shp)
         elif obj.Mode == 'Non-seam edges':

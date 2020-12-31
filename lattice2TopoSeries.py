@@ -32,10 +32,12 @@ import FreeCAD as App
 import Part
 
 from lattice2Common import *
+from lattice2Utils import getAnnotatedShapes
 import lattice2BaseFeature
 import lattice2Executer as Executer
 import lattice2Markers as markers
 import lattice2Subsequencer as Subsequencer
+from lattice2BaseFeature import assureProperty #assureProperty(self, selfobj, proptype, propname, defvalue, group, tooltip)
 
 # --------------------------- general routines ------------------------------------------------
 
@@ -92,6 +94,13 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyEnumeration","Recomputing","Lattice TopoSeries","Sets recomputing policy.")
         obj.Recomputing = ["Disabled", "Recompute Once", "Enabled"]
         obj.Recomputing = "Disabled" # recomputing TopoSeries can be very long, so disable it by default
+
+        self.assureProperties(obj)
+
+    def assureProperties(self, selfobj):
+        # We cannot use a hidden PythonObject property, because it contains Edges and they are not serializable
+        #assureProperty(selfobj, "App::PropertyPythonObject", "AnnotatedShapes", [], "Lattice TopoSeries", "internal: stores the list of shapes with their annotations")
+        self.AnnotatedShapes = []
         
     def makeSubsequence(self, selfobj, object_to_loop):
         
@@ -128,6 +137,8 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
         if selfobj.Recomputing == "Disabled":
             raise ValueError(selfobj.Name+": recomputing of this object is currently disabled. Modify 'Recomputing' property to enable it.")
         try:            
+            allAnnotatedShapes = []
+            self.assureProperties(selfobj)
 
             # do the subsequencing in this document first, to verify stuff is set up correctly, and to obtain sequence length
             if self.isVerbose():
@@ -184,7 +195,7 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
                     doc2.recompute()
                     
                     #get shape
-                    shape = None
+                    annotatedShapes = None
                     for obj in doc2.Objects:
                         if 'Invalid' in obj.State:
                             Executer.error(obj,"Recomputing shape for subsequence index "+repr(i)+" failed.")
@@ -197,10 +208,11 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
                                 pass
                             if scale < DistConfusion * 100:
                                 scale = 1.0
-                            shape = markers.getNullShapeShape(scale)
-                    if shape is None:
-                        shape = object_to_take_in_doc2.Shape.copy()
-                    output_shapes.append(shape)
+                            annotatedShapes = [(markers.getNullShapeShape(scale), { 'IsNullShape': ('boolean', True) })]
+                    if annotatedShapes is None:
+                        annotatedShapes = getAnnotatedShapes(object_to_take_in_doc2)
+                    output_shapes.append(Part.Compound([sh for sh, ann in annotatedShapes]))
+                    allAnnotatedShapes.extend(annotatedShapes)
                     
                     #update progress
                     if bGui:
@@ -223,6 +235,7 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
 
                 
             selfobj.Shape = Part.makeCompound(output_shapes)
+            self.AnnotatedShapes = allAnnotatedShapes
 
             output_is_lattice = lattice2BaseFeature.isObjectLattice(screen(selfobj.ObjectToTake))
             if 'Auto' in selfobj.isLattice:
@@ -233,6 +246,12 @@ class LatticeTopoSeries(lattice2BaseFeature.LatticeFeature):
             if selfobj.Recomputing == "Recompute Once":
                 selfobj.Recomputing = "Disabled"
         return "suppress" # "suppress" disables most convenience code of lattice2BaseFeature. We do it because we build a nested array, which are not yet supported by lattice WB.
+
+    def getAnnotatedShapes(self, selfobj):
+        # The attribute is not serializable (because it contains Edges), so it is necessary to execute() the object at least once to get the AnnotatedShapes
+        if not hasattr(self, 'AnnotatedShapes'):
+            self.execute(selfobj)
+        return self.AnnotatedShapes
 
 class ViewProviderLatticeTopoSeries(lattice2BaseFeature.ViewProviderLatticeFeature):
 
