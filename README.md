@@ -101,6 +101,8 @@ For Documentation see the [Lattice2 wiki](https://github.com/DeepSOIC/Lattice2/w
 If you need help on something specific, you can ask a question on [FreeCAD forum](http://forum.freecadweb.org/) (there is no Lattice forum yet...). You can also ask me directly. **Note:** If you post to the forum, please add this to your post so that I get a notification:  
 `[quote=DeepSOIC user_id=3888]Ding![/quote]`
 
+NEW!: [Github Discussions for Lattice2](https://github.com/DeepSOIC/Lattice2/discussions) are enabled, you are welcome to ask questions and post random thoughts there!
+
 ## Contributing
 
 If you have found a bug or are requesting a new feature, please first check to see if it has been previously reported already on the [Lattice2 Github repo issue tracker](https://github.com/DeepSOIC/Lattice2/issues). If not, feel free to open a ticket.
