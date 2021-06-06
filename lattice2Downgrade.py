@@ -276,9 +276,30 @@ def interpret(stack, env, program):
       raise ValueError('Unknown operation: "' + line + '", repr=' + repr(line) + ". empty after strip=" + str(line.strip() == '') + ", len=" + str(len(line)))
   return stack, env
 
+def user_filter_old(filter, sketch):
+  filter = [line.lstrip() for line in filter.split('\n')]
+  filter = [line for line in filter if not line.startswith('#') and line != '']
+  stack = [('list', [('annotated_shape', sh) for sh in getAnnotatedShapes(sketch)])]
+  stack, env = interpret(stack, {}, filter)
+  if len(stack) != 1:
+    raise ValueError("The stack should contain a single element after applying the filter's operations.")
+  if stack[0][0] != 'list':
+    raise ValueError("The stack should contain a list after applying the filter's operations.")
+  for i, (type, g) in enumerate(stack[0][1]):
+    if type != 'annotated_shape':
+      raise ValueError("The stack should contain a list of annotated shape elemnents after applying the filter's operations, wrong type for list element " + str(i) + " : " + str(type))
+  return [shape for type,(shape,annotations) in stack[0][1]]
+
+def parse(str):
+  for c in str:
+    if c == '(':
+      pass
+    elif c == 'TODO':
+      pass
+
 def user_filter(filter, sketch):
-  filter = [line.lstrip() for line in filter]
-  filter = [line for line in filter if not line.startswith('#')]
+  filter = parse(filter)
+  #… TODO
   stack = [('list', [('annotated_shape', sh) for sh in getAnnotatedShapes(sketch)])]
   stack, env = interpret(stack, {}, filter)
   if len(stack) != 1:
@@ -343,7 +364,7 @@ class _latticeDowngrade:
         elif obj.Mode == 'Edges':
             rst = shp.Edges
         elif obj.Mode == 'SketchEdges':
-            rst = user_filter(obj.Filter, obj.Base)
+            rst = user_filter('\n'.join(obj.Filter), obj.Base)
         elif obj.Mode == 'Seam edges':
             rst = getAllSeams(shp)
         elif obj.Mode == 'Non-seam edges':
