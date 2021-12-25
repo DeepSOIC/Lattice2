@@ -86,8 +86,9 @@ def isObjectLattice(documentObject):
         ret = isObjectLattice(documentObject.Base)
     return ret
     
-def getMarkerSizeEstimate(ListOfPlacements):
-    '''getMarkerSizeEstimate(ListOfPlacements): computes the default marker size for the array of placements'''
+def getMarkerSizeEstimate(ListOfPlacements, feature = None):
+    '''getMarkerSizeEstimate(ListOfPlacements, feature = None): computes the default marker size for the array of placements.
+    If feauture is provided, marker size property will be assigned to viewer-based autosize if size based on array content is zero.'''
     if len(ListOfPlacements) == 0:
         return 1.0
     pathLength = 0
@@ -96,7 +97,10 @@ def getMarkerSizeEstimate(ListOfPlacements):
     sz = pathLength/len(ListOfPlacements)/2.0
     #FIXME: make hierarchy-aware
     if sz < DistConfusion*10:
-        sz = 1.0
+        from lattice2Base import Autosize
+        sz = Autosize.convenientMarkerSize()
+        if feature.MarkerSize == 0:
+            feature.MarkerSize = sz
     return sz
 
     
@@ -154,7 +158,7 @@ class LatticeFeature(object):
             shapes = []
             markerSize = obj.MarkerSize
             if markerSize < DistConfusion:
-                markerSize = getMarkerSizeEstimate(plms)
+                markerSize = getMarkerSizeEstimate(plms, obj)
             marker = lattice2Markers.getPlacementMarker(scale= markerSize, markerID= obj.MarkerShape)
             
             bExposing = False
