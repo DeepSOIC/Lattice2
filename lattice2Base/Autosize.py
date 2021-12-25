@@ -80,7 +80,7 @@ class ViewportInfo(object):
     viewport_size_px = (1800,1000) #width, height of viewport, in pixels
     viewport_size_mm = (1.8,1.0) #width, height of viewport (on focal plane), in mm
     mm_per_px = 1.0 / 1000.0 #rough mm-to-pixel ratio (accurate on focal plane)
-    false_viewport = False # if true, no actual viewport was queried (e.g. non-gui mode, or activeview is non-3d)
+    false_viewport = True # if true, no actual viewport was queried (e.g. non-gui mode, or activeview is non-3d)
     
     pickradius_px = 5
     pickradius_mm = 0.1
