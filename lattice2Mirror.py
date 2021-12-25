@@ -256,7 +256,7 @@ def CreateLatticeMirror(name, extra_code = ''):
 class CommandLatticeMirror:
     "Command to create LatticeMirror feature"
     def GetResources(self):
-        return {'Pixmap'  : getIconPath("Part_Mirror.svg"),
+        return {'Pixmap'  : getIconPath("Lattice2_Mirror.svg"),
                 'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2Mirror","Mirror"),
                 'Accel': "",
                 'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2Mirror","Lattice Mirror: mirror, inversion or 180-turn of placements and shapes")}
