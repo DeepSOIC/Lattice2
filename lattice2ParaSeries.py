@@ -201,7 +201,14 @@ class LatticeParaSeries(lattice2BaseFeature.LatticeFeature):
                 progress.show()
             
             doc1 = selfobj.Document
-            doc2 = App.newDocument()
+            doc2 = App.newDocument() #create temporary doc to do the computations
+            
+            # assign doc's filename before copying objects, otherwise we get errors with xlinks
+            try:
+                doc2.FileName = doc1.FileName
+            except Exception as err:
+                pass #in old FreeCADs, FileName property is read-only, we can safely ignore that
+            
             object_in_doc2 = None # define the variable, to prevent del() in finally block from raising another error
             try:
                 doc2.copyObject(screen(selfobj.Object), True)
