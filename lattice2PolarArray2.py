@@ -100,7 +100,7 @@ class PolarArray(APlm.AttachableFeature):
     def updateReadonlyness(self, selfobj):
         self.generator.updateReadonlyness()
         
-        arc = self.fetchArc(selfobj) 
+        arc = self.fetchArc(selfobj) if self.isOnArc(selfobj) else None 
         selfobj.setEditorMode('Radius', 1 if arc and selfobj.UseArcRadius else 0)
         self.generator.setPropertyWritable('SpanEnd', False if arc and selfobj.UseArcRange == 'as Span' else True)
         self.generator.setPropertyWritable('SpanStart', False if arc and selfobj.UseArcRange == 'as Span' else True)
@@ -121,7 +121,7 @@ class PolarArray(APlm.AttachableFeature):
         selfobj.positionBySupport()
         
         # Apply links
-        if selfobj.UseArcRange != 'ignore' or selfobj.UseArcRadius:
+        if (selfobj.UseArcRange != 'ignore' or selfobj.UseArcRadius) and self.isOnArc(selfobj):
             range, radius = self.fetchArc(selfobj)
             if selfobj.UseArcRange == 'as Span':
                 selfobj.SpanStart = 0.0
