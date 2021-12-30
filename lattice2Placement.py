@@ -48,7 +48,7 @@ class LatticePlacement(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyEnumeration","PlacementChoice","Lattice Placement","Choose one of standard placements here.")
         obj.PlacementChoice = self._PlacementChoiceList
         
-        obj.addProperty("App::PropertyLength","Offset","Lattice Placement","Offset from oigin for XY/XZ/YZ plane modes")
+        obj.addProperty("App::PropertyLength","Offset","Lattice Placement","Offset from origin for XY/XZ/YZ plane modes")
         
         obj.addProperty("App::PropertyBool","FlipZ","Lattice Placement","Set to true to flip Z axis (also flips Y)")
         

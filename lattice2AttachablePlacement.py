@@ -123,7 +123,7 @@ class AttachedPlacementSubsequence(lattice2BaseFeature.LatticeFeature):
         
         obj.addProperty("App::PropertyLink", "Base", "Lattice Attached Placement Subsequence", "Link to Lattice Attached Placement, which is to be subsequenced.")
         obj.addProperty("App::PropertyString", "RefIndexFilter","Lattice Attached Placement Subsequence","Sets which references of attachment to cycle through children. '0000' = no cycle, '1000' = cycle only ref1. '' = cycle all if possible")
-        obj.addProperty("App::PropertyEnumeration", "CycleMode","Lattice Attached Placement Subsequence", "How to cycle through chidren. Open = advance each link till one reaches the end of array. Periodic = if array end reached, continue from begin if any children left.")
+        obj.addProperty("App::PropertyEnumeration", "CycleMode","Lattice Attached Placement Subsequence", "How to cycle through children. Open = advance each link till one reaches the end of array. Periodic = if array end reached, continue from begin if any children left.")
         obj.CycleMode = ['Open','Periodic']
         
     def derivedExecute(self,obj):

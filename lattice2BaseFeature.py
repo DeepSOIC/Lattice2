@@ -88,7 +88,7 @@ def isObjectLattice(documentObject):
     
 def getMarkerSizeEstimate(ListOfPlacements, feature = None):
     '''getMarkerSizeEstimate(ListOfPlacements, feature = None): computes the default marker size for the array of placements.
-    If feauture is provided, marker size property will be assigned to viewer-based autosize if size based on array content is zero.'''
+    If feature is provided, marker size property will be assigned to viewer-based autosize if size based on array content is zero.'''
     if len(ListOfPlacements) == 0:
         return 1.0
     pathLength = 0
