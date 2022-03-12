@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<package format="1" xmlns="https://wiki.freecad.org/Package_Metadata">
+  <name>Lattice2 Workbench</name>
+  <description>Tools and arrays of all sorts and kinds, and local coordinate systems</description>
+  <version>1.0</version>
+  <date>2022-03-12</date>
+  <maintainer email="vv.titov@gmail.com">DeepSOIC</maintainer>
+  <license file="LICENSE">LGPLv2</license>
+  <url type="repository" branch="main">https://github.com/DeepSOIC/Lattice2</url>
+  <url type="bugtracker" branch="main">https://github.com/DeepSOIC/Lattice2/issues</url>
+  <url type="documentation" branch="main">https://github.com/DeepSOIC/Lattice2/wiki</url>
+  <icon>PyResources/icons/Lattice2.svg</icon> <!-- If you include your icon here, you don't have to submit it to the main FreeCAD repo -->
+
+  <content>
+    <workbench>
+      <classname>Lattice2Workbench</classname>
+      <subdirectory>./</subdirectory>
+    </workbench>
+    <tag>array</tag>
+    <tag>assembly</tag>
+  </content>
+
+</package>
