@@ -15,9 +15,9 @@
     <workbench>
       <classname>Lattice2Workbench</classname>
       <subdirectory>./</subdirectory>
+      <tag>array</tag>
+      <tag>assembly</tag>
     </workbench>
-    <tag>array</tag>
-    <tag>assembly</tag>
   </content>
 
 </package>
