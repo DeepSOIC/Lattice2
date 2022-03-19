@@ -6,9 +6,9 @@
   <date>2022-03-12</date>
   <maintainer email="vv.titov@gmail.com">DeepSOIC</maintainer>
   <license file="LICENSE">LGPLv2</license>
-  <url type="repository" branch="main">https://github.com/DeepSOIC/Lattice2</url>
-  <url type="bugtracker" branch="main">https://github.com/DeepSOIC/Lattice2/issues</url>
-  <url type="documentation" branch="main">https://github.com/DeepSOIC/Lattice2/wiki</url>
+  <url type="repository" branch="master">https://github.com/DeepSOIC/Lattice2</url>
+  <url type="bugtracker">https://github.com/DeepSOIC/Lattice2/issues</url>
+  <url type="documentation" branch="master">https://github.com/DeepSOIC/Lattice2/wiki</url>
   <icon>PyResources/icons/Lattice2.svg</icon> <!-- If you include your icon here, you don't have to submit it to the main FreeCAD repo -->
 
   <content>
