@@ -48,12 +48,12 @@ def setParameter(doc, strParameter, value, get_not_set = False):
     objname = pieces[0]
     obj_to_modify = doc.getObject(objname)
     if obj_to_modify is None:
-        raise ValueError(selfobj.Name+": failed to get the object named '"+objname+"'. Maybe you had put in its label instead?..")
+        raise ValueError("failed to get the object named '"+objname+"'. Maybe you had put in its label instead?..")
     
     if obj_to_modify.isDerivedFrom("Spreadsheet::Sheet"):
         # SPECIAL CASE: spreadsheet cell
         if len(pieces) != 2:
-            raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
+            raise ValueError("failed to parse parameter reference: "+refstr )
         oldval = obj_to_modify.get(pieces[1])
         if get_not_set:
             return oldval
@@ -62,7 +62,7 @@ def setParameter(doc, strParameter, value, get_not_set = False):
     elif obj_to_modify.isDerivedFrom("Sketcher::SketchObject") and pieces[1] == "Constraints":
         # SPECIAL CASE: sketcher constraint
         if len(pieces) != 3:
-            raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
+            raise ValueError("failed to parse parameter reference: "+refstr )
         oldval = obj_to_modify.getDatum(pieces[2])
         if get_not_set:
             return oldval
@@ -76,7 +76,7 @@ def setParameter(doc, strParameter, value, get_not_set = False):
     else:
         # All other non-special cases: properties or subproperties of objects
         if len(pieces) < 2:
-            raise ValueError(selfobj.Name + ": failed to parse parameter reference: "+refstr )
+            raise ValueError("failed to parse parameter reference: "+refstr )
         # Extract property, subproperty, subsub... FreeCAD doesn't track mutating returned objects, so we need to mutate them and write back explicitly.
         stack = [obj_to_modify]
         for piece in pieces[1:-1]:
