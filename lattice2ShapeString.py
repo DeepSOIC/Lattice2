@@ -90,6 +90,7 @@ class FoolFeatureDocumentObject:
     def addProperty(self, proptype, propname, group = None, hint = None):
         setattr(self,propname,None)
         self.properties.append((proptype, propname, group, hint))
+        return self
     
     def positionBySupport(self):
         return False
