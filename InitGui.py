@@ -58,6 +58,7 @@ class Lattice2Workbench (Workbench):
             + Lattice2.ArrayFeatures.AttachablePlacement.exportedCommands
             + Lattice2.ArrayFeatures.LinearArray.exportedCommands
             + Lattice2.ArrayFeatures.PolarArray2.exportedCommands
+            + Lattice2.ArrayFeatures.PlacementShooter.exportedCommands
             + Lattice2.ArrayFeatures.ArrayFromShape.exportedCommands
             + Lattice2.ArrayFeatures.Invert.exportedCommands
             + Lattice2.ArrayFeatures.JoinArrays.exportedCommands

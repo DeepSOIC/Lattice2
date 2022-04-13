@@ -7,6 +7,7 @@ import lattice2Invert               as Invert
 import lattice2JoinArrays           as JoinArrays      
 import lattice2LinearArray          as LinearArray     
 import lattice2Placement            as Placement       
+import lattice2PlacementShooter     as PlacementShooter
 import lattice2PolarArray           as PolarArray      
 import lattice2PolarArray2          as PolarArray2
 import lattice2PopulateChildren     as PopulateChildren
