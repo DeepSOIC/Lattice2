@@ -1,0 +1,5 @@
+<RCC>
+    <qresource>
+        <file alias="/ui/lattice2-pref-general.ui">lattice2-pref-general.ui</file>
+    </qresource>
+</RCC> 

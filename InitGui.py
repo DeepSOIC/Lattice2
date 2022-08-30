@@ -32,6 +32,9 @@ __Status__ = 'alpha'
 __Requires__ = 'freecad 0.16.5155'
 __Communication__ = 'vv.titov@gmail.com; DeepSOIC on FreeCAD forum'
 
+import lattice2_rc_minimal
+import lattice2Preferences
+
 import lattice2InjectedToolbars as TB
 TB.registerPDToolbar()
 
