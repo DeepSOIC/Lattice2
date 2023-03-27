@@ -1,6 +1,6 @@
 <RCC>
     <qresource>
         <file>icons/Lattice2.svg</file>
-        <file alias="/icons/preferences-lattice2.svg">icons/Lattice2.svg</file>
+        <file alias="icons/preferences-lattice2.svg">icons/Lattice2.svg</file>
     </qresource>
 </RCC> 
