@@ -36,6 +36,15 @@ import FreeCAD as App
 import math
 from math import radians
 
+def prefAutoPos():
+    return App.ParamGet('User parameter:BaseApp/Preferences/Mod/Lattice2/Autosize').GetBool('AutoPosition', True)
+
+def prefMarkerAdj():
+    return App.ParamGet('User parameter:BaseApp/Preferences/Mod/Lattice2/Autosize').GetFloat('MarkerAdj', 1.0)
+def prefFeatureAdj():
+    return App.ParamGet('User parameter:BaseApp/Preferences/Mod/Lattice2/Autosize').GetFloat('FeatureAdj', 1.0)
+def prefModelAdj():
+    return App.ParamGet('User parameter:BaseApp/Preferences/Mod/Lattice2/Autosize').GetFloat('ModelAdj', 1.0)
 
 def convenientModelWidth():
     """convenientModelWidth(): returns a size that will conveniently fit in the width of screen"""
@@ -140,7 +149,7 @@ class Autosize(ViewportInfo):
     def convenientModelWidth(self):
         """convenientModelWidth(): returns a size that will conveniently fit in the width of screen"""
         try:
-            return Rounder.roundToNiceValue(self._convenientModelWidth())
+            return Rounder.roundToNiceValue(self._convenientModelWidth() * prefModelAdj())
         except Exception as err:
             _printTraceback(err)
             return 10.0
@@ -148,7 +157,7 @@ class Autosize(ViewportInfo):
     def convenientModelSize(self):
         """convenientModelSize(): returns a size of a box that will conveniently fit in the screen"""
         try:
-            return Rounder.roundToNiceValue(self._convenientModelSize())
+            return Rounder.roundToNiceValue(self._convenientModelSize() * prefModelAdj())
         except Exception as err:
             _printTraceback(err)
             return 10.0
@@ -164,7 +173,7 @@ class Autosize(ViewportInfo):
     def convenientMarkerSize(self):
         """convenientMarkerSize(): size of object to be able to comfortably select faces"""
         try:
-            return Rounder.roundToNiceValue(self._convenientMarkerSize())
+            return Rounder.roundToNiceValue(self._convenientMarkerSize() * prefMarkerAdj())
         except Exception as err:
             _printTraceback(err)
             return 1.0
@@ -172,12 +181,19 @@ class Autosize(ViewportInfo):
     def convenientFeatureSize(self):
         """convenientFeatureSize(): size in between marker size and model size. Should be reasonable to edit, but not fill the whole screen."""
         try:
-            return Rounder.roundToNiceValue(self._convenientFeatureSize())
+            return Rounder.roundToNiceValue(self._convenientFeatureSize() * prefFeatureAdj())
         except Exception as err:
             _printTraceback(err)
             return 5.0
     
-    def convenientPosition(self):
+    def convenientPosition(self, anyway = False):
+        """convenientPosition(self, anyway = False): returns a point in space that is visible in the view. 
+        If origin is visible, it is returned. If auto position is off in preferences, 
+        always returns 0, use 'anyway' argument to bypass."""
+        
+        if prefAutoPos() and not anyway:
+            return App.Vector()
+        
         try:
             if self.isPointInWorkingArea(getLocalOriginPosition()):
                 return App.Vector()

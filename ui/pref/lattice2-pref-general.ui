@@ -99,7 +99,7 @@
         <item>
          <widget class="Gui::PrefDoubleSpinBox" name="gui::prefdoublespinbox_3">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="toolTip">
            <string>Adjusts default size of placement marker (only applied to single placements, not arrays).</string>
@@ -154,7 +154,7 @@
         <item>
          <widget class="Gui::PrefDoubleSpinBox" name="gui::prefdoublespinbox_4">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="toolTip">
            <string>Adjusts default size of features</string>
@@ -209,7 +209,7 @@
         <item>
          <widget class="Gui::PrefDoubleSpinBox" name="gui::prefdoublespinbox_5">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="toolTip">
            <string>Adjusts default size of big features, such as arrays of placements</string>
@@ -242,7 +242,7 @@
       <item>
        <widget class="Gui::PrefCheckBox" name="gui::PrefCheckBox_6">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
          <string>If off, new features will be created at the origin. If on, and the origin is off screen, the object will be created placed so that it is on the screen.</string>
@@ -251,7 +251,7 @@
          <string>enable auto positioning</string>
         </property>
         <property name="checked">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="prefEntry" stdset="0">
          <cstring>AutoPosition</cstring>
