@@ -44,5 +44,6 @@ except Exception as err:
     rev_number = 10000000
 
 attach_extension_era = rev_number >= 9177
+no_extension_proxy_era = rev_number >= 23869
 
 del App

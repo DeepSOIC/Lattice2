@@ -56,7 +56,10 @@ class AttachableFeature(lattice2BaseFeature.LatticeFeature):
     def derivedInit(self,obj):
         if Compat.attach_extension_era:
             if not obj.hasExtension('Part::AttachExtension'): #PartDesign-related hack: the placement already has attachextension if created in PD
-                obj.addExtension('Part::AttachExtensionPython', None)
+                if Compat.no_extension_proxy_era:
+                    obj.addExtension('Part::AttachExtensionPython')
+                else:
+                    obj.addExtension('Part::AttachExtensionPython', None)
         
     def onDocumentRestored(self, selfobj):
         #PartDesign-related hack: this dummy override disables disabling of attacher
