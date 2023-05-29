@@ -71,7 +71,7 @@ class PolarArray(APlm.AttachableFeature):
         selfobj.UseArcRange = ['ignore', 'as Span', 'as Step']
         selfobj.addProperty('App::PropertyBool', 'UseArcRadius', "Polar Array", "If True, and attachment mode is concentric, supporting arc's radius is used as array radius.")
         selfobj.addProperty('App::PropertyEnumeration','OrientMode',"Polar Array","Orientation of placements. Zero - aligns with origin. Static - aligns with self placement.")
-        selfobj.OrientMode = ['Zero', 'Static', 'Radial', 'Vortex', 'Centrifuge', 'Launchpad', 'Dominoes']
+        selfobj.OrientMode = ['Zero', 'Static', 'Radial', 'Vortex', 'Centrifuge', 'Launchpad', 'Dominoes', 'Roll']
         selfobj.OrientMode = 'Radial'
         selfobj.addProperty('App::PropertyBool', 'Reverse', "Polar Array", "Reverses array direction.")
         selfobj.addProperty('App::PropertyBool', 'FlipX', "Polar Array", "Reverses x axis of every placement.")
@@ -158,7 +158,7 @@ class PolarArray(APlm.AttachableFeature):
                 V(        ),
                 V(-1, 0, 0)
             ))
-        elif selfobj.OrientMode == 'Launchpad':
+        elif selfobj.OrientMode == 'Launchpad' or selfobj.OrientMode == "Roll":
             baseplm = App.Placement(V(), App.Rotation(
                 V( 0, 0, 1), 
                 V(        ),
@@ -191,7 +191,13 @@ class PolarArray(APlm.AttachableFeature):
         output = [] # list of placements
         for ang in values:
             localrot = App.Rotation(App.Vector(0,0,1), ang * mm + angleplus)
-            localtransl = localrot.multVec(App.Vector(radius,0,0))
+            if selfobj.OrientMode == "Roll":
+                if on_arc:
+                    localtransl = localrot.multVec(App.Vector(radius, -radius*(ang - 90.0)*math.pi/180.0, 0))
+                else:
+                    localtransl = localrot.multVec(App.Vector(radius, -radius*ang*math.pi/180.0, 0))
+            else:
+                localtransl = localrot.multVec(App.Vector(radius,0,0))
             localplm = App.Placement(localtransl, localrot)
             resultplm = localplm.multiply(baseplm)
             if is_zero:
