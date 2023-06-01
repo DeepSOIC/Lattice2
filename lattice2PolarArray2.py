@@ -192,10 +192,9 @@ class PolarArray(APlm.AttachableFeature):
         for ang in values:
             localrot = App.Rotation(App.Vector(0,0,1), ang * mm + angleplus)
             if selfobj.OrientMode == "Roll":
-                if on_arc:
-                    localtransl = localrot.multVec(App.Vector(radius, -radius*(ang - 90.0)*math.pi/180.0, 0))
-                else:
-                    localtransl = localrot.multVec(App.Vector(radius, -radius*ang*math.pi/180.0, 0))
+                localtransl = localrot.multVec(App.Vector(radius,
+                                      -radius*((ang - 0.5*(max(values) - min(values)))*math.pi/180.0),
+                                                         0))
             else:
                 localtransl = localrot.multVec(App.Vector(radius,0,0))
             localplm = App.Placement(localtransl, localrot)
