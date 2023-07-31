@@ -154,9 +154,13 @@ class ViewProviderLatticePopulateChildren(lattice2BaseFeature.ViewProviderLattic
                 )  
         
     def claimChildren(self):
-        children = [screen(self.Object.Object), screen(self.Object.PlacementsTo)]
-        if self.Object.Referencing == "Use PlacementsFrom":
-            children.append(screen(self.Object.PlacementsFrom))
+        weakparenting = App.ParamGet("User parameter:BaseApp/Preferences/Mod/Lattice2").GetBool("WeakParenting", True)
+        if weakparenting:
+            children = [self.Object.Object] if self.Object.Referencing in ['First item', 'Last item'] else []
+        else:
+            children = [screen(self.Object.Object), screen(self.Object.PlacementsTo)]
+            if self.Object.Referencing == "Use PlacementsFrom":
+                children.append(screen(self.Object.PlacementsFrom))
         return children
 
 # -------------------------- /document object --------------------------------------------------

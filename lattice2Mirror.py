@@ -226,6 +226,9 @@ class ViewProviderLatticeMirror(LBF.ViewProviderLatticeFeature):
         return None
 
     def claimChildren(self):
+        weakparenting = App.ParamGet("User parameter:BaseApp/Preferences/Mod/Lattice2").GetBool("WeakParenting", True)
+        if weakparenting:
+            return []
         if self.Object.Pivot:
             return [screen(self.Object.Object), screen(self.Object.Pivot)]
         else:

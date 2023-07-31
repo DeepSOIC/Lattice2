@@ -157,6 +157,9 @@ class _ViewProviderLatticeDowngrade:
         return None
 
     def claimChildren(self):
+        weakparenting = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/Lattice2").GetBool("WeakParenting", True)
+        if weakparenting:
+            return []
         return [screen(self.Object.Base)]
 
     def onDelete(self, feature, subelements): # subelements is a tuple of strings

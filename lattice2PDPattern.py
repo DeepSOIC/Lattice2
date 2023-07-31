@@ -299,6 +299,9 @@ class ViewProviderLatticePDPattern:
         return None
 
     def claimChildren(self):
+        weakparenting = App.ParamGet("User parameter:BaseApp/Preferences/Mod/Lattice2").GetBool("WeakParenting", True)
+        if weakparenting:
+            return []
         return [self.Object.PlacementsTo]
         
     def onDelete(self, feature, subelements): # subelements is a tuple of strings

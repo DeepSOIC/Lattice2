@@ -125,7 +125,10 @@ class ViewProviderLatticeScLERP(lattice2BaseFeature.ViewProviderLatticeFeature):
     def getIcon(self):
         return getIconPath('Lattice2_Resample.svg')
     
-    def claimChildren(self):        
+    def claimChildren(self):
+        weakparenting = App.ParamGet("User parameter:BaseApp/Preferences/Mod/Lattice2").GetBool("WeakParenting", True)
+        if weakparenting:
+            return []
         return [child for child in [self.Object.Placement1Ref,self.Object.Placement2Ref] if child is not None]
 
 

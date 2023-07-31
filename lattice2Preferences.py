@@ -2,7 +2,7 @@ __doc__ = 'module that registers preference page'
 
 allSettings = """
 Mod/Lattice2
-WeakParenting False
+WeakParenting True
 MarkerColor #ffb300 (255,179,0)
 
 Mod/Lattice2/Autosize

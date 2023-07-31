@@ -107,6 +107,9 @@ class ViewProviderInvert(lattice2BaseFeature.ViewProviderLatticeFeature):
         return getIconPath('Lattice2_Invert.svg')
     
     def claimChildren(self):
+        weakparenting = App.ParamGet("User parameter:BaseApp/Preferences/Mod/Lattice2").GetBool("WeakParenting", True)
+        if weakparenting:
+            return []
         return [screen(self.Object.Base)]
 
 
