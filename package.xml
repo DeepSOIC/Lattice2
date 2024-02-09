@@ -5,7 +5,7 @@
   <version>1.0</version>
   <date>2022-03-12</date>
   <maintainer email="vv.titov@gmail.com">DeepSOIC</maintainer>
-  <license file="LICENSE">LGPLv2</license>
+  <license file="LICENSE">LGPL-2.0-or-later</license>
   <url type="repository" branch="master">https://github.com/DeepSOIC/Lattice2</url>
   <url type="bugtracker">https://github.com/DeepSOIC/Lattice2/issues</url>
   <url type="documentation" branch="master">https://github.com/DeepSOIC/Lattice2/wiki</url>
