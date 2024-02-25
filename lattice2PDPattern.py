@@ -271,10 +271,10 @@ class LatticePDPattern(object):
                     App.Console.PrintLog('{name} is unsupported, skipped.\n'.format(name= feature.Name))
         return baseshape
 
-    def __getstate__(self):
+    def dumps(self):
         return None
 
-    def __setstate__(self,state):
+    def loads(self,state):
         return None
 
 
@@ -292,10 +292,10 @@ class ViewProviderLatticePDPattern:
         self.Object = vobj.Object
 
   
-    def __getstate__(self):
+    def dumps(self):
         return None
 
-    def __setstate__(self,state):
+    def loads(self,state):
         return None
 
     def claimChildren(self):

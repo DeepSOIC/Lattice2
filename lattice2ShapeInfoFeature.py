@@ -169,10 +169,10 @@ class ShapeInfoFeature:
             if type(attr) is list:
                 self.assignProp(selfobj,"App::PropertyInteger",propname+"Count",len(attr))
 
-    def __getstate__(self):
+    def dumps(self):
         return None
 
-    def __setstate__(self,state):
+    def loads(self,state):
         return None
 
 class ViewProviderShapeInfo:
@@ -195,10 +195,10 @@ class ViewProviderShapeInfo:
     def unsetEdit(self,vobj,mode):
         return
 
-    def __getstate__(self):
+    def dumps(self):
         return None
 
-    def __setstate__(self,state):
+    def loads(self,state):
         return None
 
     def claimChildren(self):
