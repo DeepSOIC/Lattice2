@@ -143,10 +143,10 @@ class LatticeSubLink:
         # synchronize SubLink and Object+SubNames properties
         syncSublinkApart(selfobj, prop, 'SubLink', 'Object', 'SubNames')
     
-    def __getstate__(self):
+    def dumps(self):
         return None
 
-    def __setstate__(self,state):
+    def loads(self,state):
         return None
 
 class ViewProviderSubLink:
@@ -176,10 +176,10 @@ class ViewProviderSubLink:
         self.Object = vobj.Object
 
   
-    def __getstate__(self):
+    def dumps(self):
         return None
 
-    def __setstate__(self,state):
+    def loads(self,state):
         return None
 
     def claimChildren(self):

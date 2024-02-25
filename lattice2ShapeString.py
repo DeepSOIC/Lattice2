@@ -225,10 +225,10 @@ class LatticeShapeString:
         obj.Shape = result
         
 
-    def __getstate__(self):
+    def dumps(self):
         return None
 
-    def __setstate__(self,state):
+    def loads(self,state):
         return None
         
         
@@ -246,10 +246,10 @@ class ViewProviderLatticeShapeString:
         self.Object = vobj.Object
 
   
-    def __getstate__(self):
+    def dumps(self):
         return None
 
-    def __setstate__(self,state):
+    def loads(self,state):
         return None
 
 def CreateLatticeShapeString(name):

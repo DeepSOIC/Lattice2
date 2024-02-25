@@ -222,10 +222,10 @@ class _BoundBox:
         else:
             obj.Shape = Part.makeCompound(boxes_shapes)
 
-    def __getstate__(self):
+    def dumps(self):
         return None
 
-    def __setstate__(self,state):
+    def loads(self,state):
         return None
         
         
@@ -246,10 +246,10 @@ class _ViewProviderBoundBox:
         self.ViewObject = vobj
         self.Object = vobj.Object
 
-    def __getstate__(self):
+    def dumps(self):
         return None
 
-    def __setstate__(self,state):
+    def loads(self,state):
         return None
 
 def CreateBoundBox(ShapeLink, 
