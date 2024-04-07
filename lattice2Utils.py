@@ -21,6 +21,8 @@
 #*                                                                         *
 #***************************************************************************
 
+import re
+
 __title__="Utility functions for Lattice2"
 __author__ = "DeepSOIC"
 __url__ = ""
@@ -92,3 +94,28 @@ def linkSubList_convertToOldStyle(references):
             # old style references, no conversion required
             result.append(tup)
     return result
+
+def getAnnotatedShape(object, i, g, annotations_from_constraints):
+  kvs = annotations_from_constraints.get(i, '')
+  kvs = kvs.split(',')
+  if kvs == ['']:
+    kvs = []
+  kvs = [kv.split('=',1) for kv in kvs]
+  kvs = [(kv[0], ('string', kv[1])) if len(kv) == 2 else (kv[0], ('bool', True)) for kv in kvs]
+  kvs = dict(kvs, Geometry=('geometry', g))
+  sh = g.toShape().copy()
+  sh.Placement = object.Placement
+  return (sh, kvs)
+
+def getAnnotatedShapes(object):
+  """ returns a list of the form [ (shape, { 'k': ('type', v), … }) …] """
+  if object.TypeId == 'Sketcher::SketchObject':
+    constraint_re_matches = [(c,re.match(r"^__(.*)\.[0-9]+$", c.Name)) for c in object.Constraints]
+    annotations_from_constraints = dict((c.First,match.group(1)) for c,match in constraint_re_matches if match)
+    return [getAnnotatedShape(object, i, g, annotations_from_constraints) for i,g in enumerate(object.Geometry)]
+  elif hasattr(object, 'getAnnotatedShapes') and callable(object.getAnnotatedShapes):
+    return object.getAnnotatedShapes()
+  elif hasattr(object, 'Proxy') and hasattr(object.Proxy, 'getAnnotatedShapes') and callable(object.Proxy.getAnnotatedShapes):
+    return object.Proxy.getAnnotatedShapes(object)
+  else:
+    return [(object.Shape.copy(), dict())]
