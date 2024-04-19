@@ -253,6 +253,12 @@ class LatticeFeature(object):
     def __setstate__(self,state):
         return None
     
+    def dumps(self):
+        return None
+
+    def loads(self,state):
+        return None
+
     def disableAttacher(self, selfobj, enable= False):
         if selfobj.isDerivedFrom('Part::Part2DObject'):
             attachprops = [
@@ -311,6 +317,12 @@ class ViewProviderLatticeFeature(object):
     def __setstate__(self,state):
         return None
         
+    def dumps(self):
+        return None
+
+    def loads(self,state):
+        return None
+
     def claimChildren(self):
         self.Object.Proxy.verifyIntegrity()
         self.verifyIntegrity()

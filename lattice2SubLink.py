@@ -149,6 +149,12 @@ class LatticeSubLink:
     def __setstate__(self,state):
         return None
 
+    def dumps(self):
+        return None
+
+    def loads(self,state):
+        return None
+
 class ViewProviderSubLink:
     "A View Provider for the SubLink object"
 
@@ -180,6 +186,12 @@ class ViewProviderSubLink:
         return None
 
     def __setstate__(self,state):
+        return None
+
+    def dumps(self):
+        return None
+
+    def loads(self,state):
         return None
 
     def claimChildren(self):

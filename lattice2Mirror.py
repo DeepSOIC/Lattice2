@@ -225,6 +225,12 @@ class ViewProviderLatticeMirror(LBF.ViewProviderLatticeFeature):
     def __setstate__(self,state):
         return None
 
+    def dumps(self):
+        return None
+
+    def loads(self,state):
+        return None
+
     def claimChildren(self):
         weakparenting = App.ParamGet("User parameter:BaseApp/Preferences/Mod/Lattice2").GetBool("WeakParenting", True)
         if weakparenting:

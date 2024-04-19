@@ -228,6 +228,12 @@ class _BoundBox:
     def __setstate__(self,state):
         return None
         
+    def dumps(self):
+        return None
+
+    def loads(self,state):
+        return None
+
         
 class _ViewProviderBoundBox:
     "A View Provider for the BoundBox object"
@@ -250,6 +256,12 @@ class _ViewProviderBoundBox:
         return None
 
     def __setstate__(self,state):
+        return None
+
+    def dumps(self):
+        return None
+
+    def loads(self,state):
         return None
 
 def CreateBoundBox(ShapeLink, 

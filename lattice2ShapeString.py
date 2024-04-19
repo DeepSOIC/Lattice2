@@ -231,6 +231,12 @@ class LatticeShapeString:
     def __setstate__(self,state):
         return None
         
+    def dumps(self):
+        return None
+
+    def loads(self,state):
+        return None
+
         
 class ViewProviderLatticeShapeString:
     "A View Provider for the LatticeShapeString object"
@@ -250,6 +256,12 @@ class ViewProviderLatticeShapeString:
         return None
 
     def __setstate__(self,state):
+        return None
+
+    def dumps(self):
+        return None
+
+    def loads(self,state):
         return None
 
 def CreateLatticeShapeString(name):

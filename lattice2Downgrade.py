@@ -156,6 +156,12 @@ class _ViewProviderLatticeDowngrade:
     def __setstate__(self,state):
         return None
 
+    def dumps(self):
+        return None
+
+    def loads(self,state):
+        return None
+
     def claimChildren(self):
         weakparenting = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/Lattice2").GetBool("WeakParenting", True)
         if weakparenting:

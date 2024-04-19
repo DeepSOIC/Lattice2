@@ -277,6 +277,12 @@ class LatticePDPattern(object):
     def __setstate__(self,state):
         return None
 
+    def dumps(self):
+        return None
+
+    def loads(self,state):
+        return None
+
 
 class ViewProviderLatticePDPattern:
     "A View Provider for the Lattice PartDesign Pattern object"
@@ -296,6 +302,12 @@ class ViewProviderLatticePDPattern:
         return None
 
     def __setstate__(self,state):
+        return None
+
+    def dumps(self):
+        return None
+
+    def loads(self,state):
         return None
 
     def claimChildren(self):

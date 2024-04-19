@@ -175,6 +175,12 @@ class ShapeInfoFeature:
     def __setstate__(self,state):
         return None
 
+    def dumps(self):
+        return None
+
+    def loads(self,state):
+        return None
+
 class ViewProviderShapeInfo:
     "A View Provider for the ShapeInfo object"
 
@@ -199,6 +205,12 @@ class ViewProviderShapeInfo:
         return None
 
     def __setstate__(self,state):
+        return None
+
+    def dumps(self):
+        return None
+
+    def loads(self,state):
         return None
 
     def claimChildren(self):

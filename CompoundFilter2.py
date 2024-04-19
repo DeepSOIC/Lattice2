@@ -196,6 +196,12 @@ class _ViewProviderCompoundFilter:
     def __setstate__(self,state):
         return None
 
+    def dumps(self):
+        return None
+
+    def loads(self,state):
+        return None
+
     def claimChildren(self):
         children = [screen(self.Object.Base)]
         if self.Object.Stencil:
