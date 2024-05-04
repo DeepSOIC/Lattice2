@@ -80,12 +80,13 @@ def isObjectLattice(documentObject):
     if documentObject.isDerivedFrom('App::Placement') or documentObject.isDerivedFrom('PartDesign::CoordinateSystem'):
         ret = True
     if documentObject.isDerivedFrom('PartDesign::ShapeBinder'):
-        if len(documentObject.Support) == 1 and documentObject.Support[0][1] == ('',):
-            ret = isObjectLattice(documentObject.Support[0][0])
+        attachmentSupport = getAttachmentSupport(documentObject)
+        if len(attachmentSupport) == 1 and attachmentSupport[0][1] == ('',):
+            ret = isObjectLattice(attachmentSupport[0][0])
     if hasattr(documentObject, 'IAm') and documentObject.IAm == 'PartOMagic.Ghost':
         ret = isObjectLattice(documentObject.Base)
     return ret
-    
+
 def getMarkerSizeEstimate(ListOfPlacements, feature = None):
     '''getMarkerSizeEstimate(ListOfPlacements, feature = None): computes the default marker size for the array of placements.
     If feature is provided, marker size property will be assigned to viewer-based autosize if size based on array content is zero.'''
@@ -262,12 +263,17 @@ class LatticeFeature(object):
     def disableAttacher(self, selfobj, enable= False):
         if selfobj.isDerivedFrom('Part::Part2DObject'):
             attachprops = [
-                'Support', 
                 'MapMode', 
                 'MapReversed', 
                 'MapPathParameter', 
                 'AttachmentOffset', 
             ]
+            if hasattr(selfobj, 'AttachmentSupport'):
+                attachprops.append('AttachmentSupport')
+            elif hasattr(selfobj, 'Support'):
+                attachprops.append('Support')
+            else:
+                raise AttributeError('No support property found')
             for prop in attachprops:
                 selfobj.setEditorMode(prop, 0 if enable else 2)
             if enable:

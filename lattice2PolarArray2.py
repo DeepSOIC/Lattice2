@@ -32,6 +32,7 @@ import FreeCAD as App
 import Part
 
 from lattice2Common import *
+from lattice2Compatibility import attachment_support_name
 import lattice2BaseFeature
 from lattice2BaseFeature import assureProperty
 import lattice2Executer
@@ -108,8 +109,9 @@ class PolarArray(APlm.AttachableFeature):
     
     def fetchArc(self, selfobj):
         """returns None, or tuple (arc_span, arc_radius)"""
-        if selfobj.Support:
-            lnkobj, sub = selfobj.Support[0]
+        attachmentSupport = getAttachmentSupport(selfobj)
+        if attachmentSupport:
+            lnkobj, sub = attachmentSupport[0]
             sub = sub[0]
             #resolve the link        
             return fetchArc(lnkobj, sub)
@@ -205,7 +207,8 @@ class PolarArray(APlm.AttachableFeature):
         return output
     
     def isOnArc(self, selfobj):
-        return selfobj.MapMode == 'Concentric' and len(linkSubList_convertToOldStyle(selfobj.Support)) == 1
+        attachmentSupport = getAttachmentSupport(selfobj)
+        return selfobj.MapMode == 'Concentric' and len(linkSubList_convertToOldStyle(attachmentSupport)) == 1
         
     def onChanged(self, selfobj, propname):
         super(PolarArray, self).onChanged(selfobj, propname)
@@ -242,13 +245,14 @@ def CreatePolarArray(genmode = 'SpanN'):
             fullcircle = abs(arcspan - turn) < ParaConfusion
             endinclusive = not fullcircle
             usearcrange = 'as Step' if genmode == 'StepN' and not fullcircle else 'as Span'
+
             FreeCADGui.doCommand(
-                'f.Support = [(App.ActiveDocument.{lnk}, {sub})]\n'
+                'f.{attachmentsupport} = [(App.ActiveDocument.{lnk}, {sub})]\n'
                 'f.MapMode = \'Concentric\'\n'
                 'f.UseArcRange = {usearcrange}\n'
                 'f.EndInclusive = {endinclusive}\n'
                 'f.UseArcRadius = True'
-                .format(lnk= lnk.Name, sub= repr(sub), usearcrange= repr(usearcrange), endinclusive= repr(endinclusive))
+                .format(attachmentsupport = attachment_support_name, lnk= lnk.Name, sub= repr(sub), usearcrange= repr(usearcrange), endinclusive= repr(endinclusive))
             )
             attached = True
     if not attached:

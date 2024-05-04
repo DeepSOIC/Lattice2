@@ -45,5 +45,9 @@ except Exception as err:
 
 attach_extension_era = rev_number >= 9177
 no_extension_proxy_era = rev_number >= 23869
+attachment_support_name = 'AttachmentSupport'
+if rev_number < 36274:
+    # Before 0.22.0dev.36274 https://github.com/FreeCAD/FreeCAD/issues/12894
+    attachment_support_name = 'Support'
 
 del App
