@@ -145,3 +145,13 @@ def bodyOf(feature):
         return body
     else:
         return None
+
+
+# Older FreeCAD has Support, newer has AttachmentSupport: https://github.com/FreeCAD/FreeCAD/issues/12894
+
+def getAttachmentSupport(documentObject):
+    if hasattr(documentObject, 'AttachmentSupport'):
+        return documentObject.AttachmentSupport
+    elif hasattr(documentObject, 'Support'):
+        return documentObject.Support
+    raise AttributeError('No support property found')
