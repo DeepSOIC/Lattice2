@@ -80,9 +80,8 @@ def isObjectLattice(documentObject):
     if documentObject.isDerivedFrom('App::Placement') or documentObject.isDerivedFrom('PartDesign::CoordinateSystem'):
         ret = True
     if documentObject.isDerivedFrom('PartDesign::ShapeBinder'):
-        attachmentSupport = getAttachmentSupport(documentObject)
-        if len(attachmentSupport) == 1 and attachmentSupport[0][1] == ('',):
-            ret = isObjectLattice(attachmentSupport[0][0])
+        if len(documentObject.Support) == 1 and documentObject.Support[0][1] == ('',):
+            ret = isObjectLattice(documentObject.Support[0][0])
     if hasattr(documentObject, 'IAm') and documentObject.IAm == 'PartOMagic.Ghost':
         ret = isObjectLattice(documentObject.Base)
     return ret
