@@ -207,7 +207,7 @@ class CommandAttachablePlacement:
         
     def Activated(self):
         try:
-            CreateAttachablePlacement(name= "Placment")
+            CreateAttachablePlacement(name= "Placement")
         except Exception as err:
             msgError(err)
             
