@@ -86,6 +86,7 @@ class FoolFeatureDocumentObject:
         self.Shape = Part.Shape()
         self.properties = []
         self.Proxy = None
+        self.PropertiesList=[]
     
     def addProperty(self, proptype, propname, group = None, hint = None):
         setattr(self,propname,None)
@@ -127,6 +128,14 @@ class LatticeShapeString:
         obj.addProperty("App::PropertyFile","FullPathToFont","Lattice ShapeString","Full path of font file that is actually being used.")
         obj.setEditorMode("FullPathToFont", 1) # set read-only
                 
+        obj.Justification = ["Top-Left", "Top-Center", "Top-Right",
+                "Middle-Left", "Middle-Center", "Middle-Right",
+                "Bottom-Left", "Bottom-Center", "Bottom-Right"]
+        obj.Justification = "Middle-Center"
+
+        obj.JustificationReference = ["Cap Height", "Shape Height"]
+        obj.JustificationReference = "Cap Height"
+
         obj.Proxy = self
         
         self.setDefaults(obj)
