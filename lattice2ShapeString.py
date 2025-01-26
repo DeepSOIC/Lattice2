@@ -177,7 +177,8 @@ class LatticeShapeString:
         self.makeFoolObj(obj) #make sure we have one - fixes defunct Lattice ShapeString after save-load
         for (proptype, propname, group, hint) in self.foolObj.properties:
             if propname != "String": #ignore "String", that will be taken care of in the following loop
-                setattr(self.foolObj, propname, getattr(obj, propname))
+                if hasattr(obj, propname):
+                    setattr(self.foolObj, propname, getattr(obj, propname))
         self.foolObj.FontFile = findFont(obj.FontFile)
         obj.FullPathToFont = self.foolObj.FontFile
         
