@@ -28,6 +28,8 @@ import lattice2Executer
 import lattice2CompoundExplorer as LCE
 from lattice2BoundBox import getPrecisionBoundBox #needed for alignment
 
+import lattice2Markers as markers
+
 import FreeCAD as App
 import Part
 
@@ -223,6 +225,8 @@ class LatticeShapeString:
                 shape.Placement = plms[i].multiply(shape.Placement)
                 
                 shapes.append(shape.copy())
+            else:
+                shapes.append(markers.getNullShapeShape())
         
         if len(shapes) == 0:
             scale = 1.0
