@@ -190,42 +190,40 @@ class LatticeShapeString:
                 self.foolObj.Shape = None
                 self.draft_shape_string.execute(self.foolObj)
                 shape = self.foolObj.Shape
-            else:
-                shape=Part.makeCircle(0.00001)
-
-            #calculate alignment point
-            if obj.XAlign == 'None' and obj.YAlign == 'None':
-                pass #need not calculate boundbox
-            else:
-                if obj.AlignPrecisionBoundBox:
-                    bb = getPrecisionBoundBox(shape)
+                
+                #calculate alignment point
+                if obj.XAlign == 'None' and obj.YAlign == 'None':
+                    pass #need not calculate boundbox
                 else:
-                    bb = shape.BoundBox
+                    if obj.AlignPrecisionBoundBox:
+                        bb = getPrecisionBoundBox(shape)
+                    else:
+                        bb = shape.BoundBox
 
-            alignPnt = App.Vector()
+                alignPnt = App.Vector()
                 
-            if obj.XAlign == 'Left':
-                alignPnt.x = bb.XMin
-            elif obj.XAlign == 'Right':
-                alignPnt.x = bb.XMax
-            elif obj.XAlign == 'Middle':
-                alignPnt.x = bb.Center.x
+                if obj.XAlign == 'Left':
+                    alignPnt.x = bb.XMin
+                elif obj.XAlign == 'Right':
+                    alignPnt.x = bb.XMax
+                elif obj.XAlign == 'Middle':
+                    alignPnt.x = bb.Center.x
 
-            if obj.YAlign == 'Bottom':
-                alignPnt.y = bb.YMin
-            elif obj.YAlign == 'Top':
-                alignPnt.y = bb.YMax
-            elif obj.YAlign == 'Middle':
-                alignPnt.y = bb.Center.y
+                if obj.YAlign == 'Bottom':
+                    alignPnt.y = bb.YMin
+                elif obj.YAlign == 'Top':
+                    alignPnt.y = bb.YMax
+                elif obj.YAlign == 'Middle':
+                    alignPnt.y = bb.Center.y
                 
-            #Apply alignment
-            shape.Placement = App.Placement(alignPnt*(-1.0), App.Rotation()).multiply(shape.Placement)
+                #Apply alignment
+                shape.Placement = App.Placement(alignPnt*(-1.0), App.Rotation()).multiply(shape.Placement)
                 
-            #Apply placement from array
-            shape.Placement = plms[i].multiply(shape.Placement)
+                #Apply placement from array
+                shape.Placement = plms[i].multiply(shape.Placement)
                 
-            shapes.append(shape.copy())
-
+                shapes.append(shape.copy())
+        
         if len(shapes) == 0:
             scale = 1.0
             if lattice is not None:
