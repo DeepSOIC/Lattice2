@@ -226,7 +226,7 @@ class LatticeShapeString:
                 
                 shapes.append(shape.copy())
             else:
-                shapes.append(markers.getNullShapeShape())
+                shapes.append(markers.getNullShapeShape().copy())
         
         if len(shapes) == 0:
             scale = 1.0
