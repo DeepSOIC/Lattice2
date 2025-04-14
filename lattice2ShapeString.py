@@ -192,8 +192,16 @@ class LatticeShapeString:
                 self.foolObj.String = obj.Strings[i]
                 self.foolObj.Shape = None
                 self.draft_shape_string.execute(self.foolObj)
-                shape = self.foolObj.Shape
-                
+                shape = self.foolObj.Shape #might still be None if the string is just whitespace
+            else:
+                shape = None
+
+            if shape is None:
+                # add empty compound
+                shape = Part.Compound([])
+                shape.Placement = plms[i].multiply(shape.Placement)
+                shapes.append(shape)
+            else:
                 #calculate alignment point
                 if obj.XAlign == 'None' and obj.YAlign == 'None':
                     pass #need not calculate boundbox
@@ -227,11 +235,7 @@ class LatticeShapeString:
                 
                 shapes.append(shape)
                 n_nonempty += 1
-            else:
-                shape = Part.Compound([])
-                shape.Placement = plms[i].multiply(shape.Placement)
-                shapes.append(shape)
-        
+       
         if n_nonempty == 0:
             scale = 1.0
             if lattice is not None:
