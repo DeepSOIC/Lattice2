@@ -185,6 +185,7 @@ class LatticeShapeString:
         obj.FullPathToFont = self.foolObj.FontFile
         
         shapes = []
+        n_nonempty = 0
         for i in range(  0 ,  min(len(plms),len(obj.Strings))  ):
             if len(obj.Strings[i]) > 0:
                 #generate shapestring using Draft
@@ -224,11 +225,14 @@ class LatticeShapeString:
                 #Apply placement from array
                 shape.Placement = plms[i].multiply(shape.Placement)
                 
-                shapes.append(shape.copy())
+                shapes.append(shape)
+                n_nonempty += 1
             else:
-                shapes.append(markers.getNullShapeShape().copy())
+                shape = Part.Compound([])
+                shape.Placement = plms[i].multiply(shape.Placement)
+                shapes.append(shape)
         
-        if len(shapes) == 0:
+        if n_nonempty == 0:
             scale = 1.0
             if lattice is not None:
                 scale = lattice.Shape.BoundBox.DiagonalLength/math.sqrt(3)/math.sqrt(len(shps))
