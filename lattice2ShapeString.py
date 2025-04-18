@@ -130,13 +130,15 @@ class LatticeShapeString:
         obj.addProperty("App::PropertyFile","FullPathToFont","Lattice ShapeString","Full path of font file that is actually being used.")
         obj.setEditorMode("FullPathToFont", 1) # set read-only
                 
-        if not obj.Justification:
+        #FIXME: make Draft take care of this
+        if not getattr(obj, "Justification", True): #fill only if present but empty
                 obj.Justification = ["Top-Left", "Top-Center", "Top-Right",
                         "Middle-Left", "Middle-Center", "Middle-Right",
                         "Bottom-Left", "Bottom-Center", "Bottom-Right"]
                 obj.Justification = "Middle-Center"
 
-        if not obj.JustificationReference:
+        #FIXME: make Draft take care of this
+        if not getattr(obj, "JustificationReference", True): #fill only if present but empty
                 obj.JustificationReference = ["Cap Height", "Shape Height"]
                 obj.JustificationReference = "Cap Height"
 
