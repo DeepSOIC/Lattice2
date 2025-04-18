@@ -21,19 +21,25 @@ def get_fc_version():
         except Exception as err:
             App.Console.PrintWarning(u"Lattice2 failed to detect FC version number.\n"
                                      "    {err}\n".format(err= str(err)))
-            rev = 32457 #assume fairly modern
+            rev = 39109 #assume fairly modern
     if rev < 100:
-        if mi == 17:
-            rev = 13544
-        elif mi == 18:
-            rev = 16154
-        elif mi == 19:
-            rev = 24276
-        elif mi == 20:
-            rev = 29177
+        rev_map = {
+            (0, 17) : 13544,
+            (0, 18) : 16154,
+            (0, 19) : 24276,
+            (0, 20) : 29177,
+            (0, 21) : 33771,
+            (0, 22): 33771,
+            (1, 0) : 39109,
+        }
+        if (maj, mi) in rev_map:
+            rev = rev_map[(maj, mi)]
         else:
-            rev = 32457 #assume fairly modern
-            App.Console.PrintWarning(u"Lattice2 failed to detect FC version number: revision is zero / too low, minor version is unexpected.")
+            rev = 39109 #assume fairly modern
+            App.Console.PrintWarning(
+                u"Lattice2 failed to detect FC version number: revision is zero / too low, minor version is unexpected.({ver})."
+                .format(ver= str((maj, mi, submi, rev)))
+            )
     return (maj, mi, submi, rev)
 
 
@@ -49,5 +55,3 @@ attachment_support_name = 'AttachmentSupport'
 if rev_number < 36274:
     # Before 0.22.0dev.36274 https://github.com/FreeCAD/FreeCAD/issues/12894
     attachment_support_name = 'Support'
-
-del App
