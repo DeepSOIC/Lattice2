@@ -90,9 +90,9 @@ class FoolFeatureDocumentObject:
         self.Proxy = None
         self.PropertiesList=[]
     
-    def addProperty(self, proptype, propname, group = None, hint = None):
+    def addProperty(self, proptype, propname, group = None, hint = None, locked = False):
         setattr(self,propname,None)
-        self.properties.append((proptype, propname, group, hint))
+        self.properties.append((proptype, propname, group, hint, locked))
         return self
     
     def positionBySupport(self):
@@ -110,7 +110,7 @@ class LatticeShapeString:
         foolObj = self.foolObj
         
         #add Draft ShapeString's properties to document object in possession of our LatticeShapeString
-        for (proptype, propname, group, hint) in foolObj.properties:
+        for (proptype, propname, group, hint, locked) in foolObj.properties:
             if propname != "String": #we'll define our own string property
                 obj.addProperty(proptype,propname,"Lattice ShapeString",hint)
         
@@ -179,7 +179,7 @@ class LatticeShapeString:
         
         #update foolObj's properties
         self.makeFoolObj(obj) #make sure we have one - fixes defunct Lattice ShapeString after save-load
-        for (proptype, propname, group, hint) in self.foolObj.properties:
+        for (proptype, propname, group, hint, locked) in self.foolObj.properties:
             if propname != "String": #ignore "String", that will be taken care of in the following loop
                 if hasattr(obj, propname):
                     setattr(self.foolObj, propname, getattr(obj, propname))
