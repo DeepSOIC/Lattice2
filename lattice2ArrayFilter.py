@@ -314,7 +314,7 @@ def ExplodeArray(feature):
     plms = lattice2BaseFeature.getPlacementsList(feature)
     features_created = []
     for i in range(len(plms)):
-        af = makeArrayFilter(name = 'Placment')
+        af = makeArrayFilter(name = 'Placement')
         af.Label = u'Placement' + str(i)
         af.Base = feature
         af.FilterType = 'specific items'
