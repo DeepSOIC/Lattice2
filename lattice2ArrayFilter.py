@@ -56,7 +56,7 @@ class LatticeArrayFilter(lattice2BaseFeature.LatticeFeature):
         obj.FilterType = 'bypass'
         
         # properties controlling "specific items" mode
-        obj.addProperty("App::PropertyString","items","Lattice ArrayFilter","list of indexes of items to be returned (like this: 1,4,8:10).")
+        obj.addProperty("App::PropertyString","items","Lattice ArrayFilter","list of indexes of items to be returned (like this: 1;4;8:10).")
 
         obj.addProperty("App::PropertyLink","Stencil","Lattice ArrayFilter","Object that defines filtering")
         
