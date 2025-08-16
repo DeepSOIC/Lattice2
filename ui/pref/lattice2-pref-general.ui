@@ -392,13 +392,6 @@
        </widget>
       </item>
       <item>
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="Gui::PrefCheckBox" name="gui::PrefCheckBox_2">
         <property name="enabled">
          <bool>false</bool>
