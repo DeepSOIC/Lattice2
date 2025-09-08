@@ -15,7 +15,7 @@ def get_fc_version():
         rev = 0
     if '(GitTag)' in strrev:
         submi = int(strrev.split(" ")[0])
-    elif '(Git)' in strrev:
+    elif '(Git)' or '(Git shallow)' in strrev:
         try:
             rev = int(strrev.split(" ")[0])
         except Exception as err:
