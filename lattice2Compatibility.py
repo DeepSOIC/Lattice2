@@ -35,11 +35,11 @@ def get_fc_version():
         if (maj, mi) in rev_map:
             rev = rev_map[(maj, mi)]
         else:
-            rev = 39109 #assume fairly modern
             App.Console.PrintWarning(
                 u"Lattice2 failed to detect FC version number: revision is zero / too low, minor version is unexpected.({ver})."
                 .format(ver= str((maj, mi, submi, rev)))
             )
+            rev = 39109 #assume fairly modern
     return (maj, mi, submi, rev)
 
 
