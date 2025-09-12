@@ -31,6 +31,7 @@ import lattice2Markers as markers
 import FreeCAD as App
 import lattice2ShapeCopy as ShapeCopy
 import lattice2Subsequencer as LSS
+from lattice2Compatibility import toponaming_era
 
 from lattice2Utils import sublinkFromApart, syncSublinkApart
 
@@ -214,7 +215,7 @@ def CreateSubLink(object, subnames, looping = 'Single'):
                 index = int(subname.replace('Face',''))
                 if n_faces is None:
                     n_faces = len(object.Shape.Faces)
-                if (index-1)*2 > n_faces:
+                if (index-1)*2 > n_faces and not toponaming_era: # negative indexing seems to cause a crash of toponaming-era freecad sometimes
                     index = index - n_faces 
                 subname = "Face"+str(index)
                 cnt_faces += 1
@@ -222,7 +223,7 @@ def CreateSubLink(object, subnames, looping = 'Single'):
                 index = int(subname.replace('Edge',''))
                 if n_edges is None:
                     n_edges = len(object.Shape.Edges)
-                if (index-1)*2 > n_edges:
+                if (index-1)*2 > n_edges and not toponaming_era:
                     index = index - n_edges 
                 subname = "Edge"+str(index)
                 cnt_edges += 1
@@ -230,7 +231,7 @@ def CreateSubLink(object, subnames, looping = 'Single'):
                 index = int(subname.replace('Vertex',''))
                 if n_vertexes is None:
                     n_vertexes = len(object.Shape.Vertexes)
-                if (index-1)*2 > n_vertexes:
+                if (index-1)*2 > n_vertexes and not toponaming_era:
                     index = index - n_vertexes 
                 subname = "Vertex"+str(index)
                 cnt_vertexes += 1

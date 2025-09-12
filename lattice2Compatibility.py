@@ -55,3 +55,4 @@ attachment_support_name = 'AttachmentSupport'
 if rev_number < 36274:
     # Before 0.22.0dev.36274 https://github.com/FreeCAD/FreeCAD/issues/12894
     attachment_support_name = 'Support'
+toponaming_era = rev_number >= 39109
