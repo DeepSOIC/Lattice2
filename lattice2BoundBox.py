@@ -94,6 +94,19 @@ def getPrecisionBoundBox(shape):
     bb.ZMax = bb.ZMax - shape.distToShape(bbshape.Faces[5])[0]
     return bb
 
+def enlarge_bb(bb, padding, keep_d):
+    if keep_d:
+        # do it ourselves
+        bb.XMin = bb.XMin - padding if bb.XLength > DistConfusion else bb.XMin
+        bb.XMax = bb.XMax + padding if bb.XLength > DistConfusion else bb.XMax
+        bb.YMin = bb.YMin - padding if bb.YLength > DistConfusion else bb.YMin
+        bb.YMax = bb.YMax + padding if bb.YLength > DistConfusion else bb.YMax
+        bb.ZMin = bb.ZMin - padding if bb.ZLength > DistConfusion else bb.ZMin
+        bb.ZMax = bb.ZMax + padding if bb.ZLength > DistConfusion else bb.ZMax
+    else:
+        # use FreeCAD
+        bb.enlarge(padding)
+
 
 def makeBoundBox(name):
     '''makeBoundBox(name): makes a BoundBox object.'''
@@ -125,6 +138,9 @@ class _BoundBox:
         obj.ScaleFactor = 1.0
         
         obj.addProperty("App::PropertyDistance","Padding","BoundBox","After constructing the bounding box, enlarge/shrink it by specified amount (use negative for shrinking).")
+
+        obj.addProperty("App::PropertyBool","PaddingKeepD","BoundBox","Do not pad zero sizes (keeps the box dimensionality, i.e. flat doesn't become thick).")
+        obj.PaddingKeepD = True
         
         # read-only properties:
         prop = "Size"
@@ -197,7 +213,8 @@ class _BoundBox:
                 bb = child.BoundBox
                 
             bb = scaledBoundBox(bb, obj.ScaleFactor)
-            bb.enlarge(obj.Padding)
+            keep_d = obj.PaddingKeepD if hasattr(obj, 'PaddingKeepD') else False
+            enlarge_bb(bb, obj.Padding.Value, keep_d)
 
             bb_shape = boundBox2RealBox(bb)
             if orients[i] is not None:
