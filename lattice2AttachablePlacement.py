@@ -261,7 +261,7 @@ class CommandAttachedPlacementGroup:
         return 0
 
     def GetResources(self):
-        return { 'MenuText': 'Attached Placement:', 
+        return { 'MenuText': 'Attached Placement', 
                  'ToolTip': 'Attached Placement (group): tools to work with attached placement objects.'}
         
     def IsActive(self): # optional
