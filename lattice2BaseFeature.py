@@ -68,6 +68,11 @@ def makeLatticeFeature(name, AppClass, ViewClass, no_body = False, no_disable_at
             vp = ViewClass(obj.ViewObject)
         else:
             vp = ViewProviderLatticeFeature(obj.ViewObject)
+        if obj.isDerivedFrom('Part::Part2DObjectPython'):
+            try:
+                obj.ViewObject.DisplayMode = 'Flat Lines'
+            except Exception as err:
+                App.Console.PrintWarning(str(err))    
     return obj
     
     
