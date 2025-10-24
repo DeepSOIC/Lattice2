@@ -318,6 +318,17 @@ class ViewProviderLatticePDPattern:
         
     def onDelete(self, feature, subelements): # subelements is a tuple of strings
         return True
+    
+    def setEdit(self,vobj,mode):
+        if mode != 0: 
+            raise NotImplementedError()
+        src = self.Object.FeaturesToCopy
+        if len(src) == 1:
+            if src[0].isDerivedFrom('PartDesign::Body'):
+                FreeCADGui.ActiveDocument.ActiveView.setActiveObject("pdbody", src[0])
+        return False
+
+
 
 # -------------------------- /document object --------------------------------------------------
 
