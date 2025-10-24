@@ -100,7 +100,7 @@ class ViewProviderAttachableFeature(lattice2BaseFeature.ViewProviderLatticeFeatu
 
     def setupContextMenu(self,vobj,menu):
         from PySide import QtCore,QtGui
-        action1 = QtGui.QAction(QtGui.QIcon(":/icons/Part_Attachment.svg"),"Attachment...",menu)
+        action1 = QtGui.QAction(QtGui.QIcon(":/icons/Part_Attachment.svg"),"Edit attachment",menu)
         QtCore.QObject.connect(action1,QtCore.SIGNAL("triggered()"), lambda: FreeCADGui.ActiveDocument.setEdit(vobj, 56))
         menu.addAction(action1)
         menu.setDefaultAction(action1)
