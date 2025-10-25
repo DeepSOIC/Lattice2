@@ -42,7 +42,7 @@ class CommandSeriesGroup:
         return 0
 
     def GetResources(self):
-        return { 'MenuText': 'Series features:', 
+        return { 'MenuText': 'Series features', 
                  'ToolTip': 'Series features (group): features that collect permutations of an object by changing dependent objects.'}
         
     def IsActive(self): # optional

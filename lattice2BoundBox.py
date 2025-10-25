@@ -420,7 +420,7 @@ class _CommandBoundBoxGroup:
         return 0
 
     def GetResources(self):
-        return { 'MenuText': 'Bounding Box:', 
+        return { 'MenuText': 'Bounding Box', 
                  'ToolTip': 'Bounding Box: make a box that precisely fits a shape.'}
         
     def IsActive(self): # optional

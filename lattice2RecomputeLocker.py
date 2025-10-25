@@ -430,7 +430,7 @@ class CommandRecomputeGroup:
         return 0
 
     def GetResources(self):
-        return { 'MenuText': 'Lattice recompute control:', 
+        return { 'MenuText': 'Lattice recompute control', 
                  'ToolTip': 'Document recompute controlling tools from Lattice2 workbench',
                  'CmdType':"ForEdit"}
         

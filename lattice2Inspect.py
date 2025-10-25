@@ -153,7 +153,7 @@ class GroupCommandInspect:
         return 0
 
     def GetResources(self):
-        return { 'MenuText': 'Inspect:', 'ToolTip': 'Inspect: tools to analyze shape structure.'}
+        return { 'MenuText': 'Inspect', 'ToolTip': 'Inspect: tools to analyze shape structure.'}
         
     def IsActive(self): # optional
         return True
