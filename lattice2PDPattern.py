@@ -49,6 +49,7 @@ class ScopeError(RuntimeError):
 class MultiTransformSettings(object):
     selfintersections = False #if True, take care of intersections between occurrences. If False, optimize assuming occurrences do not intersect.
     sign_override = +1 #+1 for keep sign, -1 for invert, +2 for force positive, -2 for force negative
+    use_basefeature = False # take basefeature of a body as an additive operation
 
 
 def makeFeature():
@@ -59,9 +60,10 @@ def makeFeature():
         ViewProviderLatticePDPattern(obj.ViewObject)
     return obj
 
-def getBodySequence(body, skipfirst = False):
+def getBodySequence(body, skipfirst = False, use_basefeature = False):
     visited = set()
     result = []
+    # start from thw tip, and walk up the sequence
     curfeature = body.Tip
     while True:
         if curfeature in visited:
@@ -73,7 +75,9 @@ def getBodySequence(body, skipfirst = False):
         if not body.hasObject(curfeature):
             break
         if curfeature.isDerivedFrom('PartDesign::FeatureBase'):
-            #base feature for body. Do not include.
+            #base feature for body. Stop here..
+            if use_basefeature:
+                result.insert(0, curfeature)
             break
         visited.add(curfeature)
         result.insert(0, curfeature)
@@ -87,6 +91,7 @@ def feature_sign(feature, raise_if_unsupported = False):
     additive_types = [
         'PartDesign::Pad',
         'PartDesign::Revolution',
+        'PartDesign::FeatureBase',
     ]
     subtractive_types = [
         'PartDesign::Pocket',
@@ -136,6 +141,9 @@ def getFeatureShapes(feature):
         return [(sign, sh)]
     elif feature.isDerivedFrom('PartDesign::Boolean'):
         return [(sign, obj.Shape) for obj in feature.Group]
+    elif feature.isDerivedFrom('PartDesign::FeatureBase'):
+        sh = shallowCopy(feature.Shape)
+        return [(sign, sh)]
     else:
         raise FeatureUnsupportedError("Feature {name} is not supported.".format(name= feature.Name))
         
@@ -196,10 +204,18 @@ class LatticePDPattern(object):
         obj.Refine = getParamPDRefine()
         
         obj.addProperty('App::PropertyBool', 'SingleSolid', "PartDesign", "If True, discard solids not joined with the base.")
-        
+
+        self.assureProperties(obj)
+        obj.AllowBaseFeature = True
+
         obj.Proxy = self
+
+    def assureProperties(self, obj):
+        lattice2BaseFeature.assureProperty(obj,'App::PropertyBool', 'AllowBaseFeature', False, "Lattice Pattern", "Allow using BaseFeature (this property is here mostly for backwards compatibility).") 
     
     def execute(self, selfobj):
+        self.assureProperties(selfobj)
+
         if selfobj.BaseFeature is None:
             baseshape = Part.Compound([])
         else:
@@ -208,6 +224,7 @@ class LatticePDPattern(object):
         mts = MultiTransformSettings()
         mts.sign_override = {'keep': +1, 'invert': -1, 'as additive': +2 , 'as subtractive': -2}[selfobj.SignOverride]
         mts.selfintersections = selfobj.Selfintersections
+        mts.use_basefeature = selfobj.AllowBaseFeature
         
         result = self.applyTransformed(selfobj, baseshape, None, mts)
         if selfobj.SingleSolid:
@@ -234,7 +251,7 @@ class LatticePDPattern(object):
         has_features = False
         for lnk in selfobj.FeaturesToCopy:
             if lnk.isDerivedFrom('PartDesign::Body'):
-                featurelist.extend(getBodySequence(lnk, skipfirst= selfobj.SkipFirstInBody))
+                featurelist.extend(getBodySequence(lnk, skipfirst= selfobj.SkipFirstInBody, use_basefeature= mts.use_basefeature))
                 has_bodies = True
             else:
                 featurelist.append(lnk)
