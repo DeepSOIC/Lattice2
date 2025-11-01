@@ -50,6 +50,7 @@ class MultiTransformSettings(object):
     selfintersections = False #if True, take care of intersections between occurrences. If False, optimize assuming occurrences do not intersect.
     sign_override = +1 #+1 for keep sign, -1 for invert, +2 for force positive, -2 for force negative
     use_basefeature = False # take basefeature of a body as an additive operation
+    debug = False # output compound instead of boolean result
 
 
 def makeFeature():
@@ -176,13 +177,28 @@ def applyFeature(baseshape, feature, transforms, mts):
             if abs(mts.sign_override) == +2:
                 realsign = int(mts.sign_override / 2)
             if realsign > 0:
-                baseshape = baseshape.fuse(actionshape)
+                if not mts.debug:
+                    baseshape = baseshape.fuse(actionshape)
+                else:
+                    baseshape = append_to_compound(baseshape, actionshape)
             elif realsign < 0:
-                baseshape = baseshape.cut(actionshape)
+                if not mts.debug:
+                    baseshape = baseshape.cut(actionshape)
+                else:
+                    baseshape = append_to_compound(baseshape, actionshape.reversed()) 
     if baseshape.isNull():
         raise FeatureFailure('applying {name} failed - returned shape is null'.format(name= feature.Name))
     return baseshape
-    
+
+def append_to_compound(cmp, sh):
+    """append_to_compound(cmp, sh): appends a shape to a compound. cmp can be not a compound, too (any shape type, or None). returns result
+    """
+    if cmp is None:
+        cmp = Part.Compound()
+    if cmp.ShapeType != 'Compound':
+        cmp = Part.Compound([cmp])
+    return Part.Compound(cmp.childShapes() + [sh])
+
 class LatticePDPattern(object):
     def __init__(self,obj):
         obj.addProperty('App::PropertyLinkListGlobal','FeaturesToCopy',"Lattice Pattern","Features to be copied (can be a body)")
@@ -212,6 +228,7 @@ class LatticePDPattern(object):
 
     def assureProperties(self, obj):
         lattice2BaseFeature.assureProperty(obj,'App::PropertyBool', 'AllowBaseFeature', False, "Lattice Pattern", "Allow using BaseFeature (this property is here mostly for backwards compatibility).") 
+        lattice2BaseFeature.assureProperty(obj,'App::PropertyBool', 'Debug', False, "LatticePattern", "Output a compound instead of boolean result, to analyze boolean failures.") 
     
     def execute(self, selfobj):
         self.assureProperties(selfobj)
@@ -225,6 +242,7 @@ class LatticePDPattern(object):
         mts.sign_override = {'keep': +1, 'invert': -1, 'as additive': +2 , 'as subtractive': -2}[selfobj.SignOverride]
         mts.selfintersections = selfobj.Selfintersections
         mts.use_basefeature = selfobj.AllowBaseFeature
+        mts.debug = selfobj.Debug
         
         result = self.applyTransformed(selfobj, baseshape, None, mts)
         if selfobj.SingleSolid:
