@@ -126,7 +126,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
             if linkedShape.ShapeType != 'Edge':
                 raise ValueError('Axis link must be an edge; it is '+linkedShape.ShapeType+' instead.')
             if type(linkedShape.Curve) is not Part.Line:
-                raise ValueError('Axis link must be a line; it is '+type(linkedShape.Curve)+' instead.')
+                raise ValueError('Axis link must be a line; it is '+str(type(linkedShape.Curve))+' instead.')
             
             #obtain
             start_point = linkedShape.valueAt(linkedShape.FirstParameter)
