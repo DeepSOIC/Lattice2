@@ -40,7 +40,7 @@ class CommandInterpolateGroup:
         return 0
 
     def GetResources(self):
-        return { 'MenuText': 'Interpolation features:', 
+        return { 'MenuText': 'Interpolation features', 
                  'ToolTip': 'Interpolation features (group): creating placements between occurrences.'}
         
     def IsActive(self): # optional
