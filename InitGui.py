@@ -32,11 +32,15 @@ __Status__ = 'alpha'
 __Requires__ = 'freecad 0.16.5155'
 __Communication__ = 'vv.titov@gmail.com; DeepSOIC on FreeCAD forum'
 
+import FreeCAD
+
 import lattice2_rc_minimal
 import lattice2Preferences
 
 import lattice2InjectedToolbars as TB
 TB.registerPDToolbar()
+
+FreeCAD.__unit_test__ += [ "TestLattice2Gui"]
 
 class Lattice2Workbench (Workbench):
     MenuText = 'Lattice2'
