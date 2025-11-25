@@ -51,7 +51,7 @@ class TestLatticeAttachment(unittest.TestCase):
             sketch.addGeometry(Part.LineSegment(App.Vector(0, i, 0), App.Vector(10, i, 0)))  # Horizontal line
             sketch.addGeometry(Part.LineSegment(App.Vector(10, i, 0), App.Vector(10, i + 10, 0)))  # Vertical line
             sketch.addConstraint(
-                Sketcher.Constraint('Coincident', 2 * i, 2, 2 * i + 1, 1))  # Vertical line start to horizontal line end
+                Sketcher.Constraint('Coincident', 2 * i, 2, 2 * i + 1, 1))  # Connect lines at overlapping vertex
 
         attachedPlacementName = "Attached_Placement"
         attachedPlacement = lattice2AttachablePlacement.makeAttachablePlacement(name=attachedPlacementName)
@@ -68,7 +68,7 @@ class TestLatticeAttachment(unittest.TestCase):
 
         arrayPlacement = self.doc.getObject(arrayPlacementName)
         self.assertIsNotNone(arrayPlacement, msg=f"Placement {arrayPlacementName} not found")
-        self.assertEqual(numInstances - 2, arrayPlacement.NumElements)  # Should only have placements for edges 3 to 8
+        self.assertEqual(numInstances - 2, arrayPlacement.NumElements)  # Should only have placements for instances 3 to 8
 
         arrayPlacement.CycleMode = "Periodic"  # Allows looping back to first instance
         self.doc.recompute()
