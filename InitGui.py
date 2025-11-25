@@ -40,7 +40,7 @@ import lattice2Preferences
 import lattice2InjectedToolbars as TB
 TB.registerPDToolbar()
 
-FreeCAD.__unit_test__ += [ "TestLattice2Gui"]
+FreeCAD.__unit_test__ += ["TestLattice2Gui"]
 
 class Lattice2Workbench (Workbench):
     MenuText = 'Lattice2'
