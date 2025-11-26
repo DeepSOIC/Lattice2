@@ -14,3 +14,4 @@ Alternatively, run "FreeCAD -t TestLattice2Gui" or "/path/to/FreeCAD/binary -t T
 
 from test.gui.TestLatticePlacement import TestLatticePlacement
 from test.gui.TestLatticeAttachment import TestLatticeAttachment
+from test.gui.TestLinearArray import TestLinearArray
