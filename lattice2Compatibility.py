@@ -5,6 +5,7 @@ def get_fc_version():
     # ['0', '18', '4 (GitTag)', 'git://github.com/FreeCAD/FreeCAD.git releases/FreeCAD-0-18', '2019/10/22 16:53:35', 'releases/FreeCAD-0-18', '980bf9060e28555fecd9e3462f68ca74007b70f8']
     # ['0', '19', '18234 (Git)', 'git://github.com/FreeCAD/FreeCAD.git master', '2019/09/15 20:43:17', 'master', '3af5d97e9b2a60823815f662aba25422c4bc45bb']
     # ['0', '21', '0', '32457 (Git)', 'https://github.com/FreeCAD/FreeCAD master', '2023/03/23 00:09:35', 'master', '85216bd12730bbc4c3cbf8f0bc50416ab1556cbb']
+    # ['1', '1', '0', '20251125 (Git shallow)', 'Unknown', '2025/11/25 17:53:08', '(HEAD detached at 5376760)', '53767601ea65de7cd9f6590e7d5856afc0841635']
     if len(App.Version()) <= 7:
         strmaj, strmi, strrev = App.Version()[0:3]
         maj, mi = int(strmaj), int(strmi)
@@ -21,7 +22,7 @@ def get_fc_version():
         except Exception as err:
             App.Console.PrintWarning(u"Lattice2 failed to detect FC version number.\n"
                                      "    {err}\n".format(err= str(err)))
-            rev = 39109 #assume fairly modern
+            rev = 0 # assume fairly modern
     if rev < 100:
         rev_map = {
             (0, 17) : 13544,
@@ -34,12 +35,14 @@ def get_fc_version():
         }
         if (maj, mi) in rev_map:
             rev = rev_map[(maj, mi)]
+        elif max(rev_map) < (maj, mi) < (max(rev_map)[0] + 1, 0) # detect future 1.x releases, assume they don't break wrt last known 1.y
+            rev = rev_map[max(rev_map)]
         else:
             App.Console.PrintWarning(
                 u"Lattice2 failed to detect FC version number: revision is zero / too low, minor version is unexpected.({ver})."
                 .format(ver= str((maj, mi, submi, rev)))
             )
-            rev = 39109 #assume fairly modern
+            rev = rev_map[max(rev_map)] #assume fairly modern
     return (maj, mi, submi, rev)
 
 
