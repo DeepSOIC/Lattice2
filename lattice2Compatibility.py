@@ -35,7 +35,7 @@ def get_fc_version():
         }
         if (maj, mi) in rev_map:
             rev = rev_map[(maj, mi)]
-        elif max(rev_map) < (maj, mi) < (max(rev_map)[0] + 1, 0) # detect future 1.x releases, assume they don't break wrt last known 1.y
+        elif max(rev_map) < (maj, mi) < (max(rev_map)[0] + 1, 0): # detect future 1.x releases, assume they don't break wrt last known 1.y
             rev = rev_map[max(rev_map)]
         else:
             App.Console.PrintWarning(
