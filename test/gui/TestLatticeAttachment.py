@@ -6,9 +6,10 @@ import Part
 import Sketcher
 
 import lattice2AttachablePlacement
+from test.gui.Lattice2GuiTestCase import Lattice2GuiTestCase
 
 
-class TestLatticeAttachment(unittest.TestCase):
+class TestLatticeAttachment(Lattice2GuiTestCase):
     def setUp(self):
         self.doc = App.newDocument("TestLatticeAttachment")
 
@@ -37,8 +38,7 @@ class TestLatticeAttachment(unittest.TestCase):
 
         placement = self.doc.getObject(placementName)
         self.assertIsNotNone(placement, msg=f"Placement {placementName} not found")
-        self.assertEqual(1, placement.NumElements)
-        self.assertEqual(cube.Placement.Base, placement.Placement.Base)
+        self.checkPlacements(placement, [cube.Placement])
         self.assertEqual(cube.Name, placement.AttachmentSupport[0][0].Name)
         self.assertEqual(mapMode, placement.MapMode)
 
@@ -55,9 +55,9 @@ class TestLatticeAttachment(unittest.TestCase):
 
         attachedPlacementName = "Attached_Placement"
         attachedPlacement = lattice2AttachablePlacement.makeAttachablePlacement(name=attachedPlacementName)
-        attachedPlacement.AttachmentSupport = [(sketch, "Edge5"), (sketch, "Edge6")]
+        attachedPlacement.AttachmentSupport = [(sketch, "Vertex8"), (sketch, "Edge5"), (sketch, "Edge6")]
         self.doc.recompute()
-        attachedPlacement.MapMode = "InertialCS"
+        attachedPlacement.MapMode = "OXY"  # Matches default rotation of placement
         self.doc.recompute()
 
         arrayPlacementName = "Array_Attached_Placement"
@@ -68,9 +68,14 @@ class TestLatticeAttachment(unittest.TestCase):
 
         arrayPlacement = self.doc.getObject(arrayPlacementName)
         self.assertIsNotNone(arrayPlacement, msg=f"Placement {arrayPlacementName} not found")
-        self.assertEqual(numInstances - 2, arrayPlacement.NumElements)  # Should only have placements for instances 3 to 8
+        self.assertEqual(numInstances - 2,
+                         arrayPlacement.NumElements)  # Should only have placements for instances 3 to 8
 
         arrayPlacement.CycleMode = "Periodic"  # Allows looping back to first instance
         self.doc.recompute()
 
         self.assertEqual(numInstances, arrayPlacement.NumElements)  # Now should have placements for all instances
+
+        expectedPlacements = [App.Placement(sketch.Geometry[i].EndPoint, App.Rotation()) for i in
+                              range(0, numInstances * 2, 2)]
+        self.checkPlacements(arrayPlacement, expectedPlacements, sortFunc=lambda p: p.Base.y)

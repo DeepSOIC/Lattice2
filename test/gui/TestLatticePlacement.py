@@ -4,9 +4,10 @@ import FreeCAD as App
 
 import lattice2ArrayFromShape
 import lattice2Placement
+from test.gui.Lattice2GuiTestCase import Lattice2GuiTestCase
 
 
-class TestLatticePlacement(unittest.TestCase):
+class TestLatticePlacement(Lattice2GuiTestCase):
     """ Unit tests for single lattice placement objects in FreeCAD. """
 
     def setUp(self):
@@ -42,9 +43,7 @@ class TestLatticePlacement(unittest.TestCase):
             self._test_common(placement, placementName, placementChoice)
             self.assertEqual(placementChoice, placement.PlacementChoice,
                              msg=f"PlacementChoice mismatch for {placementName}")
-            self.assertTrue(
-                placement.Placement.Rotation.isSame(rotation, 0.1),  # Allow small tolerance for rounding errors
-                msg=f"Placement rotation mismatch for {placementName}")
+            self.checkPlacements(placement, [App.Placement(App.Vector(), rotation)])
 
     def test_single_lattice_placement_along_axis(self):
         """ Test basic creation and rotation of single lattice placement objects along specific axes.
@@ -73,8 +72,7 @@ class TestLatticePlacement(unittest.TestCase):
 
             self._test_common(placement, placementName, alongAxis)
             self.assertEqual(rotationTuple[0], placement.XDir_actual, msg=f"XDir_actual mismatch for {placementName}")
-            self.assertTrue(placement.Placement.Rotation.isSame(rotationTuple[1], 0.1),
-                            msg=f"Placement rotation mismatch for {placementName}")
+            self.checkPlacements(placement, [App.Placement(App.Vector(), rotationTuple[1])])
 
     def test_single_lattice_placement_euler_angles(self):
         """ Test basic creation and rotation of single lattice placement objects using Euler angles."""
@@ -100,8 +98,10 @@ class TestLatticePlacement(unittest.TestCase):
             placement = self.doc.getObject(placementName)
 
             self._test_common(placement, placementName, f"Euler_{'_'.join(angleNames)}")
-            self.assertTrue(placement.Placement.Rotation.isSame(App.Rotation(*testRotation), 0.1),
-                            msg=f"Placement rotation mismatch for {placementName}")
+
+            self.checkPlacements(placement, [App.Placement(App.Vector(), App.Rotation(testRotation[0], testRotation[1],
+                                                                                      testRotation[2]))],
+                                 identifier=placementName)
 
     def test_lattice_placement_from_shape(self):
         """ Test creation and of single lattice placement objects from shape geometry.
@@ -132,5 +132,4 @@ class TestLatticePlacement(unittest.TestCase):
             placement = self.doc.getObject(placementName)
 
             self._test_common(placement, placementName, translateMode)
-            self.assertEqual(expectedPosition, placement.Placement.Base,
-                             msg=f"Placement base position mismatch for {placementName}")
+            self.checkPlacements(placement, [App.Placement(expectedPosition, App.Rotation())], identifier=placementName)
