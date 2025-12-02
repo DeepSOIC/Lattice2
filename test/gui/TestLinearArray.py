@@ -3,10 +3,12 @@ import unittest
 import FreeCAD as App
 import Part
 
+import lattice2BaseFeature
 import lattice2LinearArray
+from test.gui.Lattice2GuiTestCase import Lattice2GuiTestCase
 
 
-class TestLinearArray(unittest.TestCase):
+class TestLinearArray(Lattice2GuiTestCase):
     def setUp(self):
         self.doc = App.newDocument("TestLinearArray")
 
@@ -27,18 +29,29 @@ class TestLinearArray(unittest.TestCase):
         targetEdge = sketch.Shape.Edges[0]
 
         arrayName = "Linear_Array_Linked_Object"
+        count = 5
         latticeArray = lattice2LinearArray.makeLinearArray(arrayName)
+        latticeArray.Count = count
         latticeArray.Link = sketch
         latticeArray.SubLink = (sketch, "Edge1")
         latticeArray.GeneratorMode = "SpanN"
         self.doc.recompute()
 
         dirVector = (targetEdge.Vertexes[1].Point - targetEdge.Vertexes[0].Point).normalize()
+        expectedStartPoint = App.Vector(targetEdge.Vertexes[0].Point)
 
         self.assertEqual(dirVector, latticeArray.Dir, msg=f"Array direction does not match linked edge direction")
-        self.assertEqual(targetEdge.Vertexes[0].Point, latticeArray.Point,
+        self.assertEqual(expectedStartPoint, latticeArray.Point,
                          msg=f"Start point does not match linked edge start point")
         self.assertEqual(targetEdge.Length, latticeArray.SpanEnd, msg="Span end does not match linked edge length")
+        step = targetEdge.Length / (count - 1)
+        # expectedPlacements = [App.Placement(self.getPositionAlongVector(expectedStartPoint, dirVector, step * i), App.Rotation(dirVector)) for i in range(count)]
+        expectedPlacements = []
+        rotation = App.Rotation(App.Vector(1, 0, 0), dirVector)  # Rotation in terms of aligning X axis to dirVector
+        for i in range(count):
+            position = self.getPositionAlongVector(expectedStartPoint, dirVector, step * i)
+            expectedPlacements.append(App.Placement(position, rotation))
+        self.checkPlacements(latticeArray, expectedPlacements)
 
     def test_array_offset(self):
         """ Test creation of a linear array with an offset applied.
@@ -61,12 +74,15 @@ class TestLinearArray(unittest.TestCase):
         expectedStep = (spanEnd - spanStart) / (count - 1)  # Should remain unchanged
         self.assertAlmostEqual(expectedStep, latticeArray.Step,
                                msg="Step value does not match calculated space between elements")
-        expectedFirstValue = spanStart + offset * expectedStep
-        expectedLastValue = spanEnd + offset * expectedStep
-        self.assertEqual(expectedFirstValue, float(latticeArray.Values[0]),
-                         msg="First value does not match expected value with offset applied")
-        self.assertEqual(expectedLastValue, float(latticeArray.Values[-1]),
-                         msg="Last value does not match expected value with offset applied")
+        expectedFirstPlacementPosition = spanStart + offset * expectedStep
+        expectedLastPlacementPosition = spanEnd + offset * expectedStep
+        expectedPlacements = []
+        for i in range(count - 1):
+            position = expectedFirstPlacementPosition + i * expectedStep
+            expectedPlacements.append(App.Placement(App.Vector(position, 0, 0), App.Rotation()))
+        # Specifically check last placement is exactly at the end point of the span plus offset
+        expectedPlacements.append(App.Placement(App.Vector(expectedLastPlacementPosition, 0, 0), App.Rotation()))
+        self.checkPlacements(latticeArray, expectedPlacements)
 
     def test_span_n_array(self):
         """ Test creation of a linear array with span N. """
@@ -89,13 +105,16 @@ class TestLinearArray(unittest.TestCase):
             actualSpaceBetween = float(latticeArray.Values[valueIndex]) - float(latticeArray.Values[valueIndex - 1])
             self.assertAlmostEqual(expectedSpaceBetween, actualSpaceBetween,
                                    msg=f"Space between elements is not consistent at index {valueIndex}")
-        self.assertEqual(spanStart, float(latticeArray.Values[0]),
-                         msg="Span start does not match first value in Values array")
-        self.assertEqual(spanEnd, float(latticeArray.Values[-1]),
-                         msg="Span end does not match last value in Values array")
         # Allow small tolerance for floating point arithmetic
         self.assertAlmostEquals(expectedSpaceBetween, latticeArray.Step,
                                 msg="Step value does not match calculated space between elements")
+        expectedPlacements = []
+        for i in range(count - 1):
+            position = spanStart + i * expectedSpaceBetween
+            expectedPlacements.append(App.Placement(App.Vector(position, 0, 0), App.Rotation()))
+        # Specifically check last placement is exactly at the end point of the span
+        expectedPlacements.append(App.Placement(App.Vector(spanEnd, 0, 0), App.Rotation()))
+        self.checkPlacements(latticeArray, expectedPlacements)
 
     def test_n_step_array(self):
         """ Test creation of a linear array with N elements and specified step. """
@@ -116,9 +135,11 @@ class TestLinearArray(unittest.TestCase):
             actualSpaceBetween = float(latticeArray.Values[valueIndex]) - float(latticeArray.Values[valueIndex - 1])
             self.assertAlmostEqual(step, actualSpaceBetween,
                                    msg=f"Space between elements is not consistent at index {valueIndex}")
-        expectedSpanEnd = step * (count - 1)
-        self.assertEqual(expectedSpanEnd, float(latticeArray.Values[-1]),
-                         msg="Span end does not match last value in Values array")
+        expectedPlacements = []
+        for i in range(count):
+            position = i * step
+            expectedPlacements.append(App.Placement(App.Vector(position, 0, 0), App.Rotation()))
+        self.checkPlacements(latticeArray, expectedPlacements)
 
     def test_span_step_array(self):
         """ Test creation of a linear array with specified span and step. """
@@ -138,15 +159,11 @@ class TestLinearArray(unittest.TestCase):
         expectedCount = int((spanEnd - spanStart) / step) + 1
         self.assertEqual(expectedCount, latticeArray.NumElements,
                          msg="NumElements does not match calculated count from SpanStart, SpanEnd,  and Step")
-        for valueIndex in range(1, latticeArray.NumElements):
-            actualSpaceBetween = float(latticeArray.Values[valueIndex]) - float(latticeArray.Values[valueIndex - 1])
-            self.assertAlmostEqual(step, actualSpaceBetween,
-                                   msg=f"Space between elements is not consistent at index {valueIndex}")
-        self.assertEqual(spanStart, float(latticeArray.Values[0]),
-                         msg="Span start does not match first value in Values array")
-        expectedSpanEnd = step * (expectedCount - 1) + spanStart
-        self.assertEqual(expectedSpanEnd, float(latticeArray.Values[-1]),
-                         msg="Span end does not match last value in Values array")
+        expectedPlacements = []
+        for i in range(expectedCount):
+            position = spanStart + i * step
+            expectedPlacements.append(App.Placement(App.Vector(position, 0, 0), App.Rotation()))
+        self.checkPlacements(latticeArray, expectedPlacements)
 
     def test_random_array(self):
         """ Test creation of a linear array with random distribution. """
@@ -165,8 +182,9 @@ class TestLinearArray(unittest.TestCase):
         self.assertIsNotNone(latticeArray, msg=f"Linear array not found")
         self.assertEqual(count, latticeArray.NumElements,
                          msg="NumElements does not match Count value")
-        sortedValues = sorted([float(val) for val in latticeArray.Values])
-        self.assertGreaterEqual(sortedValues[0], spanStart,
-                                msg="Some values are less than SpanStart")
-        self.assertLessEqual(sortedValues[-1], spanEnd,
-                             msg="Some values are greater than SpanEnd")
+        actualPlacements = lattice2BaseFeature.getPlacementsList(latticeArray)
+        actualPlacements.sort(key=lambda p: p.Base.x)  # Sort placements by X position
+        self.assertGreaterEqual(actualPlacements[0].Base.x, spanStart,
+                                msg="Some placements are less than SpanStart")
+        self.assertLessEqual(actualPlacements[-1].Base.x, spanEnd,
+                             msg="Some placements are greater than SpanEnd")
