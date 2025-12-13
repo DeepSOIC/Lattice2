@@ -1,5 +1,4 @@
 # Lattice2 Workbench
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/DeepSOIC/Lattice2.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/DeepSOIC/Lattice2/alerts/) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/DeepSOIC/Lattice2.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/DeepSOIC/Lattice2/context:python)  
 
 Lattice Workbench is a plug-in module/addon (workbench) for FreeCAD.
 
@@ -44,9 +43,7 @@ Lattice3 (if ever) will be a standalone repository, for the same reasons.
 
 ### Prerequisites
 
-* FreeCAD >= `v0.16.5155`  
-* PartDesign tools require `v0.17+`  
-* Both Py2/Qt4 and Py3/Qt5 builds are supported.
+* FreeCAD >= `v0.17`. Some features may require a newer version.
 
 The workbench is OS independent, it should work on any system FreeCAD can be run on. If you find that it doesn't - that is a bug. Please open an ticket in the [issue queue](https://github.com/DeepSOIC/Lattice2/issues).  
 
