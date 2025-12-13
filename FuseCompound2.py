@@ -123,7 +123,10 @@ class _CommandFuseCompound:
         
     def Activated(self):
         if len(FreeCADGui.Selection.getSelection()) == 1 :
-            CreateFuseCompound(name = "FuseCompound")
+            # CreateFuseCompound(name = "FuseCompound")
+            # Part Union can do it since ~0.19
+            import PartGui
+            FreeCADGui.runCommand('Part_Fuse')
         else:
             mb = QtGui.QMessageBox()
             mb.setIcon(mb.Icon.Warning)
