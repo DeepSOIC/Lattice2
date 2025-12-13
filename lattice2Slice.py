@@ -164,11 +164,15 @@ class CommandLatticeSlice:
     def Activated(self):
         try:
             if len(FreeCADGui.Selection.getSelectionEx()) == 2 :
-                CreateLatticeSlice(name = "Slice")
+                # CreateLatticeSlice(name = "Slice")
+                # Part Slice now exists, so let's just use that
+                import PartGui
+                FreeCADGui.runCommand('Part_Slice')
             else:
-                infoMessage("Lattice Slice","Please select object to be sliced, first, then the cutter object. Then invoke this tool.\n\n"
-                                            "Object to be sliced: any shape, or compound of shapes (self-intersecting compounds are allowed).\n\n"
-                                            "Cutter object: face, shell, or solid. Or a compound of any of these (self-intersecting compound allowed). Shells must be manifold (no triple-connected edges are allowed; non-closed is OK).")
+                infoMessage("Lattice Slice","This is Part Slice.\n\n"
+                                            "Please select object to be sliced, first, then the cutter object. Then invoke this tool.\n\n"
+                                            "Object to be sliced: any shape, or compound of shapes (self-intersecting compounds are not allowed).\n\n"
+                                            "Cutter object: face, shell, or solid. Or a compound of any of these (self-intersecting compound not allowed).")
         except Exception as err:
             msgError(err)
     def IsActive(self):
