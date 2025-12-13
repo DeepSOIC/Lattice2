@@ -21,7 +21,7 @@
 #*                                                                         *
 #***************************************************************************
 
-__title__="Lattice Recompute Locker: hack to manual recompute of documents."
+__title__="Lattice Recompute commands."
 __author__ = "DeepSOIC"
 __url__ = ""
 
@@ -70,157 +70,13 @@ def recomputeFeature(featureToRecompute, bUndoable = True):
     if hasattr(featureToRecompute, 'Recomputing'):
         if featureToRecompute.Recomputing == 'Disabled': #toposeries, paraseries...
             featureToRecompute.Recomputing = 'Recompute Once'
-    if hasattr(featureToRecompute, "recompute"):
-        # new FreeCAD! yay!
-        featureToRecompute.recompute()
-    elif hasattr(featureToRecompute, "Proxy"):
-        #Python feature - easy!
-        featureToRecompute.Proxy.execute(featureToRecompute)
-    else:
-        infoMessage("RecomputeFeature","Selected feature is a C++ feature. Recomputing them with this command was temporarily disabled, because it is known to break dependencies. The command will be frozen, till a reliable way of recomputing c++ feature gets exposed.")
-        return
-    featureToRecompute.purgeTouched()
-    for docobj in featureToRecompute.InList:
-        touch(docobj)
+    featureToRecompute.recompute()
     if bUndoable:
-        doc.commitTransaction()
-
-def makeRecomputeLocker(name):
-    '''makeRecomputeLocker(name): makes a RecomputeLocker document object.'''
-    obj = FreeCAD.ActiveDocument.addObject("App::FeaturePython",name)
-    LatticeRecomputeLocker(obj)
-    if FreeCAD.GuiUp:        
-        ViewProviderLatticeRecomputeLocker(obj.ViewObject)
-    return obj
-
-class LatticeRecomputeLocker:
-    "The LatticeRecomputeLocker object. Mainly used as a mean to stop FreeCAD's automatic recomputes."
-    def __init__(self,obj):
-        self.Type = "LatticeRecomputeLocker"
-        
-        obj.addProperty("App::PropertyLink","LinkToSelf","Lattice RecomputeLocker","Link to self, that breaks the DAG, which causes standard FreeCAD recomputes to fail.")
-        
-        obj.addProperty("App::PropertyBool","LockRecomputes","Lattice RecomputeLocker", "Set to true to disable automatic recomputes in FreeCAD")
-        
-        obj.Proxy = self
-        
-    def onChanged(self, obj, prop): #prop is a string - name of the property
-        if prop == "LockRecomputes":
-            if obj.LockRecomputes:
-                obj.LinkToSelf = obj
-            else:
-                obj.LinkToSelf = None
-                
-    def execute(self, obj):
-        pass
-        
-    def RecomputeDocument(self, obj, bUndoable = True):
-        oldState = obj.LockRecomputes
-        obj.LockRecomputes = False
-        doc = obj.Document
-        if bUndoable:
-            doc.openTransaction("Recompute document")
-        doc.recompute()
-        if bUndoable:
-            doc.commitTransaction()
-        obj.LockRecomputes = oldState
-                    
-    def collectTouchedDict(self, selfobj):
-        doc = selfobj.Document
-        dict = {}
-        for docobj in doc.Objects:
-            dict[docobj.Name] = 'Touched' in docobj.State
-        return dict
-            
-    def restoreTouched(self, selfobj, dict):
-        doc = selfobj.Document
-        for docobj in doc.Objects:
-            if dict[docobj.Name] != ('Touched' in docobj.State):
-                if dict[docobj.Name] == True:
-                    touch(docobj)
-                else:
-                    docobj.purgeTouched()
-                    
-    
-class ViewProviderLatticeRecomputeLocker:
-    "A View Provider for LatticeRecomputeLocker object"
-
-    def __init__(self,vobj):
-        vobj.Proxy = self
-        
-    def getIcon(self):
-        if self.Object.LockRecomputes:
-            return getIconPath("Lattice2_RecomputeLocker_Locked.svg")
-        else:
-            return getIconPath("Lattice2_RecomputeLocker_Unlocked.svg")
-
-    def attach(self, vobj):
-        self.ViewObject = vobj
-        self.Object = vobj.Object
-
-  
-    def setEdit(self,vobj,mode):
-        return False
-    
-    def unsetEdit(self,vobj,mode):
-        return
-
-    def __getstate__(self):
-        return None
-
-    def __setstate__(self,state):
-        return None
-
-    def dumps(self):
-        return None
-
-    def loads(self,state):
-        return None
-    
-# --------------------------------/document object------------------------------
-
-
+        doc.commitTransaction()                    
 
 # --------------------------------Gui commands----------------------------------
-
-def getLocker():
-    if hasattr(App.ActiveDocument,"LatticeRecomputeLocker"):
-        return App.ActiveDocument.LatticeRecomputeLocker
-    else:
-        return None
-
-class _CommandMakeLockerObj:
-    "Command to create RecomputeLocker feature"
-    def GetResources(self):
-        return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_MakeFeature.svg"),
-                'MenuText': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Make recompute locker object"),
-                'Accel': "",
-                'ToolTip': QtCore.QT_TRANSLATE_NOOP("Lattice2_RecomputeLocker","Make recompute locker object. Doing this is necessary to enable recompute locking hacktionality."),
-                'CmdType':"ForEdit"}
-        
-    def Activated(self):
-        if getLocker() is None:
-            FreeCADGui.addModule("lattice2RecomputeLocker")
-            FreeCADGui.doCommand("lattice2RecomputeLocker.makeRecomputeLocker('LatticeRecomputeLocker')")
-            FreeCADGui.doCommand("App.ActiveDocument.LatticeRecomputeLocker.purgeTouched()")
-        else:
-            mb = QtGui.QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice2_RecomputeLocker", "A recompute locker object already exists in this document. Only one such object can be made.", None))
-            mb.setWindowTitle(translate("Lattice2_RecomputeLocker","Nothing to do", None))
-            mb.exec_()
             
-    def IsActive(self):
-        if not App.ActiveDocument: return False
-        if hasattr(App.ActiveDocument,'RecomputesFrozen'):
-            return False # new FreeCAD, with proper recompute disablement. Disable the hack.
-        else:
-            return (bool(App.ActiveDocument) and getLocker() is None)
-            
-if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Lattice2_RecomputeLocker_MakeFeature', _CommandMakeLockerObj())
-
-class _CommandLockRecomputes:
+class CommandLockRecomputes:
     "Command to lock automatic recomputes"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_LockRecomputes.svg"),
@@ -230,30 +86,16 @@ class _CommandLockRecomputes:
                 'CmdType':"ForEdit"}
         
     def Activated(self):
-        if hasattr(App.ActiveDocument,'RecomputesFrozen'):
-            FreeCADGui.doCommand("App.ActiveDocument.RecomputesFrozen = True")
-        elif getLocker() is not None:
-            FreeCADGui.addModule("lattice2RecomputeLocker")
-            FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().LockRecomputes = True")
-            FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().touch()") #gets rid of the tick, plus updates the icon.
-        else:
-            mb = QtGui.QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice2_RecomputeLocker", "There is no recompute locker object in the document. Please create one, first.", None))
-            mb.setWindowTitle(translate("Lattice2_RecomputeLocker","fail", None))
-            mb.exec_()
+        FreeCADGui.doCommand("App.ActiveDocument.RecomputesFrozen = True")
             
     def IsActive(self):
         if not App.ActiveDocument: return False
-        if hasattr(App.ActiveDocument,'RecomputesFrozen'):
-            return App.ActiveDocument.RecomputesFrozen == False 
-        else:
-            return getLocker() is not None and not getLocker().LockRecomputes
+        return App.ActiveDocument.RecomputesFrozen == False 
             
 if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Lattice2_RecomputeLocker_LockRecomputes', _CommandLockRecomputes())
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_LockRecomputes', CommandLockRecomputes())
 
-class _CommandUnlockRecomputes:
+class CommandUnlockRecomputes:
     "Command to unlock automatic recomputes"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_UnlockRecomputes.svg"),
@@ -263,30 +105,16 @@ class _CommandUnlockRecomputes:
                 'CmdType':"ForEdit"}
         
     def Activated(self):
-        if hasattr(App.ActiveDocument,'RecomputesFrozen'):
-            FreeCADGui.doCommand("App.ActiveDocument.RecomputesFrozen = False")
-        elif getLocker() is not None:
-            FreeCADGui.addModule("lattice2RecomputeLocker")
-            FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().LockRecomputes = False")
-            FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().purgeTouched()") #gets rid of the tick, plus updates the icon.
-        else:
-            mb = QtGui.QMessageBox()
-            mb.setIcon(mb.Icon.Warning)
-            mb.setText(translate("Lattice2_RecomputeLocker", "There is no recompute locker object in the document. Please create one, first.", None))
-            mb.setWindowTitle(translate("Lattice2_RecomputeLocker","fail", None))
-            mb.exec_()
+        FreeCADGui.doCommand("App.ActiveDocument.RecomputesFrozen = False")
             
     def IsActive(self):
         if not App.ActiveDocument: return False
-        if hasattr(App.ActiveDocument,'RecomputesFrozen'):
-            return App.ActiveDocument.RecomputesFrozen == True 
-        else:
-            return getLocker() is not None and getLocker().LockRecomputes
+        return App.ActiveDocument.RecomputesFrozen == True 
             
 if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Lattice2_RecomputeLocker_UnlockRecomputes', _CommandUnlockRecomputes())
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_UnlockRecomputes', CommandUnlockRecomputes())
 
-class _CommandRecomputeFeature:
+class CommandRecomputeFeature:
     "Command to recompute single object"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_RecomputeFeature.svg"),
@@ -305,10 +133,10 @@ class _CommandRecomputeFeature:
         return len(FreeCADGui.Selection.getSelectionEx()) > 0
             
 if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Lattice2_RecomputeLocker_RecomputeFeature', _CommandRecomputeFeature())
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_RecomputeFeature', CommandRecomputeFeature())
 
 
-class _CommandRecomputeDocument:
+class CommandRecomputeDocument:
     "Command to recompute whole document"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_RecomputeDocument.svg"),
@@ -318,31 +146,21 @@ class _CommandRecomputeDocument:
                 'CmdType':"ForEdit"}
         
     def Activated(self):
-        try:
-            if hasattr(App.ActiveDocument, 'RecomputesFrozen'):
-                FreeCADGui.doCommand(
-                    '_lock = App.ActiveDocument.RecomputesFrozen\n'
-                    'App.ActiveDocument.RecomputesFrozen = False\n'
-                    'App.ActiveDocument.recompute()\n'
-                    'App.ActiveDocument.RecomputesFrozen = _lock\n'
-                    'del _lock\n'
-                )
-            else: #old FC, hacky recompute control
-                if getLocker() is not None:
-                    FreeCADGui.addModule("lattice2RecomputeLocker")
-                    FreeCADGui.doCommand("lattice2RecomputeLocker.getLocker().Proxy.RecomputeDocument(lattice2RecomputeLocker.getLocker())")
-                else:
-                    FreeCADGui.doCommand("App.ActiveDocument.recompute()")
-        except Exception as err:
-            msgError(err)
+        FreeCADGui.doCommand(
+            '_lock = App.ActiveDocument.RecomputesFrozen\n'
+            'App.ActiveDocument.RecomputesFrozen = False\n'
+            'App.ActiveDocument.recompute()\n'
+            'App.ActiveDocument.RecomputesFrozen = _lock\n'
+            'del _lock\n'
+        )
             
     def IsActive(self):
         return App.ActiveDocument is not None
             
 if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Lattice2_RecomputeLocker_RecomputeDocument', _CommandRecomputeDocument())
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_RecomputeDocument', CommandRecomputeDocument())
 
-class _CommandForceRecompute:
+class CommandForceRecompute:
     "Command to force recompute of every feature"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_ForceRecompute.svg"),
@@ -355,7 +173,7 @@ class _CommandForceRecompute:
         try:
             FreeCADGui.addModule("lattice2RecomputeLocker")
             FreeCADGui.doCommand("lattice2RecomputeLocker.touchEverything(App.ActiveDocument)")
-            _CommandRecomputeDocument().Activated()
+            CommandRecomputeDocument().Activated()
         except Exception as err:
             msgError(err)
             
@@ -363,10 +181,10 @@ class _CommandForceRecompute:
         return App.ActiveDocument is not None
             
 if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Lattice2_RecomputeLocker_ForceRecompute', _CommandForceRecompute())
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_ForceRecompute', CommandForceRecompute())
 
 
-class _CommandTouch:
+class CommandTouch:
     "Command to touch a feature"
     def GetResources(self):
         return {'Pixmap'  : getIconPath("Lattice2_RecomputeLocker_Touch.svg"),
@@ -391,7 +209,7 @@ class _CommandTouch:
                 # not all selected objects are currently touched. Touch the remaining...
                 FreeCADGui.doCommand("for so in Gui.Selection.getSelectionEx(): lattice2RecomputeLocker.touch(so.Object)")
             else:
-                #all selected objects are already touched. 
+                #all selected objects are already touched. Untouch them.
                 FreeCADGui.doCommand("for so in Gui.Selection.getSelectionEx(): so.Object.purgeTouched()")
                 
         except Exception as err:
@@ -401,10 +219,9 @@ class _CommandTouch:
         return App.ActiveDocument is not None
             
 if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Lattice2_RecomputeLocker_Touch', _CommandTouch())
+    FreeCADGui.addCommand('Lattice2_RecomputeLocker_Touch', CommandTouch())
 
 exportedCommands = [
-    "Lattice2_RecomputeLocker_MakeFeature",
     "Lattice2_RecomputeLocker_LockRecomputes",
     "Lattice2_RecomputeLocker_UnlockRecomputes",
     "Lattice2_RecomputeLocker_RecomputeFeature",
@@ -412,14 +229,6 @@ exportedCommands = [
     "Lattice2_RecomputeLocker_ForceRecompute",
     "Lattice2_RecomputeLocker_Touch"
     ]
-try:
-    if float(App.Version()[1]) >= 17.0:
-        exportedCommands.remove("Lattice2_RecomputeLocker_MakeFeature")
-except Exception as err:
-    App.Console.PrintWarning("Failed to parse version string: {v}".format(v= App.Version()[1]))
-    #assume modern
-    exportedCommands.remove("Lattice2_RecomputeLocker_MakeFeature")
-
     
 class CommandRecomputeGroup:
     def GetCommands(self):
@@ -438,11 +247,3 @@ class CommandRecomputeGroup:
         return App.ActiveDocument is not None
 if FreeCAD.GuiUp:
     FreeCADGui.addCommand('Lattice2_RecomputeLockerGroup', CommandRecomputeGroup())
-    
-    
-def msgbox(strmsg):
-    mb = QtGui.QMessageBox()
-    mb.setIcon(mb.Icon.Warning)
-    mb.setText(strmsg)
-    mb.setWindowTitle("debug")
-    mb.exec_()
