@@ -351,7 +351,14 @@ class ViewProviderLatticePDPattern:
             return []
         return [self.Object.PlacementsTo]
         
-    def onDelete(self, feature, subelements): # subelements is a tuple of strings
+    def onDelete(self, host_vp, subelements): # subelements is a tuple of strings
+        # reconnect next PD feature to the one before self
+        host = self.Object
+        dependent_objs = host.InList
+        for obj in dependent_objs:
+            if getattr(obj,'BaseFeature',None) == host:
+                obj.BaseFeature = host.BaseFeature
+
         return True
     
     def setEdit(self,vobj,mode):
