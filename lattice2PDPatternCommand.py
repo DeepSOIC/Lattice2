@@ -25,7 +25,8 @@ class CommandLatticePDPattern:
                     "right in PartDesign bodies, but you can't drag them in after the fact. You can import arrays of placements from elsewhere using a Shapebinder, or Part-o-Magic Ghost.")
                 return
             if activeBody() is None:
-                infoMessage("Lattice PartDesign Pattern", "No active body. Please, activate a body, first.")
+                FreeCAD.Console.PrintUserError("No active body.")
+                return
             cmdPDPattern()
         except Exception as err:
             msgError(err)
