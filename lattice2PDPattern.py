@@ -134,16 +134,22 @@ def feature_sign(feature, raise_if_unsupported = False):
             return unsupported()
     return unsupported()
     
+def getShapeCheckNull(obj, prop_name):
+    sh = getattr(obj, prop_name)
+    if sh.isNull():
+        raise ValueError(f"{obj.Label}/{prop_name} shape is null")
+    return sh
+
 def getFeatureShapes(feature):
     sign = feature_sign(feature, raise_if_unsupported= True)
     if hasattr(feature, 'AddSubShape'):
-        sh = shallowCopy(feature.AddSubShape)
+        sh = shallowCopy(getShapeCheckNull(feature, 'AddSubShape'))
         sh.Placement = feature.Placement
         return [(sign, sh)]
     elif feature.isDerivedFrom('PartDesign::Boolean'):
-        return [(sign, obj.Shape) for obj in feature.Group]
+        return [(sign, getShapeCheckNull(obj,'Shape')) for obj in feature.Group]
     elif feature.isDerivedFrom('PartDesign::FeatureBase'):
-        sh = shallowCopy(feature.Shape)
+        sh = shallowCopy(getShapeCheckNull(feature,'Shape'))
         return [(sign, sh)]
     else:
         raise FeatureUnsupportedError("Feature {name} is not supported.".format(name= feature.Name))
