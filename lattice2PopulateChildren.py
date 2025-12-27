@@ -342,7 +342,7 @@ class _CommandLatticePopulateChildrenGroup:
         return 0
 
     def GetResources(self):
-        return { 'MenuText': 'Populate with Children:', 
+        return { 'MenuText': 'Populate with Children', 
                  'ToolTip': 'Populate with Children: put children of compound at corresponding placements in an array of placements.'}
         
     def IsActive(self): # optional

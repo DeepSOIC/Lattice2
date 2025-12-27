@@ -242,7 +242,7 @@ class _CommandPlacement:
         
     def Activated(self):
         FreeCADGui.Selection.clearSelection() 
-        CreateLatticePlacement(name= "Placment", mode= self.mode)
+        CreateLatticePlacement(name= "Placement", mode= self.mode)
         if self.mode == "Custom":
             FreeCADGui.runCommand("Std_Placement")
             
