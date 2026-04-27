@@ -36,7 +36,7 @@ from lattice2BaseFeature import assureProperty
 import lattice2Executer
 import lattice2GeomUtils
 from lattice2ValueSeriesGenerator import ValueSeriesGenerator
-from lattice2Utils import sublinkFromApart, syncSublinkApart
+from lattice2Utils import sublinkFromApart
 
 def makeLinearArray(name):
     '''makeLinearArray(name): makes a LinearArray object.'''
@@ -70,6 +70,8 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         obj.addProperty("App::PropertyEnumeration","OrientMode","Lattice Array","Orientation of elements")
         obj.OrientMode = ['None','Along axis']
         obj.OrientMode = 'Along axis'
+
+        self.assureProperties(obj)
         
         self.assureGenerator(obj)
         obj.ValuesSource = "Generator"
@@ -80,10 +82,9 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         obj.Step = 3.0
         obj.Count = 5.0
         
-        self.assureProperties(obj)
 
     def updateReadonlyness(self, obj):
-        link = screen(obj.Link)
+        link = obj.SubLink
         obj.setEditorMode("Dir", 1 if (link and obj.DirIsDriven) else 0)
         obj.setEditorMode("Point", 1 if (link and obj.PointIsDriven) else 0)
         obj.setEditorMode("DirIsDriven", 0 if link else 1)
@@ -104,7 +105,11 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         self.updateReadonlyness(obj)
         
     def assureProperties(self, selfobj):
-        assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(screen(selfobj.Link), selfobj.LinkSubelement), "Lattice Array", "Mirror of Object+SubNames properties")
+        sub = getattr(selfobj,'LinkSubelement', '')
+        assureProperty(selfobj, "App::PropertyLinkSub", "SubLink", sublinkFromApart(screen(selfobj.Link), sub), "Lattice Array", "Mirror of Object+SubNames properties")
+        if hasattr(selfobj, 'LinkSubelement'):
+            selfobj.removeProperty('LinkSubelement')
+
 
     def derivedExecute(self,obj):
         self.assureGenerator(obj)
@@ -112,15 +117,19 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         self.updateReadonlyness(obj)
 
         # Apply links
-        if screen(obj.Link):
-            if lattice2BaseFeature.isObjectLattice(screen(obj.Link)):
+        lnk, subnames = obj.SubLink if obj.SubLink is not None else (None, [])
+        if len(subnames) > 1:
+            raise ValueError(f"Only one subelement is supported for now, given: {len(subnames)}")
+        subname = subnames[0] if len(subnames) == 1 else ''
+        if lnk:
+            if lattice2BaseFeature.isObjectLattice(lnk):
                 lattice2Executer.warning(obj,"For polar array, axis link is expected to be a regular shape. Lattice objct was supplied instead, it's going to be treated as a generic shape.")
             
             #resolve the link
-            if len(obj.LinkSubelement) > 0:
-                linkedShape = screen(obj.Link).Shape.getElement(obj.LinkSubelement)
+            if len(subname) > 0:
+                linkedShape = lnk.Shape.getElement(subname)
             else:
-                linkedShape = screen(obj.Link).Shape
+                linkedShape = lnk.Shape
             
             #Type check
             if linkedShape.ShapeType != 'Edge':
@@ -156,7 +165,7 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
         #Apply reversal
         if obj.Reverse:
             obj.Dir = obj.Dir*(-1.0)
-            if not(obj.DirIsDriven and screen(obj.Link)):
+            if not(obj.DirIsDriven and lnk):
                 obj.Reverse = False
 
         # precompute orientation
@@ -175,12 +184,6 @@ class LinearArray(lattice2BaseFeature.LatticeFeature):
             output.append( App.Placement(obj.Point + obj.Dir*v, ori) )
             
         return output
-        
-    def onChanged(self, selfobj, prop): #prop is a string - name of the property
-        # synchronize SubLink and Object+SubNames properties
-        syncSublinkApart(selfobj, prop, 'SubLink', 'Link', 'LinkSubelement')
-        return lattice2BaseFeature.LatticeFeature.onChanged(self, selfobj, prop)
-
 
 class ViewProviderLinearArray(lattice2BaseFeature.ViewProviderLatticeFeature):
         
@@ -199,9 +202,8 @@ def CreateLinearArray(name, mode):
     FreeCADGui.addModule("lattice2Base.Autosize")
     FreeCADGui.doCommand("f = lattice2LinearArray.makeLinearArray(name='"+name+"')")
     if len(sel) == 1:
-        FreeCADGui.doCommand("f.Link = App.ActiveDocument."+sel[0].ObjectName)
-        if sel[0].HasSubObjects:
-            FreeCADGui.doCommand("f.LinkSubelement = '"+sel[0].SubElementNames[0]+"'")
+        subnames = sel[0].SubElementNames[0] if sel[0].HasSubObjects else ''
+        FreeCADGui.doCommand(f"f.SubLink = (App.ActiveDocument.{sel[0].ObjectName}, [{repr(subnames)}])")
     FreeCADGui.doCommand("f.GeneratorMode = {mode}".format(mode= repr(mode)))
     FreeCADGui.doCommand("f.Placement.Base = lattice2Base.Autosize.convenientPosition()")
     FreeCADGui.doCommand("f.SpanEnd = lattice2Base.Autosize.convenientModelSize()")
