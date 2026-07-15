@@ -143,6 +143,11 @@ def toLinkSub(linksublist):
         subs.append(sub)
     return (object, subs)
 
+def splitOffSubPath(subname):
+    """converts "Body.Sketch.Edge2" to ("Body.Sketch.", "Edge2")"""
+    dotpos = subname.rfind('.')
+    return subname[0:dotpos+1], subname[dotpos+1:]
+
 # -------------------</LINK TYPE CONVERSION>--------------------
         
 # ---------------------------<API>------------------------------
@@ -161,11 +166,11 @@ def Subsequence_basic(link, traversal, loop):
     returns: list of links [(object,subelement), ....]"""
     
     # extract shapes of the array
-    compound = link[0].Shape
+    path, element_string = splitOffSubPath(link[1])
+    compound = link[0].getSubObject(path) if path else link[0].Shape
     children = traverseCompound(compound, traversal)
 
     # parse link string. Input: element_string. Output: element_shape, element_type_string
-    element_string = link[1]
     if not issubclass(type(element_string), basestring):
         raise TypeError("Second element of link tuple must be a string, not {typ}".format(typ= type(element_string).__name__))
     element_type_string = None
@@ -198,7 +203,7 @@ def Subsequence_basic(link, traversal, loop):
         element = element_extractors[element_type_string](children[i_child])[i_in_child]
         ret.append((
             link[0],
-            element_type_string + str(index_dict[HashableShape(element)]+1)
+            path + element_type_string + str(index_dict[HashableShape(element)]+1)
         ))
     return ret
 
@@ -255,7 +260,7 @@ def Subsequence_LinkSubList(linksublist, traversal = TRAVERSAL_MODES[0], loop = 
                 n_seq = min(n_seq, len(seq))
         else:
             if index_filter and i in index_filter:
-                if not sub:
+                if not splitOffSubPath(sub)[1]:
                     raise SubsequencingError_LinkValue("Sublink part {index} can't be subsequenced, because it's a link to whole object, not to subelement.".format(index= i))
             loops.append((object,sub))
     assert(len(loops) == len(linksublist))
