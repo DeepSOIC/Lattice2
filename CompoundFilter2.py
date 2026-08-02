@@ -167,8 +167,7 @@ class _CompoundFilter:
             obj.Shape = Part.makeCompound(rst)
         else: # don't make compound of one shape, output it directly
             sh = rst[0]
-            sh = ShapeCopy.transformCopy(sh)
-            sh.Placement = obj.Placement
+            obj.Placement = sh.Placement
             obj.Shape = sh
             
         return
