@@ -339,7 +339,7 @@ class CommandSublinkGroup:
         return 0
 
     def GetResources(self):
-        return { 'MenuText': 'Sublink:', 
+        return { 'MenuText': 'Sublink', 
                  'ToolTip': 'Sublink (group): extract elements from shapes.'}
         
     def IsActive(self): # optional

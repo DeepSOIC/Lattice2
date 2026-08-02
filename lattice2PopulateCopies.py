@@ -369,7 +369,7 @@ class _CommandLatticePopulateCopiesGroup:
         return 0
 
     def GetResources(self):
-        return { 'MenuText': 'Populate with copies:', 
+        return { 'MenuText': 'Populate with copies', 
                  'ToolTip': 'Populate with copies: put a copy of an object at every placement in an array of placements.'}
         
     def IsActive(self): # optional

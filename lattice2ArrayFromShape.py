@@ -281,7 +281,7 @@ class GroupCommandArrayFromShape:
         return 0
 
     def GetResources(self):
-        return { 'MenuText': 'Array from shape:', 'ToolTip': 'Array from shape: make array of placements from children of a compound'}
+        return { 'MenuText': 'Array from shape', 'ToolTip': 'Array from shape: make array of placements from children of a compound'}
         
     def IsActive(self): # optional
         return True
